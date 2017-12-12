@@ -2,19 +2,29 @@
 
 D3D11Model::D3D11Model() :
     m_VertexCount(0),
-    m_IndexCount(0)
+    m_IndexCount(0),
+    m_Texture(nullptr)
 {}
 
 D3D11Model::~D3D11Model()
 {}
 
-bool D3D11Model::Initialize(ID3D11Device* device)
+bool D3D11Model::Initialize(ID3D11Device* device, std::string& texturePath)
 {
-    return InitializeBuffers(device);
+    bool result = InitializeBuffers(device);
+    if (!result)
+        return false;
+
+    result = LoadTexture(device, texturePath);
+    if (!result)
+        return false;
+
+    return true;
 }
 
 void D3D11Model::Shutdown()
 {
+    ReleaseTexture();
     ShutdownBuffers();
 }
 
@@ -40,13 +50,13 @@ bool D3D11Model::InitializeBuffers(ID3D11Device* device)
 
         // Load the vertex array with data.
         vertices[0].m_Position = D3DXVECTOR4(1.0f, -1.0f, 0.0f, 1.f);  // Bottom right.
-        vertices[0].m_Color = D3DXVECTOR4(0.0f, 1.0f, 0.0f, 1.0f);
+        vertices[0].m_UV = D3DXVECTOR2(0.0f, 1.0f);
 
         vertices[1].m_Position = D3DXVECTOR4(0.0f, 1.0f, 0.0f, 1.f);  // Top middle.
-        vertices[1].m_Color = D3DXVECTOR4(0.0f, 1.0f, 0.0f, 1.0f);
+        vertices[1].m_UV = D3DXVECTOR2(0.5f, 0.0f);
 
         vertices[2].m_Position = D3DXVECTOR4(-1.0f, -1.0f, 0.0f, 1.f);  // Bottom left.
-        vertices[2].m_Color = D3DXVECTOR4(0.0f, 1.0f, 0.0f, 1.0f);
+        vertices[2].m_UV = D3DXVECTOR2(1.0f, 1.0f);
 
         // Load the index array with data.
         indices[0] = 0;  // Bottom left.
@@ -124,6 +134,28 @@ void D3D11Model::ShutdownBuffers()
     {     
         m_VertexBuffer->Release();
         m_VertexBuffer = nullptr;
+    }
+}
+
+
+bool D3D11Model::LoadTexture(ID3D11Device* device, std::string& texturePath)
+{
+    bool result = false;
+
+    m_Texture = new Texture();
+    if (!m_Texture)
+        return false;
+
+    return m_Texture->Initialize(device, texturePath);
+}
+
+void D3D11Model::ReleaseTexture()
+{
+    if (m_Texture)
+    {
+        m_Texture->Shutdown();
+        delete m_Texture;
+        m_Texture = nullptr;
     }
 }
 

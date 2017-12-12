@@ -25,6 +25,7 @@
     <ClCompile Include="..\source\renderer\d3d11renderer.cpp" />
     <ClCompile Include="..\source\renderer\d3d11shader.cpp" />
     <ClCompile Include="..\source\renderer\texture.cpp" />
+    <ClCompile Include="..\source\renderer\textureshader.cpp" />
     <ClCompile Include="..\source\win64\win64input.cpp" />
     <ClCompile Include="..\source\win64\win64viewprovider.cpp" />
     <ClCompile Include="..\source\win64\win64main.cpp" />
@@ -36,6 +37,7 @@
     <ClInclude Include="..\source\renderer\d3d11renderer.h" />
     <ClInclude Include="..\source\renderer\d3d11shader.h" />
     <ClInclude Include="..\source\renderer\texture.h" />
+    <ClInclude Include="..\source\renderer\textureshader.h" />
     <ClInclude Include="..\source\win64\win64input.h" />
     <ClInclude Include="..\source\win64\win64viewprovider.h" />
   </ItemGroup>
@@ -182,7 +184,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>DirectXTK.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)bin\$(Configuration)\DirectXTK.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -212,7 +214,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>DirectXTK.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)bin\$(Configuration)\DirectXTK.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

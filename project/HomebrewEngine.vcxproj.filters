@@ -43,6 +43,9 @@
     <ClCompile Include="..\source\renderer\texture.cpp">
       <Filter>Source Files\renderer</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\renderer\textureshader.cpp">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\win64\win64viewprovider.h">
@@ -67,6 +70,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\source\renderer\texture.h">
+      <Filter>Source Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\textureshader.h">
       <Filter>Source Files\renderer</Filter>
     </ClInclude>
   </ItemGroup>

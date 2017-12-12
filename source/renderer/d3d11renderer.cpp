@@ -3,14 +3,18 @@
 #include "renderer/d3d11renderer.h"
 #include "renderer/d3d11model.h"
 #include "renderer/d3d11shader.h"
+#include "renderer/textureshader.h"
 #include "renderer/d3d11.h"
 
 #include "camera.h"
+
+std::string TEXTURE_PATH = "resource/ubisoft-logo.png";
 
 D3D11Renderer::D3D11Renderer() :
     m_D3D(nullptr),
     m_Model(nullptr),
     m_Shader(nullptr),
+    m_TextureShader(nullptr),
     m_Camera(nullptr)
 {
 }
@@ -51,7 +55,7 @@ bool D3D11Renderer::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     }
 
     // Initialize the model object.
-    result = m_Model->Initialize(m_D3D->GetDevice());
+    result = m_Model->Initialize(m_D3D->GetDevice(), TEXTURE_PATH);
     if (!result)
     {
 //        MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
@@ -72,6 +76,19 @@ bool D3D11Renderer::Initialize(int screenWidth, int screenHeight, HWND hwnd)
  //       MessageBox(hwnd, L"Could not initialize the color shader object.", L"Error", MB_OK);
         return false;
     }
+    
+
+    m_TextureShader = new TextureShader();
+    if (!m_TextureShader)
+    {
+        return false;
+    }
+
+    result = m_TextureShader->Initialize(m_D3D->GetDevice(), hwnd);
+    if (!result)
+    {
+        return false;
+    }
 
     return true;
 }
@@ -89,6 +106,12 @@ void D3D11Renderer::Shutdown()
     {
         m_Shader->Shutdown();
         delete m_Shader;
+    }
+
+    if (m_TextureShader)
+    {
+        m_TextureShader->Shutdown();
+        delete m_TextureShader;
     }
 
     if (m_Camera)
@@ -130,7 +153,8 @@ bool D3D11Renderer::Render()
     m_Model->Render(m_D3D->GetDeviceContext());
 
     // Render the model using the color shader.
-    m_Shader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
+    //m_Shader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
+    m_TextureShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture());
 
     // Present the rendered scene to the screen.
     m_D3D->EndScene();
