@@ -1,5 +1,7 @@
 #include "win64/win64viewprovider.h"
 
+bool SHOW_CURSOR = true;
+
 Win64_ViewProvider::Win64_ViewProvider() :
     m_Fullscreen(false),
     m_InputHandler(nullptr),
@@ -245,7 +247,7 @@ void Win64_ViewProvider::InitializeWindows(int& screenWidth, int& screenHeight)
     SetFocus(m_HWND);
 
     // Hide the mouse cursor.
-    ShowCursor(false);
+    ShowCursor(SHOW_CURSOR);
 
     return;
 }

@@ -26,6 +26,7 @@
     <ClCompile Include="..\source\renderer\d3d11shader.cpp" />
     <ClCompile Include="..\source\renderer\texture.cpp" />
     <ClCompile Include="..\source\renderer\textureshader.cpp" />
+    <ClCompile Include="..\source\system\error.cpp" />
     <ClCompile Include="..\source\win64\win64input.cpp" />
     <ClCompile Include="..\source\win64\win64viewprovider.cpp" />
     <ClCompile Include="..\source\win64\win64main.cpp" />
@@ -38,6 +39,7 @@
     <ClInclude Include="..\source\renderer\d3d11shader.h" />
     <ClInclude Include="..\source\renderer\texture.h" />
     <ClInclude Include="..\source\renderer\textureshader.h" />
+    <ClInclude Include="..\source\system\error.h" />
     <ClInclude Include="..\source\win64\win64input.h" />
     <ClInclude Include="..\source\win64\win64viewprovider.h" />
   </ItemGroup>

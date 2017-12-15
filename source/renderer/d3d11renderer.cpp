@@ -1,5 +1,7 @@
 #include <windows.h>
 
+#include "system/error.h"
+
 #include "renderer/d3d11renderer.h"
 #include "renderer/d3d11model.h"
 #include "renderer/d3d11shader.h"
@@ -26,69 +28,28 @@ D3D11Renderer::~D3D11Renderer()
 
 bool D3D11Renderer::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
-    bool result = false;
     m_D3D = new D3D11();
-    if (!m_D3D)
-        return false;
-
-     result = m_D3D->Initialize(screenWidth, screenHeight, hwnd, VSYNC_ENABLED, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
-    if (!result)
-    {
-        return false;
-    }
-
-    // Create the camera object.
+    popAssert(m_D3D != nullptr, "Memory Alloc Failed");
+    popAssert(m_D3D->Initialize(screenWidth, screenHeight, hwnd, VSYNC_ENABLED, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR), "D3D Init Failed");
+    
     m_Camera = new Camera();
-    if (!m_Camera)
-    {
-        return false;
-    }
+    popAssert(m_Camera != nullptr, "Memory Alloc Failed");
 
-    // Set the initial position of the camera.
     m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
 
     // Create the model object.
     m_Model = new D3D11Model();
-    if (!m_Model)
-    {
-        return false;
-    }
-
-    // Initialize the model object.
-    result = m_Model->Initialize(m_D3D->GetDevice(), TEXTURE_PATH);
-    if (!result)
-    {
-//        MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
-        return false;
-    }
-
-    // Create the color shader object.
+    popAssert(m_Model != nullptr, "Memory Alloc Failed");
+    popAssert(m_Model->Initialize(m_D3D->GetDevice(), TEXTURE_PATH), "Model Init Failed");
+   
     m_Shader = new D3D11Shader();
-    if (!m_Shader)
-    {
-        return false;
-    }
-
-    // Initialize the color shader object.
-    result = m_Shader->Initialize(m_D3D->GetDevice(), hwnd);
-    if (!result)
-    {
- //       MessageBox(hwnd, L"Could not initialize the color shader object.", L"Error", MB_OK);
-        return false;
-    }
+    popAssert(m_Shader != nullptr, "Memory Alloc Failed");
+    popAssert(m_Shader->Initialize(m_D3D->GetDevice(), hwnd), "Shader Init Failed");
     
-
     m_TextureShader = new TextureShader();
-    if (!m_TextureShader)
-    {
-        return false;
-    }
-
-    result = m_TextureShader->Initialize(m_D3D->GetDevice(), hwnd);
-    if (!result)
-    {
-        return false;
-    }
+    popAssert(m_TextureShader != nullptr, "Memory Alloc Failed");
+    popAssert(m_TextureShader->Initialize(m_D3D->GetDevice(), hwnd), "Shader Init Failed");
+    
 
     return true;
 }

@@ -14,6 +14,9 @@
     <Filter Include="Source Files\renderer\shaders">
       <UniqueIdentifier>{41a24d45-8e2a-4854-bd73-f2bb4e9e2b38}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\system">
+      <UniqueIdentifier>{67250661-dbbd-41ce-951d-89bcc65fd648}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\win64\win64viewprovider.cpp">
@@ -46,6 +49,9 @@
     <ClCompile Include="..\source\renderer\textureshader.cpp">
       <Filter>Source Files\renderer</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\system\error.cpp">
+      <Filter>Source Files\system</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\win64\win64viewprovider.h">
@@ -74,6 +80,9 @@
     </ClInclude>
     <ClInclude Include="..\source\renderer\textureshader.h">
       <Filter>Source Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\system\error.h">
+      <Filter>Source Files\system</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
