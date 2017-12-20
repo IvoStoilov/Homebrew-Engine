@@ -26,7 +26,6 @@ public:
 private:
     bool InitializeShader(ID3D11Device* device, HWND hwnd, const std::string& vsPath, const std::string& psPath);
     void ShutdownShader();
-    void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
     bool SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX& worldMatrix, D3DXMATRIX& viewMatrix, D3DXMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture);
     void RenderShader(ID3D11DeviceContext*, int);

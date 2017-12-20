@@ -9,6 +9,7 @@ class D3D11;
 class D3D11Model;
 class D3D11Shader;
 class TextureShader;
+class LightShader;
 class Camera;
 class D3D11Renderer
 {
@@ -28,5 +29,6 @@ private:
     D3D11Model* m_Model;
     D3D11Shader* m_Shader;
     TextureShader* m_TextureShader;
+    LightShader* m_LightShader;
     Camera* m_Camera;
 };

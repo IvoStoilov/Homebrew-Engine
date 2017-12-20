@@ -1,6 +1,5 @@
 #include "win64/win64viewprovider.h"
 
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow)
 {
     Win64_ViewProvider* viewProvider;

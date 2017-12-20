@@ -6,11 +6,15 @@
 #include "renderer/d3d11model.h"
 #include "renderer/d3d11shader.h"
 #include "renderer/textureshader.h"
+#include "renderer/lightshader.h"
 #include "renderer/d3d11.h"
 
 #include "camera.h"
 
 std::string TEXTURE_PATH = "resource/ubisoft-logo.png";
+D3DXVECTOR4 DIFFUSE_COLOR(1.f, 0.5f, .5f, 1.f);
+D3DXVECTOR4 LIGHT_DIRECTION(0.f, 0.f, 1.f, 0.f);
+
 
 D3D11Renderer::D3D11Renderer() :
     m_D3D(nullptr),
@@ -49,7 +53,10 @@ bool D3D11Renderer::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     m_TextureShader = new TextureShader();
     popAssert(m_TextureShader != nullptr, "Memory Alloc Failed");
     popAssert(m_TextureShader->Initialize(m_D3D->GetDevice(), hwnd), "Shader Init Failed");
-    
+
+    m_LightShader = new LightShader();
+    popAssert(m_LightShader != nullptr, "Memory Alloc Failed");
+    popAssert(m_LightShader->Initialize(m_D3D->GetDevice(), hwnd), "Shader Init Failed");
 
     return true;
 }
@@ -73,6 +80,12 @@ void D3D11Renderer::Shutdown()
     {
         m_TextureShader->Shutdown();
         delete m_TextureShader;
+    }
+
+    if (m_LightShader)
+    {
+        m_LightShader->Shutdown();
+        delete m_LightShader;
     }
 
     if (m_Camera)
@@ -115,7 +128,7 @@ bool D3D11Renderer::Render()
 
     // Render the model using the color shader.
     //m_Shader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
-    m_TextureShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture());
+    m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), DIFFUSE_COLOR, LIGHT_DIRECTION);
 
     // Present the rendered scene to the screen.
     m_D3D->EndScene();

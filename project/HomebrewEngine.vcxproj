@@ -24,6 +24,7 @@
     <ClCompile Include="..\source\renderer\d3d11model.cpp" />
     <ClCompile Include="..\source\renderer\d3d11renderer.cpp" />
     <ClCompile Include="..\source\renderer\d3d11shader.cpp" />
+    <ClCompile Include="..\source\renderer\lightshader.cpp" />
     <ClCompile Include="..\source\renderer\texture.cpp" />
     <ClCompile Include="..\source\renderer\textureshader.cpp" />
     <ClCompile Include="..\source\system\error.cpp" />
@@ -37,6 +38,7 @@
     <ClInclude Include="..\source\renderer\d3d11model.h" />
     <ClInclude Include="..\source\renderer\d3d11renderer.h" />
     <ClInclude Include="..\source\renderer\d3d11shader.h" />
+    <ClInclude Include="..\source\renderer\lightshader.h" />
     <ClInclude Include="..\source\renderer\texture.h" />
     <ClInclude Include="..\source\renderer\textureshader.h" />
     <ClInclude Include="..\source\system\error.h" />
@@ -44,6 +46,26 @@
     <ClInclude Include="..\source\win64\win64viewprovider.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="..\source\renderer\shader\diffuselightingPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="..\source\renderer\shader\diffuselightingVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="..\source\renderer\shader\simplePS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
