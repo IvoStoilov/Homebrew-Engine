@@ -55,6 +55,9 @@
     <ClCompile Include="..\source\renderer\lightshader.cpp">
       <Filter>Engine\renderer</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\system\modelloader.cpp">
+      <Filter>Engine\system</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\win64\win64viewprovider.h">
@@ -89,6 +92,9 @@
     </ClInclude>
     <ClInclude Include="..\source\renderer\lightshader.h">
       <Filter>Engine\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\system\modelloader.h">
+      <Filter>Engine\system</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
