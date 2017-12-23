@@ -43,8 +43,19 @@ D3DXVECTOR3 Camera::GetRotation()
     return D3DXVECTOR3(m_rotationX, m_rotationY, m_rotationZ);
 }
 
+void Camera::UpdateMovement()
+{
+    float dt = 0.003333;
+    float moveSpeed = 2.f;
+    float angleRad = 3.1415 / 20.f;
+
+    m_positionY += dt * 2.f;
+}
+
 void Camera::Update()
 {
+    UpdateMovement();
+
     D3DXVECTOR3 up, position, lookAt;
     float yaw, pitch, roll;
     D3DXMATRIX rotationMatrix;

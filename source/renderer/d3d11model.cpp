@@ -1,5 +1,7 @@
 #include "renderer\d3d11model.h"
 
+std::string CUBE_PATH = "resource/geometry/cube.bgd";
+
 D3D11Model::D3D11Model() :
     m_VertexCount(0),
     m_IndexCount(0),
@@ -9,9 +11,13 @@ D3D11Model::D3D11Model() :
 D3D11Model::~D3D11Model()
 {}
 
-bool D3D11Model::Initialize(ID3D11Device* device, std::string& texturePath)
+bool D3D11Model::Initialize(ID3D11Device* device, std::string& modelPath, std::string& texturePath)
 {
-    bool result = InitializeBuffers(device);
+    bool result = ModelLoader::LoadBGDFile(modelPath, m_VertexData);
+    if (!result)
+        return false;
+
+     result = InitializeBuffers(device);
     if (!result)
         return false;
 
@@ -37,35 +43,38 @@ bool D3D11Model::InitializeBuffers(ID3D11Device* device)
 {
     HRESULT result;
 
-    VertexType* vertices = nullptr;
-    uint32_t* indices = nullptr;
+    m_VertexCount = m_VertexData.size();
+    m_IndexCount = m_VertexCount; // This should not always be the case;
 
-    //Hardcoded shit:
+    VertexType* vertices = new VertexType[m_VertexCount];
+    uint32_t* indices = new uint32_t[m_IndexCount];
+
+    for(uint32_t i = 0; i < m_VertexCount; ++i)
     {
-        m_VertexCount = 3;
-        m_IndexCount = 3;
-
-        vertices = new VertexType[3];
-        indices = new uint32_t[3];
-
-        // Load the vertex array with data.
-        vertices[0].m_Position = D3DXVECTOR4(1.0f, -1.0f, 0.0f, 1.f);  // Bottom right.
-        vertices[0].m_UV = D3DXVECTOR2(0.0f, 1.0f);
-        vertices[0].m_Normal = D3DXVECTOR3(0.f, 0.f, -1.f);
-
-        vertices[1].m_Position = D3DXVECTOR4(0.0f, 1.0f, 0.0f, 1.f);  // Top middle.
-        vertices[1].m_UV = D3DXVECTOR2(0.5f, 0.0f);
-        vertices[1].m_Normal = D3DXVECTOR3(0.f, 0.f, -1.f);
-
-        vertices[2].m_Position = D3DXVECTOR4(-1.0f, -1.0f, 0.0f, 1.f);  // Bottom left.
-        vertices[2].m_UV = D3DXVECTOR2(1.0f, 1.0f);
-        vertices[2].m_Normal = D3DXVECTOR3(0.f, 0.f, -1.f);
-
-        // Load the index array with data.
-        indices[0] = 0;  // Bottom left.
-        indices[1] = 1;  // Top middle.
-        indices[2] = 2;  // Bottom right.
+        vertices[i].m_Position = D3DXVECTOR4(m_VertexData[i].position[0], m_VertexData[i].position[1], m_VertexData[i].position[2], 1.f);
+        vertices[i].m_UV = D3DXVECTOR2(m_VertexData[i].uv[0], m_VertexData[i].position[1]);
+        vertices[i].m_Normal = D3DXVECTOR3(-m_VertexData[i].normal[0], -m_VertexData[i].normal[1], -m_VertexData[i].normal[2]);
+        indices[i] = i;
     }
+    //{
+    //    // Load the vertex array with data.
+    //    vertices[0].m_Position = D3DXVECTOR4(-1.0f, -1.0f, 0.0f, 1.f);  // Bottom left.
+    //    vertices[0].m_UV = D3DXVECTOR2(0.0f, 1.0f);
+    //    vertices[0].m_Normal = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+
+    //    vertices[1].m_Position = D3DXVECTOR4(0.0f, 1.0f, 0.0f, 1.f);  // Top middle.
+    //    vertices[1].m_UV = D3DXVECTOR2(0.5f, 0.0f);
+    //    vertices[1].m_Normal = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+
+    //    vertices[2].m_Position = D3DXVECTOR4(1.0f, -1.0f, 0.0f, 1.f);  // Bottom right.
+    //    vertices[2].m_UV = D3DXVECTOR2(1.0f, 1.0f);
+    //    vertices[2].m_Normal = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+
+    //    // Load the index array with data.
+    //    indices[0] = 0;  // Bottom left.
+    //    indices[1] = 1;  // Top middle.
+    //    indices[2] = 2;  // Bottom right.
+    //}
 
     D3D11_BUFFER_DESC vertexBufferDesc;
     D3D11_BUFFER_DESC indexBufferDesc;

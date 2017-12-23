@@ -6,7 +6,9 @@
 #include <stdint.h>
 
 #include <string>
+#include <vector>
 #include "renderer\texture.h"
+#include "system\modelloader.h"
 
 class Texture;
 class D3D11Model
@@ -23,7 +25,7 @@ public:
     D3D11Model();
     ~D3D11Model();
 
-    bool Initialize(ID3D11Device* device, std::string& texturePath);
+    bool Initialize(ID3D11Device* device, std::string& modelPath, std::string& texturePath);
     void Shutdown();
     void Render(ID3D11DeviceContext* device);
     
@@ -40,6 +42,8 @@ private:
 private:
     ID3D11Buffer* m_VertexBuffer;
     ID3D11Buffer* m_IndexBuffer;
+
+    std::vector<ModelLoader::VertexData> m_VertexData;
 
     uint32_t m_IndexCount;
     uint32_t m_VertexCount;

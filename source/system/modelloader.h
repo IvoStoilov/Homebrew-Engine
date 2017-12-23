@@ -7,7 +7,7 @@
 class ModelLoader
 {
 public:
-    class VertexData
+    struct VertexData
     {
         float position[3];
         float uv[2];

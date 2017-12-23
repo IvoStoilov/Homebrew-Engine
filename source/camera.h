@@ -15,6 +15,8 @@ public:
     D3DXVECTOR3 GetRotation();
 
     void Update();
+    void UpdateMovement();
+
     void GetViewMatrix(D3DXMATRIX&);
 
 private:

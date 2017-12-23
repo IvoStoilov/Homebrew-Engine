@@ -10,9 +10,14 @@
 #include "renderer/d3d11.h"
 
 #include "camera.h"
+/*
+"resource/ubisoft-logo.png";
+"resource/ink-splatter-texture.png";
+*/
+std::string TEXTURE_PATH = "resource/ink-splatter-texture.png";
+std::string MODEL_PATH = "resource/geometry/cube.bgd";
 
-std::string TEXTURE_PATH = "resource/ubisoft-logo.png";
-D3DXVECTOR4 DIFFUSE_COLOR(1.f, 0.5f, .5f, 1.f);
+D3DXVECTOR4 DIFFUSE_COLOR(.5f, .5f, .5f, .5f);
 D3DXVECTOR4 LIGHT_DIRECTION(0.f, 0.f, 1.f, 0.f);
 
 
@@ -44,7 +49,7 @@ bool D3D11Renderer::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     // Create the model object.
     m_Model = new D3D11Model();
     popAssert(m_Model != nullptr, "Memory Alloc Failed");
-    popAssert(m_Model->Initialize(m_D3D->GetDevice(), TEXTURE_PATH), "Model Init Failed");
+    popAssert(m_Model->Initialize(m_D3D->GetDevice(), MODEL_PATH, TEXTURE_PATH), "Model Init Failed");
    
     m_Shader = new D3D11Shader();
     popAssert(m_Shader != nullptr, "Memory Alloc Failed");
