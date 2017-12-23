@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Engine\win64">
+      <UniqueIdentifier>{7d8eb606-06ed-4981-b820-d92e67748cd8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\renderer">
+      <UniqueIdentifier>{694451fc-7f77-496c-a92a-43c6f64a0723}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\renderer\shaders">
+      <UniqueIdentifier>{41a24d45-8e2a-4854-bd73-f2bb4e9e2b38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\system">
+      <UniqueIdentifier>{67250661-dbbd-41ce-951d-89bcc65fd648}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\source\win64\win64viewprovider.cpp">
+      <Filter>Engine\win64</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\win64\win64main.cpp">
+      <Filter>Engine\win64</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\win64\win64input.cpp">
+      <Filter>Engine\win64</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\d3d11renderer.cpp">
+      <Filter>Engine\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\d3d11.cpp">
+      <Filter>Engine\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\d3d11model.cpp">
+      <Filter>Engine\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\d3d11shader.cpp">
+      <Filter>Engine\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\camera.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\texture.cpp">
+      <Filter>Engine\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\textureshader.cpp">
+      <Filter>Engine\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\system\error.cpp">
+      <Filter>Engine\system</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\lightshader.cpp">
+      <Filter>Engine\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\system\modelloader.cpp">
+      <Filter>Engine\system</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\source\win64\win64viewprovider.h">
+      <Filter>Engine\win64</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\win64\win64input.h">
+      <Filter>Engine\win64</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\d3d11renderer.h">
+      <Filter>Engine\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\d3d11.h">
+      <Filter>Engine\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\d3d11model.h">
+      <Filter>Engine\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\d3d11shader.h">
+      <Filter>Engine\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\camera.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\texture.h">
+      <Filter>Engine\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\textureshader.h">
+      <Filter>Engine\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\system\error.h">
+      <Filter>Engine\system</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\lightshader.h">
+      <Filter>Engine\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\system\modelloader.h">
+      <Filter>Engine\system</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\source\renderer\shader\simplePS.hlsl">
+      <Filter>Engine\renderer\shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\source\renderer\shader\simpleVS.hlsl">
+      <Filter>Engine\renderer\shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\source\renderer\shader\texturePS.hlsl">
+      <Filter>Engine\renderer\shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\source\renderer\shader\textureVS.hlsl">
+      <Filter>Engine\renderer\shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\source\renderer\shader\diffuselightingVS.hlsl">
+      <Filter>Engine\renderer\shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\source\renderer\shader\diffuselightingPS.hlsl">
+      <Filter>Engine\renderer\shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+</Project>
