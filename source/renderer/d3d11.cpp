@@ -301,7 +301,7 @@ bool D3D11::InitDepthStencilState()
     ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
 
     // Set up the description of the stencil state.
-    depthStencilDesc.DepthEnable = false;
+    depthStencilDesc.DepthEnable = true;
     depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
     depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
 
@@ -346,7 +346,7 @@ bool D3D11::InitRasterizerState()
     rasterDesc.DepthBiasClamp = 0.0f;
     rasterDesc.DepthClipEnable = true;
     rasterDesc.FillMode = D3D11_FILL_SOLID;
-    rasterDesc.FrontCounterClockwise = true;
+    rasterDesc.FrontCounterClockwise = false;
     rasterDesc.MultisampleEnable = false;
     rasterDesc.ScissorEnable = false;
     rasterDesc.SlopeScaledDepthBias = 0.0f;

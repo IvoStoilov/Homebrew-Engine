@@ -43,7 +43,7 @@ PixelInputType main(VertexInputType input)
     output.tex = input.tex;
 
     // Setup the vertex normal
-    output.normal = mul(input.normal, worldMatrix);
+    output.normal = mul(input.normal, (float3x3)worldMatrix);
     output.normal = normalize(output.normal);
 
     return output;

@@ -3,6 +3,10 @@
 #include "renderer/d3d11renderer.h"
 #include "win64/win64input.h"
 
+//*******************
+//*** DEPRICATED ****
+//*******************
+
 class Win64_ViewProvider
 {
 public:
@@ -33,6 +37,9 @@ private:
     D3D11Renderer* m_Renderer;
 
     bool m_Fullscreen;
+
+    int32_t m_WindowPosX;
+    int32_t m_WindowPosY;
 };
 
 

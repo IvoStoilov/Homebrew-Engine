@@ -1,6 +1,7 @@
 #include "win64/win64viewprovider.h"
+#include "system/inputmanager.h"
 
-bool SHOW_CURSOR = true;
+bool SHOW_CURSOR = false;
 
 Win64_ViewProvider::Win64_ViewProvider() :
     m_Fullscreen(false),
@@ -28,15 +29,16 @@ bool Win64_ViewProvider::Initialize()
     // Initialize the windows api.
     InitializeWindows(screenWidth, screenHeight);
 
-    // Create the input object.  This object will be used to handle reading the keyboard input from the user.
-    m_InputHandler = new Win64_InputHandler();
-    if (!m_InputHandler)
-    {
-        return false;
-    }
-
+    //Create the input object.  This object will be used to handle reading the keyboard input from the user.
+    //m_InputHandler = new Win64_InputHandler();
+    //if (!m_InputHandler)
+    //{
+    //    return false;
+    //}
     // Initialize the input object.
-    m_InputHandler->Initialize();
+    //InputHandler->Initialize();
+
+    InputManager::CreateInstance(m_hInstance, m_HWND, screenWidth, screenHeight, m_WindowPosX, m_WindowPosY);
 
     // Create the graphics object.  This object will handle rendering all the graphics for this application.
     m_Renderer = new D3D11Renderer();
@@ -57,6 +59,9 @@ bool Win64_ViewProvider::Initialize()
 
 void Win64_ViewProvider::Shutdown()
 {
+    //Clear Input
+    InputManager::CleanInstance();
+
     // Release the graphics object.
     if (m_Renderer)
     {
@@ -120,17 +125,14 @@ void Win64_ViewProvider::Run()
 
 bool Win64_ViewProvider::Frame()
 {
-    bool result = false;;
+    bool result = false;
+
+    g_InputManager->Frame();
 
     // Check if the user pressed escape and wants to exit the application.
-    if (m_InputHandler->IsKeyDown(VK_ESCAPE))
+    if (g_InputManager->IsEscapePressed())
     {
         return false;
-    }
-
-    if (m_InputHandler->IsKeyDown(VK_F1))
-    {
-        m_Fullscreen = !m_Fullscreen;
     }
 
     // Do the frame processing for the graphics object.
@@ -223,7 +225,7 @@ void Win64_ViewProvider::InitializeWindows(int& screenWidth, int& screenHeight)
         ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);
 
         // Set the position of the window to the top left corner.
-        posX = posY = 0;
+        m_WindowPosX = m_WindowPosY = 0;
     }
     else
     {
@@ -232,14 +234,14 @@ void Win64_ViewProvider::InitializeWindows(int& screenWidth, int& screenHeight)
         screenHeight = 600;
 
         // Place the window in the middle of the screen.
-        posX = (GetSystemMetrics(SM_CXSCREEN) - screenWidth) / 2;
-        posY = (GetSystemMetrics(SM_CYSCREEN) - screenHeight) / 2;
+        m_WindowPosX = (GetSystemMetrics(SM_CXSCREEN) - screenWidth) / 2;
+        m_WindowPosY = (GetSystemMetrics(SM_CYSCREEN) - screenHeight) / 2;
     }
 
     // Create the window with the screen settings and get the handle to it.
     m_HWND = CreateWindowEx(WS_EX_APPWINDOW, m_ApplicationName, m_ApplicationName,
         WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
-        posX, posY, screenWidth, screenHeight, NULL, NULL, m_hInstance, NULL);
+        m_WindowPosX, m_WindowPosY, screenWidth, screenHeight, NULL, NULL, m_hInstance, NULL);
 
     // Bring the window up on the screen and set it as main focus.
     ShowWindow(m_HWND, SW_SHOW);

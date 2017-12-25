@@ -58,6 +58,9 @@
     <ClCompile Include="..\source\system\modelloader.cpp">
       <Filter>Engine\system</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\system\inputmanager.cpp">
+      <Filter>Engine\system</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\win64\win64viewprovider.h">
@@ -94,6 +97,9 @@
       <Filter>Engine\renderer</Filter>
     </ClInclude>
     <ClInclude Include="..\source\system\modelloader.h">
+      <Filter>Engine\system</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\system\inputmanager.h">
       <Filter>Engine\system</Filter>
     </ClInclude>
   </ItemGroup>

@@ -13,12 +13,13 @@
 /*
 "resource/ubisoft-logo.png";
 "resource/ink-splatter-texture.png";
+"resource/metal_texture.jpg";
 */
-std::string TEXTURE_PATH = "resource/ink-splatter-texture.png";
+std::string TEXTURE_PATH = "resource/metal_texture.jpg";
 std::string MODEL_PATH = "resource/geometry/cube.bgd";
 
-D3DXVECTOR4 DIFFUSE_COLOR(.5f, .5f, .5f, .5f);
-D3DXVECTOR4 LIGHT_DIRECTION(0.f, 0.f, 1.f, 0.f);
+D3DXVECTOR4 DIFFUSE_COLOR(1.f, 1.f, 1.f, 1.f);
+D3DXVECTOR4 LIGHT_DIRECTION(-.3f, -.3f, 1.f, 0.f);
 
 
 D3D11Renderer::D3D11Renderer() :
@@ -133,6 +134,7 @@ bool D3D11Renderer::Render()
 
     // Render the model using the color shader.
     //m_Shader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
+    //m_TextureShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture());
     m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), DIFFUSE_COLOR, LIGHT_DIRECTION);
 
     // Present the rendered scene to the screen.

@@ -53,7 +53,7 @@ bool D3D11Model::InitializeBuffers(ID3D11Device* device)
     {
         vertices[i].m_Position = D3DXVECTOR4(m_VertexData[i].position[0], m_VertexData[i].position[1], m_VertexData[i].position[2], 1.f);
         vertices[i].m_UV = D3DXVECTOR2(m_VertexData[i].uv[0], m_VertexData[i].position[1]);
-        vertices[i].m_Normal = D3DXVECTOR3(-m_VertexData[i].normal[0], -m_VertexData[i].normal[1], -m_VertexData[i].normal[2]);
+        vertices[i].m_Normal = D3DXVECTOR3(m_VertexData[i].normal[0], m_VertexData[i].normal[1], m_VertexData[i].normal[2]);
         indices[i] = i;
     }
     //{

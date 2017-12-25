@@ -1,5 +1,11 @@
 #include "camera.h"
 
+#include "system/inputmanager.h"
+
+#include <stdint.h>
+#include <iostream>
+
+
 Camera::Camera()
 {
     m_positionX = 0.0f;
@@ -9,6 +15,8 @@ Camera::Camera()
     m_rotationX = 0.0f;
     m_rotationY = 0.0f;
     m_rotationZ = 0.0f;
+
+    m_MoveSpeed = .5f;
 }
 
 Camera::~Camera()
@@ -45,11 +53,15 @@ D3DXVECTOR3 Camera::GetRotation()
 
 void Camera::UpdateMovement()
 {
-    float dt = 0.003333;
-    float moveSpeed = 2.f;
-    float angleRad = 3.1415 / 20.f;
+    int32_t mouseDeltaX;
+    int32_t mouseDeltaY;
 
-    m_positionY += dt * 2.f;
+    if (g_InputManager->IsMouseButtonPressed(InputManager::MouseButton::LEFT))
+    {
+        g_InputManager->GetMouseDelta(mouseDeltaX, mouseDeltaY);
+        m_rotationY += mouseDeltaX * 0.1f;
+        m_rotationX += mouseDeltaY * 0.1f;
+    }
 }
 
 void Camera::Update()
@@ -65,14 +77,9 @@ void Camera::Update()
     up.y = 1.0f;
     up.z = 0.0f;
 
-    // Setup the position of the camera in the world.
-    position.x = m_positionX;
-    position.y = m_positionY;
-    position.z = m_positionZ;
-
     // Setup where the camera is looking by default.
-    lookAt.x = 0.0f;
-    lookAt.y = 0.0f;
+    lookAt.x = 0.f;
+    lookAt.y = 0.f;
     lookAt.z = 1.0f;
 
     // Set the yaw (Y axis), pitch (X axis), and roll (Z axis) rotations in radians.
@@ -86,6 +93,47 @@ void Camera::Update()
     // Transform the lookAt and up vector by the rotation matrix so the view is correctly rotated at the origin.
     D3DXVec3TransformCoord(&lookAt, &lookAt, &rotationMatrix);
     D3DXVec3TransformCoord(&up, &up, &rotationMatrix);
+
+    D3DXVECTOR3 moveZ(0.f, 0.f, 0.f), moveX(0.f, 0.f, 0.f);
+    D3DXVECTOR3 dirZ(0.f, 0.f, 1.f);
+    D3DXVECTOR3 dirX(1.f, 0.f, 0.f);
+
+    D3DXVec3TransformCoord(&dirZ, &dirZ, &rotationMatrix);
+    D3DXVec3TransformCoord(&dirX, &dirX, &rotationMatrix);
+
+    if (g_InputManager->IsKeyPressed(InputManager::Key::W))
+    {
+        moveZ += dirZ * m_MoveSpeed;
+    }
+    if (g_InputManager->IsKeyPressed(InputManager::Key::A))
+    {
+        moveX -= dirX * m_MoveSpeed;
+    }
+    if (g_InputManager->IsKeyPressed(InputManager::Key::S))
+    {
+        moveZ -= dirZ * m_MoveSpeed;
+    }
+    if (g_InputManager->IsKeyPressed(InputManager::Key::D))
+    {
+        moveX += dirX * m_MoveSpeed;
+    }
+
+    // Setup the position of the camera in the world.
+    position.x = m_positionX;
+    position.y = m_positionY;
+    position.z = m_positionZ;
+
+    position += moveX;
+    position += moveZ;
+
+    m_positionX += moveX.x;
+    m_positionX += moveZ.x;
+
+    m_positionY += moveX.y;
+    m_positionY += moveZ.y;
+
+    m_positionZ += moveX.z;
+    m_positionZ += moveZ.z;
 
     // Translate the rotated camera position to the location of the viewer.
     lookAt = position + lookAt;
