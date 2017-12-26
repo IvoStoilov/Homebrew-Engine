@@ -17,6 +17,12 @@
     <Filter Include="Engine\system">
       <UniqueIdentifier>{67250661-dbbd-41ce-951d-89bcc65fd648}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\system\math">
+      <UniqueIdentifier>{f5b6704e-aee7-42eb-a866-bd350ec6675b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\entitymodel">
+      <UniqueIdentifier>{63387ff1-378f-444b-a565-58314c3735b3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\win64\win64viewprovider.cpp">
@@ -61,6 +67,18 @@
     <ClCompile Include="..\source\system\inputmanager.cpp">
       <Filter>Engine\system</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\system\math\mat4x4.cpp">
+      <Filter>Engine\system\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\system\math\mathutil.cpp">
+      <Filter>Engine\system\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\system\math\vec4.cpp">
+      <Filter>Engine\system\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\entitymodel\entity.cpp">
+      <Filter>Engine\entitymodel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\win64\win64viewprovider.h">
@@ -101,6 +119,18 @@
     </ClInclude>
     <ClInclude Include="..\source\system\inputmanager.h">
       <Filter>Engine\system</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\system\math\mat4x4.h">
+      <Filter>Engine\system\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\system\math\mathutil.h">
+      <Filter>Engine\system\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\system\math\vec4.h">
+      <Filter>Engine\system\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\entitymodel\entity.h">
+      <Filter>Engine\entitymodel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

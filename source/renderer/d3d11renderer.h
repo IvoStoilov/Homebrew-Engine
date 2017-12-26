@@ -11,6 +11,7 @@ class D3D11Shader;
 class TextureShader;
 class LightShader;
 class Camera;
+class Entity;
 class D3D11Renderer
 {
 public:
@@ -30,5 +31,8 @@ private:
     D3D11Shader* m_Shader;
     TextureShader* m_TextureShader;
     LightShader* m_LightShader;
+    // TODO (istoilov) : move this outside of the rendering engine
+    Entity* m_CubeEntity;
     Camera* m_Camera;
+    int m_Angle;
 };

@@ -2,6 +2,8 @@
 
 #include "system/error.h"
 
+#include "entitymodel/entity.h"
+
 #include "renderer/d3d11renderer.h"
 #include "renderer/d3d11model.h"
 #include "renderer/d3d11shader.h"
@@ -27,7 +29,9 @@ D3D11Renderer::D3D11Renderer() :
     m_Model(nullptr),
     m_Shader(nullptr),
     m_TextureShader(nullptr),
-    m_Camera(nullptr)
+    m_Camera(nullptr),
+    m_CubeEntity(nullptr),
+    m_Angle(0)
 {
 }
 
@@ -46,7 +50,8 @@ bool D3D11Renderer::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     popAssert(m_Camera != nullptr, "Memory Alloc Failed");
 
     m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
-
+    m_CubeEntity = new Entity();
+    
     // Create the model object.
     m_Model = new D3D11Model();
     popAssert(m_Model != nullptr, "Memory Alloc Failed");
@@ -117,16 +122,23 @@ bool D3D11Renderer::Frame()
 bool D3D11Renderer::Render()
 {
     D3DXMATRIX viewMatrix, projectionMatrix, worldMatrix;
-    
+    mat4x4 globalMatrix;
     // Clear the buffers to begin the scene.
     m_D3D->BeginScene(0.3f, 0.6f, 0.8f, 1.0f);
 
     // Generate the view matrix based on the camera's position.
     m_Camera->Update();
 
+    m_CubeEntity->Rotate(m_Angle);
+    m_Angle += 1.f;
+    m_Angle = m_Angle % 360;
+
     // Get the world, view, and projection matrices from the camera and d3d objects.
     m_Camera->GetViewMatrix(viewMatrix);
-    m_D3D->GetWorldMatrix(worldMatrix);
+
+    globalMatrix = m_CubeEntity->GetGlobalMatrix();
+    worldMatrix = globalMatrix.ToD3DXMATRIX();
+
     m_D3D->GetProjectionMatrix(projectionMatrix);
 
     // Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
