@@ -26,6 +26,11 @@ mat4x4::mat4x4(const mat4x4& value)
     _data[3] = value[3];
 }
 
+mat4x4::mat4x4(const D3DXMATRIX& value)
+{
+    this->operator=(value);
+}
+
 mat4x4::mat4x4(const vec4& i, const vec4& j, const vec4& k, const vec4& w)
 {
     _data[0] = i;
@@ -49,6 +54,14 @@ void mat4x4::operator=(const mat4x4& rhs)
     memcpy(this->_data, rhs._data, sizeof(mat4x4));
 }
 
+void mat4x4::operator=(const D3DXMATRIX& rhs)
+{
+    for (uint8_t i = 0; i < 4; ++i)
+    {
+        for (uint8_t j = 0; j < 4; ++j)
+            _data[i][j] = rhs.m[i][j];
+    }
+}
 
 void mat4x4::operator+=(const mat4x4&rhs)
 {

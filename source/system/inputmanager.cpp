@@ -105,7 +105,7 @@ void InputManager::Shutdown()
     }
 }
 
-bool InputManager::Frame()
+bool InputManager::Update()
 {
     bool result;
 

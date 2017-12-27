@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
@@ -6,12 +7,7 @@ const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
 
 class D3D11;
-class D3D11Model;
-class D3D11Shader;
-class TextureShader;
-class LightShader;
-class Camera;
-class Entity;
+class GraphicsNode;
 class D3D11Renderer
 {
 public:
@@ -20,6 +16,12 @@ public:
 
     bool Initialize(int, int, HWND);
     void Shutdown();
+
+    //TODO (istoilov) : refactor after implementing the component system
+    void RegisterEntity(Entity* entity);
+    void UnregisterEntity(Entity* entity);
+
+    bool PreFrame();
     bool Frame();
 
 private:
@@ -27,12 +29,10 @@ private:
 
 private:
     D3D11* m_D3D;
-    D3D11Model* m_Model;
-    D3D11Shader* m_Shader;
-    TextureShader* m_TextureShader;
-    LightShader* m_LightShader;
-    // TODO (istoilov) : move this outside of the rendering engine
-    Entity* m_CubeEntity;
-    Camera* m_Camera;
-    int m_Angle;
+
+    std::vector<GraphicsNode*> m_Nodes;
+
+    D3DXMATRIX m_ViewMatrix;
+    D3DXMATRIX m_ProjectionMatrix;
+    D3DXMATRIX m_WorldMatrix;
 };

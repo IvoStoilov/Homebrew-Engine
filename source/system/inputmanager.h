@@ -38,7 +38,7 @@ public:
 
     bool Initialize(HINSTANCE hInstance, HWND hwnd, uint32_t width, uint32_t height, int32_t windowPosX, int32_t windowPosY);
     void Shutdown();
-    bool Frame();
+    bool Update();
 
     bool IsEscapePressed();
     bool IsKeyPressed(InputManager::Key key);

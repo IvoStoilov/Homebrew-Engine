@@ -56,25 +56,6 @@ bool D3D11Model::InitializeBuffers(ID3D11Device* device)
         vertices[i].m_Normal = D3DXVECTOR3(m_VertexData[i].normal[0], m_VertexData[i].normal[1], m_VertexData[i].normal[2]);
         indices[i] = i;
     }
-    //{
-    //    // Load the vertex array with data.
-    //    vertices[0].m_Position = D3DXVECTOR4(-1.0f, -1.0f, 0.0f, 1.f);  // Bottom left.
-    //    vertices[0].m_UV = D3DXVECTOR2(0.0f, 1.0f);
-    //    vertices[0].m_Normal = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
-
-    //    vertices[1].m_Position = D3DXVECTOR4(0.0f, 1.0f, 0.0f, 1.f);  // Top middle.
-    //    vertices[1].m_UV = D3DXVECTOR2(0.5f, 0.0f);
-    //    vertices[1].m_Normal = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
-
-    //    vertices[2].m_Position = D3DXVECTOR4(1.0f, -1.0f, 0.0f, 1.f);  // Bottom right.
-    //    vertices[2].m_UV = D3DXVECTOR2(1.0f, 1.0f);
-    //    vertices[2].m_Normal = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
-
-    //    // Load the index array with data.
-    //    indices[0] = 0;  // Bottom left.
-    //    indices[1] = 1;  // Top middle.
-    //    indices[2] = 2;  // Bottom right.
-    //}
 
     D3D11_BUFFER_DESC vertexBufferDesc;
     D3D11_BUFFER_DESC indexBufferDesc;

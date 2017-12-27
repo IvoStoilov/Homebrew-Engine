@@ -1,6 +1,6 @@
 #pragma once
-#include <d3d11.h>
-#include <d3dx10math.h>
+#include "system/math/vec4.h"
+#include "system/math/mat4x4.h"
 
 class Camera
 {
@@ -11,18 +11,18 @@ public:
     void SetPosition(float, float, float);
     void SetRotation(float, float, float);
 
-    D3DXVECTOR3 GetPosition();
-    D3DXVECTOR3 GetRotation();
+    vec4 GetPosition();
+    vec4 GetRotation();
 
     void Update();
     void UpdateMovement();
 
-    void GetViewMatrix(D3DXMATRIX&);
+    void GetViewMatrix(mat4x4& outViewMatrix);
 
 private:
     float m_positionX, m_positionY, m_positionZ;
     float m_rotationX, m_rotationY, m_rotationZ;
-    D3DXMATRIX m_viewMatrix;
+    mat4x4 m_ViewMatrix;
 
     float m_MoveSpeed;
 };

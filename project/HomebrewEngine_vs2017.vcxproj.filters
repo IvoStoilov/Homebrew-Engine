@@ -79,6 +79,12 @@
     <ClCompile Include="..\source\system\math\vec4.cpp">
       <Filter>Engine\system\math</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\engine.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\graphicsnode.cpp">
+      <Filter>Engine\renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\win64\win64viewprovider.h">
@@ -131,6 +137,12 @@
     </ClInclude>
     <ClInclude Include="..\source\system\math\vec4.h">
       <Filter>Engine\system\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\engine.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\graphicsnode.h">
+      <Filter>Engine\renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,26 +1,21 @@
 #include "win64/win64viewprovider.h"
 #include "system/inputmanager.h"
+#include "engine.h"
 
 bool SHOW_CURSOR = false;
 
 Win64_ViewProvider::Win64_ViewProvider() :
-    m_Fullscreen(false),
-    m_InputHandler(nullptr),
-    m_Renderer(nullptr)
-
+    m_Fullscreen(false)
 {
 }
 
 Win64_ViewProvider::~Win64_ViewProvider()
 {
-    delete m_Renderer;
-    delete m_InputHandler;
 }
 
 bool Win64_ViewProvider::Initialize()
 {
-    int screenWidth, screenHeight;
-    bool result;
+    int32_t screenWidth, screenHeight;
 
     // Initialize the width and height of the screen to zero before sending the variables into the function.
     screenWidth = 0;
@@ -29,72 +24,23 @@ bool Win64_ViewProvider::Initialize()
     // Initialize the windows api.
     InitializeWindows(screenWidth, screenHeight);
 
-    //Create the input object.  This object will be used to handle reading the keyboard input from the user.
-    //m_InputHandler = new Win64_InputHandler();
-    //if (!m_InputHandler)
-    //{
-    //    return false;
-    //}
-    // Initialize the input object.
-    //InputHandler->Initialize();
-
-    InputManager::CreateInstance(m_hInstance, m_HWND, screenWidth, screenHeight, m_WindowPosX, m_WindowPosY);
-
-    // Create the graphics object.  This object will handle rendering all the graphics for this application.
-    m_Renderer = new D3D11Renderer();
-    if (!m_Renderer)
-    {
-        return false;
-    }
-
-    // Initialize the graphics object.
-    result = m_Renderer->Initialize(screenWidth, screenHeight, m_HWND);
-    if (!result)
-    {
-        return false;
-    }
+    Engine::CreateInstance(m_hInstance, m_HWND, screenWidth, screenHeight, m_WindowPosX, m_WindowPosY);
 
     return true;
 }
 
 void Win64_ViewProvider::Shutdown()
 {
-    //Clear Input
-    InputManager::CleanInstance();
-
-    // Release the graphics object.
-    if (m_Renderer)
-    {
-        m_Renderer->Shutdown();
-        delete m_Renderer;
-        m_Renderer = nullptr;
-    }
-
-    // Release the input object.
-    if (m_InputHandler)
-    {
-        delete m_InputHandler;
-        m_InputHandler = nullptr;
-    }
-
-    // Shutdown the window.
+    Engine::CleanInstnace();
     ShutdownWindows();
-
-    return;
 }
 
 void Win64_ViewProvider::Run()
 {
     MSG msg;
-    bool done, result;
-
-
-    // Initialize the message structure.
     ZeroMemory(&msg, sizeof(MSG));
 
-    // Loop until there is a quit message from the window or the user.
-    done = false;
-    while (!done)
+    while (true)
     {
         // Handle the windows messages.
         if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -105,71 +51,12 @@ void Win64_ViewProvider::Run()
 
         // If windows signals to end the application then exit out.
         if (msg.message == WM_QUIT)
-        {
-            done = true;
-        }
-        else
-        {
-            // Otherwise do the frame processing.
-            result = Frame();
-            if (!result)
-            {
-                done = true;
-            }
-        }
+            return;
 
-    }
+        if (g_Engine->HasRequestedQuit())
+            return;
 
-    return;
-}
-
-bool Win64_ViewProvider::Frame()
-{
-    bool result = false;
-
-    g_InputManager->Frame();
-
-    // Check if the user pressed escape and wants to exit the application.
-    if (g_InputManager->IsEscapePressed())
-    {
-        return false;
-    }
-
-    // Do the frame processing for the graphics object.
-    result = m_Renderer->Frame();
-    if (!result)
-    {
-        return false;
-    }
-
-    return true;
-}
-
-LRESULT CALLBACK Win64_ViewProvider::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
-{
-    switch (umsg)
-    {
-        // Check if a key has been pressed on the keyboard.
-    case WM_KEYDOWN:
-    {
-        // If a key is pressed send it to the input object so it can record that state.
-        m_InputHandler->KeyDown((unsigned int)wparam);
-        return 0;
-    }
-
-    // Check if a key has been released on the keyboard.
-    case WM_KEYUP:
-    {
-        // If a key is released then send it to the input object so it can unset the state for that key.
-        m_InputHandler->KeyUp((unsigned int)wparam);
-        return 0;
-    }
-
-    // Any other messages send to the default message handler as our application won't make use of them.
-    default:
-    {
-        return DefWindowProc(hwnd, umsg, wparam, lparam);
-    }
+        g_Engine->Update();
     }
 }
 
@@ -177,11 +64,6 @@ void Win64_ViewProvider::InitializeWindows(int& screenWidth, int& screenHeight)
 {
     WNDCLASSEX wc;
     DEVMODE dmScreenSettings;
-    int posX, posY;
-
-
-    // Get an external pointer to this object.
-    g_ApplicationHandle = this;
 
     // Get the instance of this application.
     m_hInstance = GetModuleHandle(NULL);
@@ -250,8 +132,6 @@ void Win64_ViewProvider::InitializeWindows(int& screenWidth, int& screenHeight)
 
     // Hide the mouse cursor.
     ShowCursor(SHOW_CURSOR);
-
-    return;
 }
 
 void Win64_ViewProvider::ShutdownWindows()
@@ -272,11 +152,6 @@ void Win64_ViewProvider::ShutdownWindows()
     // Remove the application instance.
     UnregisterClass(m_ApplicationName, m_hInstance);
     m_hInstance = NULL;
-
-    // Release the pointer to this class.
-    g_ApplicationHandle = NULL;
-
-    return;
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
@@ -300,7 +175,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
     // All other messages pass to the message handler in the system class.
     default:
     {
-        return g_ApplicationHandle->MessageHandler(hwnd, umessage, wparam, lparam);
+        DefWindowProc(hwnd, umessage, wparam, lparam);
     }
     }
 }

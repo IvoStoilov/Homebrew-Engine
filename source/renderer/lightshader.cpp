@@ -22,12 +22,12 @@ LightShader::LightShader() :
 LightShader::~LightShader()
 {}
 
-bool LightShader::Initialize(ID3D11Device* device, HWND hwnd)
+bool LightShader::Initialize(ID3D11Device* device)
 {
-    return InitializeShader(device, hwnd, VS_SHADER_PATH, PS_SHADER_PATH);
+    return InitializeShader(device, VS_SHADER_PATH, PS_SHADER_PATH);
 }
 
-bool LightShader::InitializeShader(ID3D11Device* device, HWND hwnd, const std::string& vsPath, const std::string& psPath)
+bool LightShader::InitializeShader(ID3D11Device* device, const std::string& vsPath, const std::string& psPath)
 {
     HRESULT result;
     

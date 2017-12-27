@@ -2,9 +2,8 @@
 
 #include "system/inputmanager.h"
 
-#include <stdint.h>
-#include <iostream>
-
+#include <d3d11.h>
+#include <d3dx10math.h>
 
 Camera::Camera()
 {
@@ -40,15 +39,15 @@ void Camera::SetRotation(float x, float y, float z)
     return;
 }
 
-D3DXVECTOR3 Camera::GetPosition()
+vec4 Camera::GetPosition()
 {
-    return D3DXVECTOR3(m_positionX, m_positionY, m_positionZ);
+    return vec4(m_positionX, m_positionY, m_positionZ, 1.f);
 }
 
 
-D3DXVECTOR3 Camera::GetRotation()
+vec4 Camera::GetRotation()
 {
-    return D3DXVECTOR3(m_rotationX, m_rotationY, m_rotationZ);
+    return vec4(m_rotationX, m_rotationY, m_rotationZ, 1.f);
 }
 
 void Camera::UpdateMovement()
@@ -139,12 +138,12 @@ void Camera::Update()
     lookAt = position + lookAt;
 
     // Finally create the view matrix from the three updated vectors.
-    D3DXMatrixLookAtLH(&m_viewMatrix, &position, &lookAt, &up);
-
-    return;
+    D3DXMATRIX viewMatrix;
+    D3DXMatrixLookAtLH(&viewMatrix, &position, &lookAt, &up);
+    m_ViewMatrix = viewMatrix;
 }
 
-void Camera::GetViewMatrix(D3DXMATRIX& viewMatrix)
+void Camera::GetViewMatrix(mat4x4& viewMatrix)
 {
-    viewMatrix = m_viewMatrix;
+    viewMatrix = m_ViewMatrix;
 }

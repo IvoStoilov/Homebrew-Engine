@@ -20,11 +20,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\camera.cpp" />
+    <ClCompile Include="..\source\engine.cpp" />
     <ClCompile Include="..\source\entitymodel\entity.cpp" />
     <ClCompile Include="..\source\renderer\d3d11.cpp" />
     <ClCompile Include="..\source\renderer\d3d11model.cpp" />
     <ClCompile Include="..\source\renderer\d3d11renderer.cpp" />
     <ClCompile Include="..\source\renderer\d3d11shader.cpp" />
+    <ClCompile Include="..\source\renderer\graphicsnode.cpp" />
     <ClCompile Include="..\source\renderer\lightshader.cpp" />
     <ClCompile Include="..\source\renderer\texture.cpp" />
     <ClCompile Include="..\source\renderer\textureshader.cpp" />
@@ -40,11 +42,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\camera.h" />
+    <ClInclude Include="..\source\engine.h" />
     <ClInclude Include="..\source\entitymodel\entity.h" />
     <ClInclude Include="..\source\renderer\d3d11.h" />
     <ClInclude Include="..\source\renderer\d3d11model.h" />
     <ClInclude Include="..\source\renderer\d3d11renderer.h" />
     <ClInclude Include="..\source\renderer\d3d11shader.h" />
+    <ClInclude Include="..\source\renderer\graphicsnode.h" />
     <ClInclude Include="..\source\renderer\lightshader.h" />
     <ClInclude Include="..\source\renderer\texture.h" />
     <ClInclude Include="..\source\renderer\textureshader.h" />

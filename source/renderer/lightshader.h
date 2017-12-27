@@ -23,7 +23,7 @@ public:
     LightShader();
     ~LightShader();
 
-    bool Initialize(ID3D11Device* device, HWND hwnd);
+    bool Initialize(ID3D11Device* device);
     void Shutdown();
     bool Render(ID3D11DeviceContext* deviceContext, uint32_t indexCount, 
                 D3DXMATRIX& worldMatrix, D3DXMATRIX& viewMatrix, D3DXMATRIX& projectionMatrix, 
@@ -32,7 +32,7 @@ public:
                 D3DXVECTOR4& lightDirection);
 
 private:
-    bool InitializeShader(ID3D11Device* device, HWND hwnd, const std::string& vsPath, const std::string& psPath);
+    bool InitializeShader(ID3D11Device* device, const std::string& vsPath, const std::string& psPath);
     void ShutdownShader();
     void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
