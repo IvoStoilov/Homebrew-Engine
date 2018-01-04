@@ -7,8 +7,8 @@
 
 using namespace std;
 
-const string VS_SHADER_PATH = "source/renderer/shader/textureVS.hlsl";
-const string PS_SHADER_PATH = "source/renderer/shader/texturePS.hlsl";
+const string VS_SHADER_PATH = "../../source/renderer/shader/textureVS.hlsl";
+const string PS_SHADER_PATH = "../../source/renderer/shader/texturePS.hlsl";
 
 TextureShader::TextureShader() :
     m_VertexShader(nullptr),

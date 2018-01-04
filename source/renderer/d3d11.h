@@ -22,6 +22,9 @@ public:
     void BeginScene(float r, float g, float b, float a);
     void EndScene();
 
+    void TurnDepthTestOn();
+    void TurnDepthTestOff();
+
     inline ID3D11Device* GetDevice() { return m_Device; }
     inline ID3D11DeviceContext* GetDeviceContext() { return m_DeviceContext; }
 
@@ -36,6 +39,7 @@ private:
     bool InitDeviceAndSwapchain(uint32_t screenWidth, uint32_t screenHeight, HWND hwnd, bool fullscreen, uint32_t numerator, uint32_t denominator);
     bool InitDepthStencilView(uint32_t screenWidth, uint32_t screenHeight);
     bool InitDepthStencilState();
+    bool InitDepthDisabledStencilState();
     bool InitRasterizerState();
     void InitViewPort(uint32_t screenWidth, uint32_t screenHeight);
     void InitMatrices(uint32_t screenWidth, uint32_t screenHeight, float screenNear, float screenDepth);
@@ -50,6 +54,7 @@ private:
     ID3D11RenderTargetView* m_RenderTargetView;
     ID3D11Texture2D* m_DepthStencilBuffer;
     ID3D11DepthStencilState* m_DepthStencilState;
+    ID3D11DepthStencilState* m_DepthDisabledStencilState;
     ID3D11DepthStencilView* m_DepthStencilView;
     ID3D11RasterizerState* m_RasterState;
     D3DXMATRIX m_ProjectionMatrix;

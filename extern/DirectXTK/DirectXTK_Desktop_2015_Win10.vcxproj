@@ -582,8 +582,8 @@ xcopy $(SolutionDir)\extern\DirectXTK\Bin\Desktop_2015_Win10\x64\$(Configuration
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(SolutionDir)\extern\DirectXTK\Bin\Desktop_2015_Win10\x64\$(Configuration)\DirectXTK.lib $(SolutionDir)\bin\$(Configuration)
-xcopy $(SolutionDir)\extern\DirectXTK\Bin\Desktop_2015_Win10\x64\$(Configuration)\DirectXTK.pdb $(SolutionDir)\bin\$(Configuration)</Command>
+      <Command>xcopy $(SolutionDir)extern\DirectXTK\Bin\Desktop_2015_Win10\Win32\$(Configuration)\DirectXTK.lib $(SolutionDir)\bin\$(Configuration)
+xcopy $(SolutionDir)extern\DirectXTK\Bin\Desktop_2015_Win10\Win32\$(Configuration)\DirectXTK.pdb $(SolutionDir)\bin\$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

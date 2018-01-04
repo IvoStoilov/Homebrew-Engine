@@ -7,8 +7,8 @@
 
 using namespace std;
 
-const string VS_SHADER_PATH = "source/renderer/shader/diffuselightingVS.hlsl";
-const string PS_SHADER_PATH = "source/renderer/shader/diffuselightingPS.hlsl";
+const string VS_SHADER_PATH = "../../source/renderer/shader/diffuselightingVS.hlsl";
+const string PS_SHADER_PATH = "../../source/renderer/shader/diffuselightingPS.hlsl";
 
 LightShader::LightShader() :
     m_VertexShader(nullptr),

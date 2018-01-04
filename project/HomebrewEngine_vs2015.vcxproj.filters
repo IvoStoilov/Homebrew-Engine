@@ -85,6 +85,9 @@
     <ClCompile Include="..\source\renderer\graphicsnode.cpp">
       <Filter>Engine\renderer</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\renderer\model2d.cpp">
+      <Filter>Engine\renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\win64\win64viewprovider.h">
@@ -142,6 +145,9 @@
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="..\source\renderer\graphicsnode.h">
+      <Filter>Engine\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\model2d.h">
       <Filter>Engine\renderer</Filter>
     </ClInclude>
   </ItemGroup>

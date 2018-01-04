@@ -148,6 +148,11 @@ void vec4::Print() const
    //std::printf("(%.2f, %.2f, %.2f, %.2f)\n", _data[0], _data[1], _data[2], _data[3]);
 }
 
+D3DXVECTOR4 vec4::ToD3DXVECTOR4() const
+{
+    return D3DXVECTOR4(_data[0], _data[1], _data[2], _data[3]);
+}
+
 float vec4::Dot(const vec4& a, const vec4& b)
 {
    float res = 0.f;

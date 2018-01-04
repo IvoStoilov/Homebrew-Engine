@@ -25,7 +25,7 @@ public:
 
     inline bool HasRequestedQuit() const { return m_HasRequestedQuit; }
     void GetCameraViewMatrix(mat4x4& outMatrix);
-
+    inline const Camera* GetCamera() const { return m_Camera; }
     void Update();
 
 private:

@@ -11,8 +11,10 @@ public:
     void SetPosition(float, float, float);
     void SetRotation(float, float, float);
 
-    vec4 GetPosition();
-    vec4 GetRotation();
+    vec4 GetPosition() const;
+    vec4 GetRotation() const;
+
+    vec4 GetUpAxis() const;
 
     void Update();
     void UpdateMovement();

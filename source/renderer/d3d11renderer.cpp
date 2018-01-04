@@ -8,8 +8,13 @@
 #include "renderer/d3d11renderer.h"
 #include "renderer/d3d11.h"
 
+#include "renderer/model2d.h"
+#include "renderer/textureshader.h"
+
 #include "camera.h"
 #include "engine.h"
+
+std::string path = "../../resource/ubisoft-logo.png";
 
 D3D11Renderer::D3D11Renderer() :
     m_D3D(nullptr)
@@ -27,6 +32,12 @@ bool D3D11Renderer::Initialize(int screenWidth, int screenHeight, HWND hwnd)
     popAssert(m_D3D != nullptr, "Memory Alloc Failed");
     popAssert(m_D3D->Initialize(screenWidth, screenHeight, hwnd, VSYNC_ENABLED, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR), "D3D Init Failed");
     
+
+    m_2DModel = new Model2D();
+    popAssert(m_2DModel->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, path, 170, 100), "2d model failed initing");
+
+    m_TextureShader = new TextureShader();
+    popAssert(m_TextureShader->Initialize(m_D3D->GetDevice(), hwnd), "asd");
     return true;
 }
 
@@ -46,6 +57,18 @@ void D3D11Renderer::Shutdown()
         delete m_D3D;
         m_D3D = nullptr;
     }
+
+    if (m_2DModel)
+    {
+        m_2DModel->Shutdown();
+        delete m_2DModel;
+    }
+
+    if (m_TextureShader)
+    {
+        m_TextureShader->Shutdown();
+        delete m_TextureShader;
+    }
 }
 
 void D3D11Renderer::RegisterEntity(Entity* entity)
@@ -53,6 +76,13 @@ void D3D11Renderer::RegisterEntity(Entity* entity)
     GraphicsNode* node = new GraphicsNode(entity);
     node->Initialize(m_D3D->GetDevice());
     m_Nodes.push_back(node);
+}
+
+void D3D11Renderer::Register2DEntity(Entity* entity)
+{
+    //GraphicsNode* node = new GraphicsNode(entity);
+    //node->Initialize(m_D3D->GetDevice());
+    //m_2DNodes->push_back(node);
 }
 
 void D3D11Renderer::UnregisterEntity(Entity* entity)
@@ -89,6 +119,25 @@ bool D3D11Renderer::Render()
         node->Render(m_D3D->GetDeviceContext());
     }
     
+    { // TODO (istoilov) Integrate code into graphics node on next pass
+        //Render 2D models
+        m_D3D->TurnDepthTestOff();
+
+        D3DXMATRIX orthoMatrix;
+        D3DXMATRIX worldMatrix;
+        D3DXMATRIX id;
+
+        D3DXMatrixIdentity(&id);
+        D3DXMatrixIdentity(&worldMatrix);
+
+        worldMatrix._43 += 5.f;
+
+        m_D3D->GetOrthoMatrix(orthoMatrix);
+        // Put the bitmap vertex and index buffers on the graphics pipeline to prepare them for drawing.
+        m_2DModel->Render(m_D3D->GetDeviceContext(), 10, 10);
+        m_TextureShader->Render(m_D3D->GetDeviceContext(), m_2DModel->GetIndexCount(), worldMatrix, id, orthoMatrix, m_2DModel->GetTexture());
+    }
+    m_D3D->TurnDepthTestOn();
     // Present the rendered scene to the screen.
     m_D3D->EndScene();
 

@@ -1,7 +1,8 @@
 #pragma once
 #include <stdint.h>
 #include <math.h>
-
+#include <d3d11.h>
+#include <d3dx10math.h>
 class mat4x4;
 
 class vec4
@@ -33,6 +34,8 @@ public:
    void Normalize2();
    void Normalize3();
    vec4 GetNormalized() const;
+
+   D3DXVECTOR4 ToD3DXVECTOR4() const;
    
    void Print() const;
 

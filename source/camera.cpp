@@ -39,15 +39,20 @@ void Camera::SetRotation(float x, float y, float z)
     return;
 }
 
-vec4 Camera::GetPosition()
+vec4 Camera::GetPosition() const
 {
     return vec4(m_positionX, m_positionY, m_positionZ, 1.f);
 }
 
 
-vec4 Camera::GetRotation()
+vec4 Camera::GetRotation() const
 {
     return vec4(m_rotationX, m_rotationY, m_rotationZ, 1.f);
+}
+
+vec4 Camera::GetUpAxis() const
+{
+    return vec4((m_ViewMatrix[0][1]), (m_ViewMatrix[1][1]), (m_ViewMatrix[2][1]), 0.f);
 }
 
 void Camera::UpdateMovement()

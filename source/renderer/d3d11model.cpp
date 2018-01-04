@@ -1,7 +1,5 @@
 #include "renderer\d3d11model.h"
 
-std::string CUBE_PATH = "resource/geometry/cube.bgd";
-
 D3D11Model::D3D11Model() :
     m_VertexCount(0),
     m_IndexCount(0),

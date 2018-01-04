@@ -18,8 +18,8 @@ D3DXVECTOR4 LIGHT_DIRECTION(-.3f, +.3f, 1.f, 0.f);
 "resource/ink-splatter-texture.png";
 "resource/metal_texture.jpg";
 */
-std::string TEXTURE_PATH = "resource/metal_texture.jpg";
-std::string MODEL_PATH = "resource/geometry/cube.bgd";
+std::string TEXTURE_PATH = "../../resource/metal_texture.jpg";
+std::string MODEL_PATH = "../../resource/geometry/cube.bgd";
 
 void GraphicsNode::Initialize(ID3D11Device* device)
 {
@@ -51,7 +51,7 @@ void GraphicsNode::Shutdown()
 void GraphicsNode::Render(ID3D11DeviceContext* deviceContext)
 {
     Transform globalMatrix = m_Owner->GetGlobalMatrix();
-    D3DXMATRIX worldMatrix = globalMatrix.ToD3DXMATRIX();
+    D3DXMATRIX worldMatrix = globalMatrix.ToD3DXMATRIX(); // Should make a copy or it will get fucked up in Render ( we transpose inside)
 
     // Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
     m_Model->Render(deviceContext);
