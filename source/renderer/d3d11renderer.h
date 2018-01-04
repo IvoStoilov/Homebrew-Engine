@@ -10,22 +10,26 @@ class D3D11;
 class GraphicsNode;
 class Model2D;
 class TextureShader;
-
+class VisualComponent;
 class D3D11Renderer
 {
-public:
+private:
+    static D3D11Renderer* s_Instance;
     D3D11Renderer();
     ~D3D11Renderer();
 
-    bool Initialize(int, int, HWND);
+    bool Initialize(HWND hwnd, uint32_t screenWidth, uint32_t screenHeight);
     void Shutdown();
 
-    //TODO (istoilov) : refactor after implementing the component system
-    void RegisterEntity(Entity* entity);
-    void UnregisterEntity(Entity* entity);
-    
-    void Register2DEntity(Entity* entity);
+public:
+    static D3D11Renderer* GetInstance();
+    static void CreateInstance(HWND hwnd, uint32_t screenWidth, uint32_t screenHeight);
+    static void CleanInstance();
 
+public:
+    void RegisterDrawable(VisualComponent* visComponent);
+    void UnregisterDrawable(VisualComponent* visComponent);
+    
     bool PreFrame();
     bool Frame();
 
@@ -46,3 +50,5 @@ private:
     D3DXMATRIX m_ProjectionMatrix;
     D3DXMATRIX m_WorldMatrix;
 };
+
+#define g_RenderEngine D3D11Renderer::GetInstance()

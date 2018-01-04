@@ -4,6 +4,16 @@
 #include "system/inputmanager.h"
 #include "system/error.h"
 #include "renderer/d3d11renderer.h"
+#include "entitymodel/components/visualcomponent.h"
+/*
+Texture
+"../../resource/ubisoft-logo.png"
+"../../resource/ink-splatter-texture.png"
+"../../resource/metal_texture.jpg"
+
+Model
+"../../resource/geometry/cube.bgd"
+*/
 
 Engine* Engine::s_Instance = nullptr;
 
@@ -11,20 +21,31 @@ bool Engine::Initialize(HINSTANCE hInstance, HWND hwnd, uint32_t width, uint32_t
 {
     InputManager::CreateInstance(hInstance, hwnd, width, height, windowPosX, windowPosY);
 
+    D3D11Renderer::CreateInstance(hwnd, width, height);
+
     m_Camera = new Camera();
     popAssert(m_Camera != nullptr, "Memory Alloc Failed");
     m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
 
-    m_Entities.push_back(new Entity());
-    m_Entities.push_back(new Entity());
-    m_Entities[1]->SetGlobalPosition(vec4(2.f, 2.f, 2.f, 1.f));
-
-    m_Renderer = new D3D11Renderer();
-    popAssert(m_Renderer->Initialize(width, height, hwnd), "Renderer Init failed");
-
-    for (Entity* entity : m_Entities)
     {
-        m_Renderer->RegisterEntity(entity);
+        VisualComponent* visComp = nullptr;
+        m_Entities.push_back(new Entity());
+        visComp = new VisualComponent();
+        visComp->SetModelPath(std::string("../../resource/geometry/cube.bgd"));
+        visComp->SetTexturePath(std::string("../../resource/metal_texture.jpg"));
+        m_Entities[0]->AddComponent(visComp);
+
+        m_Entities.push_back(new Entity());
+        m_Entities[1]->SetGlobalPosition(vec4(2.f, 2.f, 2.f, 1.f));
+        visComp = new VisualComponent();
+        visComp->SetModelPath(std::string("../../resource/geometry/cube.bgd"));
+        visComp->SetTexturePath(std::string("../../resource/ink-splatter-texture.png"));
+        m_Entities[1]->AddComponent(visComp);
+
+        for (Entity* entity : m_Entities)
+        {
+            g_RenderEngine->RegisterDrawable(entity->GetComponentByType<VisualComponent>());
+        }
     }
 
     return true;
@@ -47,21 +68,16 @@ void Engine::Update()
 
     m_Camera->Update();
 
-    // Render Engine
-    m_Renderer->PreFrame();
-    m_Renderer->Frame();
+    
+    g_RenderEngine->PreFrame();
+    g_RenderEngine->Frame();
 }
 
 void Engine::Shutdown()
 {
     InputManager::CleanInstance();
 
-    if (m_Renderer)
-    {
-        m_Renderer->Shutdown();
-        delete m_Renderer;
-        m_Renderer = nullptr;
-    }
+    D3D11Renderer::CleanInstance();
 
     if (m_Camera)
     {
@@ -71,7 +87,10 @@ void Engine::Shutdown()
     for (Entity* entity : m_Entities)
     {
         if (entity)
+        {
+            entity->OnDestroy();
             delete entity;
+        }
     }
     m_Entities.clear();
 }

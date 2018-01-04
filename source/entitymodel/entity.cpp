@@ -1,4 +1,5 @@
 #include "entitymodel/entity.h"
+#include "entitymodel/components/component.h"
 
 Entity::Entity() :
     m_Angle(0)
@@ -22,4 +23,23 @@ void Entity::Rotate(float deg)
     m_GlobalMatrix.SetTranslate(globalPos);
     //m_GlobalMatrix.NormalizeCollums();
     
+}
+
+void Entity::AddComponent(Component* component)
+{
+    if (component)
+    {
+        component->SetOwner(this);
+        m_Components.push_back(component);
+    }
+}
+
+void Entity::OnDestroy()
+{
+    for (Component* component : m_Components)
+    {
+        component->OnRemoveFromWorld();
+        delete component;
+    }
+    m_Components.clear();
 }

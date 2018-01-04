@@ -27,17 +27,17 @@ public:
     };
 private:
     static InputManager* s_Instance;
-
-public:
     InputManager();
     ~InputManager();
 
+    bool Initialize(HINSTANCE hInstance, HWND hwnd, uint32_t width, uint32_t height, int32_t windowPosX, int32_t windowPosY);
+    void Shutdown();
+
+public:
     static InputManager* GetInstance();
     static void CreateInstance(HINSTANCE hInstance, HWND hwnd, uint32_t width, uint32_t height, int32_t windowPosX, int32_t windowPosY);
     static void CleanInstance();
 
-    bool Initialize(HINSTANCE hInstance, HWND hwnd, uint32_t width, uint32_t height, int32_t windowPosX, int32_t windowPosY);
-    void Shutdown();
     bool Update();
 
     bool IsEscapePressed();

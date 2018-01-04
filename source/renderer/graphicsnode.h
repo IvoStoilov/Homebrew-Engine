@@ -1,16 +1,15 @@
 #pragma once
 #include "system/math/mat4x4.h"
 
-
-class Entity;
 class D3D11Model;
 class LightShader;
+class VisualComponent;
 struct ID3D11Device;
 struct ID3D11DeviceContext;
 class GraphicsNode
 {
 public:
-    GraphicsNode(Entity* owner);
+    GraphicsNode(VisualComponent* owner);
     ~GraphicsNode();
 
     void Initialize(ID3D11Device* device);
@@ -23,7 +22,7 @@ public:
     void Render(ID3D11DeviceContext* deviceContext);
 
 private:
-    Entity* m_Owner;
+    VisualComponent* m_Owner;
 
     mat4x4 m_ProjectionMatrix;
     mat4x4 m_ViewMatrix;

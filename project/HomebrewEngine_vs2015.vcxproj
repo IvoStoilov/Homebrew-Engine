@@ -21,6 +21,8 @@
   <ItemGroup>
     <ClCompile Include="..\source\camera.cpp" />
     <ClCompile Include="..\source\engine.cpp" />
+    <ClCompile Include="..\source\entitymodel\components\component.cpp" />
+    <ClCompile Include="..\source\entitymodel\components\visualcomponent.cpp" />
     <ClCompile Include="..\source\entitymodel\entity.cpp" />
     <ClCompile Include="..\source\renderer\d3d11.cpp" />
     <ClCompile Include="..\source\renderer\d3d11model.cpp" />
@@ -44,6 +46,8 @@
   <ItemGroup>
     <ClInclude Include="..\source\camera.h" />
     <ClInclude Include="..\source\engine.h" />
+    <ClInclude Include="..\source\entitymodel\components\component.h" />
+    <ClInclude Include="..\source\entitymodel\components\visualcomponent.h" />
     <ClInclude Include="..\source\entitymodel\entity.h" />
     <ClInclude Include="..\source\renderer\d3d11.h" />
     <ClInclude Include="..\source\renderer\d3d11model.h" />

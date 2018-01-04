@@ -3,6 +3,7 @@
 #include "system/error.h"
 
 #include "entitymodel/entity.h"
+#include "entitymodel/components/visualcomponent.h"
 
 #include "renderer/graphicsnode.h"
 #include "renderer/d3d11renderer.h"
@@ -16,17 +17,9 @@
 
 std::string path = "../../resource/ubisoft-logo.png";
 
-D3D11Renderer::D3D11Renderer() :
-    m_D3D(nullptr)
-{
-}
+D3D11Renderer* D3D11Renderer::s_Instance = nullptr;
 
-D3D11Renderer::~D3D11Renderer()
-{
-}
-
-
-bool D3D11Renderer::Initialize(int screenWidth, int screenHeight, HWND hwnd)
+bool D3D11Renderer::Initialize(HWND hwnd, uint32_t screenWidth, uint32_t screenHeight)
 {
     m_D3D = new D3D11();
     popAssert(m_D3D != nullptr, "Memory Alloc Failed");
@@ -71,21 +64,18 @@ void D3D11Renderer::Shutdown()
     }
 }
 
-void D3D11Renderer::RegisterEntity(Entity* entity)
+void D3D11Renderer::RegisterDrawable(VisualComponent* visComponent)
 {
-    GraphicsNode* node = new GraphicsNode(entity);
-    node->Initialize(m_D3D->GetDevice());
-    m_Nodes.push_back(node);
+    if (visComponent)
+    {
+        GraphicsNode* node = new GraphicsNode(visComponent);
+        node->Initialize(m_D3D->GetDevice());
+        if (!visComponent->GetIs2D())
+            m_Nodes.push_back(node);
+    }
 }
 
-void D3D11Renderer::Register2DEntity(Entity* entity)
-{
-    //GraphicsNode* node = new GraphicsNode(entity);
-    //node->Initialize(m_D3D->GetDevice());
-    //m_2DNodes->push_back(node);
-}
-
-void D3D11Renderer::UnregisterEntity(Entity* entity)
+void D3D11Renderer::UnregisterDrawable(VisualComponent* visComponents)
 {
 
 }
@@ -142,4 +132,37 @@ bool D3D11Renderer::Render()
     m_D3D->EndScene();
 
     return true;
+}
+
+D3D11Renderer::D3D11Renderer() :
+    m_D3D(nullptr)
+{
+}
+
+D3D11Renderer::~D3D11Renderer()
+{
+}
+
+D3D11Renderer* D3D11Renderer::GetInstance()
+{
+    popAssert(s_Instance, "InputManager Create Instance Not called");
+    return s_Instance;
+}
+
+void D3D11Renderer::CleanInstance()
+{
+    if (s_Instance != nullptr)
+    {
+        s_Instance->Shutdown();
+        delete s_Instance;
+    }
+}
+
+void D3D11Renderer::CreateInstance(HWND hwnd, uint32_t screenWidth, uint32_t screenHeight)
+{
+    if (s_Instance == nullptr)
+    {
+        s_Instance = new D3D11Renderer();
+        s_Instance->Initialize(hwnd, screenWidth, screenHeight);
+    }
 }

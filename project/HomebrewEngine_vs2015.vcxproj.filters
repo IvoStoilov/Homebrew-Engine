@@ -23,6 +23,9 @@
     <Filter Include="Engine\entitymodel">
       <UniqueIdentifier>{63387ff1-378f-444b-a565-58314c3735b3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\entitymodel\components">
+      <UniqueIdentifier>{de0de442-a69c-4067-915d-366827c63343}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\win64\win64viewprovider.cpp">
@@ -88,6 +91,12 @@
     <ClCompile Include="..\source\renderer\model2d.cpp">
       <Filter>Engine\renderer</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\entitymodel\components\component.cpp">
+      <Filter>Engine\entitymodel\components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\entitymodel\components\visualcomponent.cpp">
+      <Filter>Engine\entitymodel\components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\win64\win64viewprovider.h">
@@ -149,6 +158,12 @@
     </ClInclude>
     <ClInclude Include="..\source\renderer\model2d.h">
       <Filter>Engine\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\entitymodel\components\component.h">
+      <Filter>Engine\entitymodel\components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\entitymodel\components\visualcomponent.h">
+      <Filter>Engine\entitymodel\components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
