@@ -24,9 +24,9 @@ FontShader::FontShader() :
 FontShader::~FontShader()
 {}
 
-bool FontShader::Initialize(ID3D11Device* device, HWND hwnd)
+bool FontShader::Initialize(ID3D11Device* device)
 {
-    return InitializeShader(device, hwnd, VS_SHADER_PATH, PS_SHADER_PATH);
+    return InitializeShader(device, VS_SHADER_PATH, PS_SHADER_PATH);
 }
 
 void FontShader::Shutdown()
@@ -46,7 +46,7 @@ bool FontShader::Render(ID3D11DeviceContext* deviceContext, uint32_t indexCount,
     return true;
 }
 
-bool FontShader::InitializeShader(ID3D11Device* device, HWND hwnd, const std::string& vsPath, const std::string& psPath)
+bool FontShader::InitializeShader(ID3D11Device* device, const std::string& vsPath, const std::string& psPath)
 {
     HRESULT result;
     ID3D10Blob* errorMessage;

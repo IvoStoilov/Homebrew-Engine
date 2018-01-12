@@ -18,31 +18,29 @@ Text::Text() :
 Text::~Text()
 {}
 
-bool Text::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, uint16_t screenWidth, uint16_t screenHeight, D3DXMATRIX baseViewMatrix)
+bool Text::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, uint16_t screenWidth, uint16_t screenHeight)
 {
     m_ScreenWidth = screenWidth;
     m_ScreenHeight = screenHeight;
-
-    m_BaseViewMatrix = baseViewMatrix;
 
     m_Font = new Font();
     if (!m_Font->Initialize(device, FONT_DATA_PATH, FONT_TEXTURE_PATH))
         return false;
 
     m_FontShader = new FontShader();
-    if (!m_FontShader->InitializeShader(device, VS_SHADER_PATH, PS_SHADER_PATH))
+    if (!m_FontShader->Initialize(device))
         return false;
 
     if (!InitializeSentence(&m_Text1, 16, device))
         return false;
     
-    if (!UpdateSentence(m_Text1, "Pishi Kur", 100, 100, 1.0f, 1.0f, 1.0f, deviceContext))
+    if (!UpdateSentence(m_Text1, "Pishi Kur", 400, 400, 1.0f, 1.0f, 1.0f, deviceContext))
         return false;
 
     if (!InitializeSentence(&m_Text2, 16, device))
         return false;
 
-    if (!UpdateSentence(m_Text1, "i da begame", 100, 100, 1.0f, 1.0f, 1.0f, deviceContext))
+    if (!UpdateSentence(m_Text1, "i da begame", 400, 400, 1.0f, 1.0f, 1.0f, deviceContext))
         return false;
 
     return true;
@@ -193,6 +191,75 @@ bool Text::InitializeSentence(SentenceType** sentence, int maxLength, ID3D11Devi
     // Release the index array as it is no longer needed.
     delete[] indices;
     indices = 0;
+
+    return true;
+}
+
+bool Text::UpdateSentence(SentenceType* sentence, char* text, int posX, int posY, float r, float g, float b, ID3D11DeviceContext* deviceContext)
+{
+    sentence->red = r;
+    sentence->green = g;
+    sentence->blue = b;
+
+    int32_t numLetters = strlen(text);
+    if (numLetters > sentence->maxLength)
+        return false;
+
+    VertexType* vertices = new VertexType[sentence->vertexCount];
+    memset(vertices, 0, sizeof(vertices));
+
+    float drawX = (float)(m_ScreenWidth/2.f * -1 + posX);
+    float drawY = (float)(m_ScreenHeight / 2.f * -1 + posY);
+
+    m_Font->BuildVertexArray((void*)vertices, text, drawX, drawY);
+
+    D3D11_MAPPED_SUBRESOURCE mappedResource;
+    HRESULT result = deviceContext->Map(sentence->vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+
+    memcpy((VertexType*)mappedResource.pData, vertices, sizeof(vertices));
+
+    deviceContext->Unmap(sentence->vertexBuffer, 0);
+    delete[] vertices;
+
+    return true;
+}
+
+void Text::ReleaseSentence(SentenceType** sentence)
+{
+    if (*sentence)
+    {
+        if ((*sentence)->vertexBuffer)
+            (*sentence)->vertexBuffer->Release();
+
+        if ((*sentence)->indexBuffer)
+            (*sentence)->indexBuffer->Release();
+
+        delete *sentence;
+    }
+}
+
+bool Text::RenderSentence(ID3D11DeviceContext* deviceContext, SentenceType* sentence, D3DXMATRIX worldMatrix, D3DXMATRIX orthoMatrix)
+{
+    unsigned int stride, offset;
+    D3DXVECTOR4 pixelColor;
+    bool result;
+
+    stride = sizeof(VertexType);
+    offset = 0;
+
+    deviceContext->IASetVertexBuffers(0, 1, &sentence->vertexBuffer, &stride, &offset);
+    deviceContext->IASetIndexBuffer(sentence->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+    deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    pixelColor = D3DXVECTOR4(sentence->red, sentence->green, sentence->blue, 1.0f);
+
+    D3DXMATRIX id;
+    D3DXMatrixIdentity(&id);
+
+    if(m_FontShader->Render(deviceContext, sentence->indexCount, worldMatrix, id, orthoMatrix, m_Font->GetTexture(), pixelColor))
+    {
+        false;
+    }
 
     return true;
 }
