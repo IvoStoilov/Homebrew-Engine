@@ -144,8 +144,8 @@ bool D3D11Renderer::Render()
             m_D3D->TurnAlphaBlendingOff();
         }
         // Put the bitmap vertex and index buffers on the graphics pipeline to prepare them for drawing.
-        m_2DModel->Render(m_D3D->GetDeviceContext(), 10, 10);
-        m_TextureShader->Render(m_D3D->GetDeviceContext(), m_2DModel->GetIndexCount(), worldMatrix, id, orthoMatrix, m_2DModel->GetTexture());
+        //m_2DModel->Render(m_D3D->GetDeviceContext(), 10, 10);
+        //m_TextureShader->Render(m_D3D->GetDeviceContext(), m_2DModel->GetIndexCount(), worldMatrix, id, orthoMatrix, m_2DModel->GetTexture());
     }
     m_D3D->TurnDepthTestOn();
     // Present the rendered scene to the screen.

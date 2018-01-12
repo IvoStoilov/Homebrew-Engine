@@ -93,6 +93,8 @@ ID3D11ShaderResourceView* Font::GetTexture()
 //TODO : check if it is a good idea to "believe" the ourVertexArray size is appropriate
 void Font::BuildVertexArray(void* outVertexArray, const std::string& textToRender, float drawX, float drawY)
 {
+    float scaleWidth = 1.f;
+    float scaleHeight = 1.f;
     int32_t textToRenderSize = textToRender.size();
     uint32_t index = 0;
     VertexType* vertexPtr = (VertexType*)outVertexArray;
@@ -107,33 +109,33 @@ void Font::BuildVertexArray(void* outVertexArray, const std::string& textToRende
         else
         {
             // First triangle in quad.
-            vertexPtr[index].m_Position = D3DXVECTOR3(drawX, drawY, 0.0f);  // Top left.
+            vertexPtr[index].m_Position = D3DXVECTOR4(drawX, drawY, 0.0f, 1.f);  // Top left.
             vertexPtr[index].m_UV = D3DXVECTOR2(m_Font[letter].left, 0.0f);
             index++;
 
-            vertexPtr[index].m_Position = D3DXVECTOR3((drawX + m_Font[letter].size), (drawY - 16), 0.0f);  // Bottom right.
+            vertexPtr[index].m_Position = D3DXVECTOR4((drawX + m_Font[letter].size * scaleWidth), (drawY - 16 * scaleHeight), 0.0f, 1.f);  // Bottom right.
             vertexPtr[index].m_UV = D3DXVECTOR2(m_Font[letter].right, 1.0f);
             index++;
 
-            vertexPtr[index].m_Position = D3DXVECTOR3(drawX, (drawY - 16), 0.0f);  // Bottom left.
+            vertexPtr[index].m_Position = D3DXVECTOR4(drawX, (drawY - 16 * scaleHeight), 0.0f, 1.f);  // Bottom left.
             vertexPtr[index].m_UV = D3DXVECTOR2(m_Font[letter].left, 1.0f);
             index++;
 
             // Second triangle in quad.
-            vertexPtr[index].m_Position = D3DXVECTOR3(drawX, drawY, 0.0f);  // Top left.
+            vertexPtr[index].m_Position = D3DXVECTOR4(drawX, drawY, 0.0f, 1.f);  // Top left.
             vertexPtr[index].m_UV = D3DXVECTOR2(m_Font[letter].left, 0.0f);
             index++;
 
-            vertexPtr[index].m_Position = D3DXVECTOR3(drawX + m_Font[letter].size, drawY, 0.0f);  // Top right.
+            vertexPtr[index].m_Position = D3DXVECTOR4(drawX + m_Font[letter].size * scaleWidth, drawY, 0.0f, 1.f);  // Top right.
             vertexPtr[index].m_UV = D3DXVECTOR2(m_Font[letter].right, 0.0f);
             index++;
 
-            vertexPtr[index].m_Position = D3DXVECTOR3((drawX + m_Font[letter].size), (drawY - 16), 0.0f);  // Bottom right.
+            vertexPtr[index].m_Position = D3DXVECTOR4((drawX + m_Font[letter].size * scaleWidth), (drawY - 16 * scaleHeight), 0.0f, 1.f);  // Bottom right.
             vertexPtr[index].m_UV = D3DXVECTOR2(m_Font[letter].right, 1.0f);
             index++;
 
             // Update the x location for drawing by the size of the letter and one pixel.
-            drawX = drawX + m_Font[letter].size + 1.0f;
+            drawX = drawX + m_Font[letter].size * scaleWidth + 5.0f;
         }
     }
 }

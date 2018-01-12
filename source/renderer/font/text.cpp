@@ -34,13 +34,13 @@ bool Text::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, 
     if (!InitializeSentence(&m_Text1, 16, device))
         return false;
     
-    if (!UpdateSentence(m_Text1, "Pishi Kur", 400, 400, 1.0f, 1.0f, 1.0f, deviceContext))
+    if (!UpdateSentence(m_Text1, "Pishi Kur", 10, 570, 1.0f, 0.f, 0.0f, deviceContext))
         return false;
 
     if (!InitializeSentence(&m_Text2, 16, device))
         return false;
 
-    if (!UpdateSentence(m_Text1, "i da begame", 400, 400, 1.0f, 1.0f, 1.0f, deviceContext))
+    if (!UpdateSentence(m_Text2, "i da begame", 10, 554, 1.0f, 0.f, 0.0f, deviceContext))
         return false;
 
     return true;
@@ -206,7 +206,7 @@ bool Text::UpdateSentence(SentenceType* sentence, char* text, int posX, int posY
         return false;
 
     VertexType* vertices = new VertexType[sentence->vertexCount];
-    memset(vertices, 0, sizeof(vertices));
+    memset(vertices, 0, sizeof(VertexType) * sentence->vertexCount);
 
     float drawX = (float)(m_ScreenWidth/2.f * -1 + posX);
     float drawY = (float)(m_ScreenHeight / 2.f * -1 + posY);
@@ -216,7 +216,7 @@ bool Text::UpdateSentence(SentenceType* sentence, char* text, int posX, int posY
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     HRESULT result = deviceContext->Map(sentence->vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 
-    memcpy((VertexType*)mappedResource.pData, vertices, sizeof(vertices));
+    memcpy((VertexType*)mappedResource.pData, vertices, sizeof(VertexType) * sentence->vertexCount);
 
     deviceContext->Unmap(sentence->vertexBuffer, 0);
     delete[] vertices;
