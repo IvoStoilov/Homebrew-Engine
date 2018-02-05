@@ -11,6 +11,7 @@ class GraphicsNode;
 class Model2D;
 class TextureShader;
 class VisualComponent;
+class Text;
 class D3D11Renderer
 {
 private:
@@ -45,6 +46,7 @@ private:
     //temp hack
     Model2D* m_2DModel;
     TextureShader* m_TextureShader;
+    Text* m_Text;
 
     D3DXMATRIX m_ViewMatrix;
     D3DXMATRIX m_ProjectionMatrix;

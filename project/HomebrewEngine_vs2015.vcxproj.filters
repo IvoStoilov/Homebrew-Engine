@@ -26,6 +26,9 @@
     <Filter Include="Engine\entitymodel\components">
       <UniqueIdentifier>{de0de442-a69c-4067-915d-366827c63343}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\renderer\font">
+      <UniqueIdentifier>{6d267fe1-f43f-428c-8750-4e9b50fb9ff9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\win64\win64viewprovider.cpp">
@@ -97,6 +100,15 @@
     <ClCompile Include="..\source\entitymodel\components\visualcomponent.cpp">
       <Filter>Engine\entitymodel\components</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\renderer\font\font.cpp">
+      <Filter>Engine\renderer\font</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\font\fontshader.cpp">
+      <Filter>Engine\renderer\font</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\font\text.cpp">
+      <Filter>Engine\renderer\font</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\win64\win64viewprovider.h">
@@ -165,6 +177,15 @@
     <ClInclude Include="..\source\entitymodel\components\visualcomponent.h">
       <Filter>Engine\entitymodel\components</Filter>
     </ClInclude>
+    <ClInclude Include="..\source\renderer\font\font.h">
+      <Filter>Engine\renderer\font</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\font\fontshader.h">
+      <Filter>Engine\renderer\font</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\font\text.h">
+      <Filter>Engine\renderer\font</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\source\renderer\shader\simplePS.hlsl">
@@ -183,6 +204,12 @@
       <Filter>Engine\renderer\shaders</Filter>
     </FxCompile>
     <FxCompile Include="..\source\renderer\shader\diffuselightingPS.hlsl">
+      <Filter>Engine\renderer\shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\source\renderer\shader\fontPS.hlsl">
+      <Filter>Engine\renderer\shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\source\renderer\shader\fontVS.hlsl">
       <Filter>Engine\renderer\shaders</Filter>
     </FxCompile>
   </ItemGroup>

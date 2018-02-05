@@ -25,6 +25,9 @@ public:
     void TurnDepthTestOn();
     void TurnDepthTestOff();
 
+    void TurnAlphaBlendingOn();
+    void TurnAlphaBlendingOff();
+
     inline ID3D11Device* GetDevice() { return m_Device; }
     inline ID3D11DeviceContext* GetDeviceContext() { return m_DeviceContext; }
 
@@ -41,6 +44,7 @@ private:
     bool InitDepthStencilState();
     bool InitDepthDisabledStencilState();
     bool InitRasterizerState();
+    bool InitAlphaBlendingStates();
     void InitViewPort(uint32_t screenWidth, uint32_t screenHeight);
     void InitMatrices(uint32_t screenWidth, uint32_t screenHeight, float screenNear, float screenDepth);
 
@@ -57,6 +61,8 @@ private:
     ID3D11DepthStencilState* m_DepthDisabledStencilState;
     ID3D11DepthStencilView* m_DepthStencilView;
     ID3D11RasterizerState* m_RasterState;
+    ID3D11BlendState* m_AlphaBlendingStateEnable;
+    ID3D11BlendState* m_AlphaBlendingStateDisable;
     D3DXMATRIX m_ProjectionMatrix;
     D3DXMATRIX m_WorldMatrix;
     D3DXMATRIX m_OrthoMatrix;

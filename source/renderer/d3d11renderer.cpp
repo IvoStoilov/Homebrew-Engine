@@ -11,6 +11,7 @@
 
 #include "renderer/model2d.h"
 #include "renderer/textureshader.h"
+#include "renderer/font/text.h"
 
 #include "camera.h"
 #include "engine.h"
@@ -31,6 +32,10 @@ bool D3D11Renderer::Initialize(HWND hwnd, uint32_t screenWidth, uint32_t screenH
 
     m_TextureShader = new TextureShader();
     popAssert(m_TextureShader->Initialize(m_D3D->GetDevice(), hwnd), "asd");
+
+    m_Text = new Text();
+    popAssert(m_Text->Initialize(m_D3D->GetDevice(), m_D3D->GetDeviceContext(), screenWidth, screenHeight), "Text Init failed");
+
     return true;
 }
 
@@ -49,6 +54,13 @@ void D3D11Renderer::Shutdown()
         m_D3D->Shutdown();
         delete m_D3D;
         m_D3D = nullptr;
+    }
+
+    if (m_Text)
+    {
+        m_Text->Shutdown();
+        delete m_Text;
+        m_Text = nullptr;
     }
 
     if (m_2DModel)
@@ -123,9 +135,17 @@ bool D3D11Renderer::Render()
         worldMatrix._43 += 5.f;
 
         m_D3D->GetOrthoMatrix(orthoMatrix);
+
+        {
+            m_D3D->TurnAlphaBlendingOn();
+            
+            m_Text->Render(m_D3D->GetDeviceContext(), worldMatrix, orthoMatrix);
+
+            m_D3D->TurnAlphaBlendingOff();
+        }
         // Put the bitmap vertex and index buffers on the graphics pipeline to prepare them for drawing.
-        m_2DModel->Render(m_D3D->GetDeviceContext(), 10, 10);
-        m_TextureShader->Render(m_D3D->GetDeviceContext(), m_2DModel->GetIndexCount(), worldMatrix, id, orthoMatrix, m_2DModel->GetTexture());
+        //m_2DModel->Render(m_D3D->GetDeviceContext(), 10, 10);
+        //m_TextureShader->Render(m_D3D->GetDeviceContext(), m_2DModel->GetIndexCount(), worldMatrix, id, orthoMatrix, m_2DModel->GetTexture());
     }
     m_D3D->TurnDepthTestOn();
     // Present the rendered scene to the screen.
