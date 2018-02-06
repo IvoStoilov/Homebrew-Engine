@@ -11,8 +11,9 @@ Entity::~Entity()
 void Entity::Update(float dt)
 {
     Rotate(m_Angle);
-    m_Angle += 1;
-    m_Angle = m_Angle % 360;
+    m_Angle += 0.2f * dt;
+    if (m_Angle > 360.f)
+        m_Angle = 0.f;
 }
 
 void Entity::Rotate(float deg)

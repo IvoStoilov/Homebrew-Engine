@@ -5,6 +5,9 @@
 #include "system/error.h"
 #include "renderer/d3d11renderer.h"
 #include "entitymodel/components/visualcomponent.h"
+
+#include <thread>
+#include <chrono>
 /*
 Texture
 "../../resource/ubisoft-logo.png"
@@ -51,16 +54,20 @@ bool Engine::Initialize(HINSTANCE hInstance, HWND hwnd, uint32_t width, uint32_t
     return true;
 }
 
-
+//----Main Update loop----
 void Engine::Update()
 {
-    float dt = 0.003333;
+    m_WorldClock.Update();
+    float dt = GetFrameTime();
 
     g_InputManager->Update();
 
     // Check if the user pressed escape and wants to exit the application.
     m_HasRequestedQuit = g_InputManager->IsEscapePressed();
     
+    m_FPSCounter.Update();
+    m_CPUInfo.Update();
+
     for (Entity* entity : m_Entities)
     {
         entity->Update(dt);
@@ -71,6 +78,16 @@ void Engine::Update()
     
     g_RenderEngine->PreFrame();
     g_RenderEngine->Frame();
+
+    float delta = m_WorldClock.GetDeltaTime();
+    while (delta < 16.6666)
+    {
+        delta = m_WorldClock.GetDeltaTime();
+        //Sleep granularity of very rough and leads to artificial FPS drop from 60 to 30
+        //Going with a crappy solution for a while cycle. 
+        //Not sure what is the implementation of the VSYNC and what are the tradeoffs.
+        //std::this_thread::sleep_for(std::chrono::milliseconds(17 - delta));
+    }
 }
 
 void Engine::Shutdown()
@@ -93,6 +110,8 @@ void Engine::Shutdown()
         }
     }
     m_Entities.clear();
+
+    m_CPUInfo.Shutdown();
 }
 
 void Engine::GetCameraViewMatrix(mat4x4& outMatrix) 

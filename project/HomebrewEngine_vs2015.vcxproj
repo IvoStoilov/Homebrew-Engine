@@ -36,7 +36,10 @@
     <ClCompile Include="..\source\renderer\model2d.cpp" />
     <ClCompile Include="..\source\renderer\texture.cpp" />
     <ClCompile Include="..\source\renderer\textureshader.cpp" />
+    <ClCompile Include="..\source\system\clock.cpp" />
+    <ClCompile Include="..\source\system\cpuinfo.cpp" />
     <ClCompile Include="..\source\system\error.cpp" />
+    <ClCompile Include="..\source\system\fpscounter.cpp" />
     <ClCompile Include="..\source\system\inputmanager.cpp" />
     <ClCompile Include="..\source\system\math\mat4x4.cpp" />
     <ClCompile Include="..\source\system\math\mathutil.cpp" />
@@ -64,7 +67,10 @@
     <ClInclude Include="..\source\renderer\model2d.h" />
     <ClInclude Include="..\source\renderer\texture.h" />
     <ClInclude Include="..\source\renderer\textureshader.h" />
+    <ClInclude Include="..\source\system\clock.h" />
+    <ClInclude Include="..\source\system\cpuinfo.h" />
     <ClInclude Include="..\source\system\error.h" />
+    <ClInclude Include="..\source\system\fpscounter.h" />
     <ClInclude Include="..\source\system\inputmanager.h" />
     <ClInclude Include="..\source\system\math\mat4x4.h" />
     <ClInclude Include="..\source\system\math\mathutil.h" />

@@ -16,7 +16,7 @@
 #include "camera.h"
 #include "engine.h"
 
-std::string path = "../../resource/ubisoft-logo.png";
+std::string path = "../../resource/ink-splatter-texture.png";
 
 D3D11Renderer* D3D11Renderer::s_Instance = nullptr;
 
@@ -34,7 +34,7 @@ bool D3D11Renderer::Initialize(HWND hwnd, uint32_t screenWidth, uint32_t screenH
     popAssert(m_TextureShader->Initialize(m_D3D->GetDevice(), hwnd), "asd");
 
     m_Text = new Text();
-    popAssert(m_Text->Initialize(m_D3D->GetDevice(), m_D3D->GetDeviceContext(), screenWidth, screenHeight), "Text Init failed");
+    popAssert(m_Text->Initialize(m_D3D->GetDevice(), m_D3D->GetDeviceContext(), screenWidth, screenHeight, 3, 10, 590), "Text Init failed");
 
     return true;
 }
@@ -124,6 +124,18 @@ bool D3D11Renderer::Render()
     { // TODO (istoilov) Integrate code into graphics node on next pass
         //Render 2D models
         m_D3D->TurnDepthTestOff();
+
+        char fpsText[40];
+        char cpuText[40];
+        char frameTimeText[40];
+        std::sprintf(fpsText, "FPS : %d", g_Engine->GetFPS());
+        std::sprintf(cpuText, "CPU: %d%%", g_Engine->GetCPUUsage());
+        std::sprintf(frameTimeText, "Engine: %.1f ms", g_Engine->GetFrameTime());
+
+        //TODO (istoilov) Implement smart line system in the Text Class, change hardcoded Sentances with dynamic arrays
+        m_Text->SetText(fpsText, 0);
+        m_Text->SetText(cpuText, 1);
+        m_Text->SetText(frameTimeText, 2);
 
         D3DXMATRIX orthoMatrix;
         D3DXMATRIX worldMatrix;

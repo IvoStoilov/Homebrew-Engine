@@ -109,6 +109,15 @@
     <ClCompile Include="..\source\renderer\font\text.cpp">
       <Filter>Engine\renderer\font</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\system\fpscounter.cpp">
+      <Filter>Engine\system</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\system\cpuinfo.cpp">
+      <Filter>Engine\system</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\system\clock.cpp">
+      <Filter>Engine\system</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\win64\win64viewprovider.h">
@@ -185,6 +194,15 @@
     </ClInclude>
     <ClInclude Include="..\source\renderer\font\text.h">
       <Filter>Engine\renderer\font</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\system\fpscounter.h">
+      <Filter>Engine\system</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\system\cpuinfo.h">
+      <Filter>Engine\system</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\system\clock.h">
+      <Filter>Engine\system</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

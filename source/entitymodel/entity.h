@@ -36,5 +36,5 @@ private:
 
     Transform m_GlobalMatrix;
 
-    int32_t m_Angle;
+    float m_Angle;
 };

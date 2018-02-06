@@ -8,18 +8,29 @@ const std::string FONT_DATA_PATH = "../../resource/font/fontData.txt";
 const std::string VS_SHADER_PATH = "../../source/renderer/shader/fontVS.hlsl";
 const std::string PS_SHADER_PATH = "../../source/renderer/shader/fontPS.hlsl";
 
+const uint32_t LINE_SPACEING = 16;
+
 Text::Text() :
     m_Font(nullptr),
     m_FontShader(nullptr),
-    m_Text1(nullptr),
-    m_Text2(nullptr)
+    m_Lines(nullptr)
 {}
 
 Text::~Text()
 {}
 
-bool Text::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, uint16_t screenWidth, uint16_t screenHeight)
+bool Text::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, uint16_t screenWidth, uint16_t screenHeight, uint16_t numberOfLines, int16_t posX, int16_t posY)
 {
+    if (!deviceContext)
+        return false;
+
+    m_NumberOfLines = numberOfLines;
+    m_Lines = new SentenceType*[m_NumberOfLines];
+    if (!m_Lines)
+        return false;
+
+    m_DeviceContextCache = deviceContext;
+
     m_ScreenWidth = screenWidth;
     m_ScreenHeight = screenHeight;
 
@@ -31,28 +42,25 @@ bool Text::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, 
     if (!m_FontShader->Initialize(device))
         return false;
 
-    if (!InitializeSentence(&m_Text1, 16, device))
-        return false;
+    for (uint32_t i = 0; i < m_NumberOfLines; ++i)
+    {
+        m_Lines[i] = new SentenceType();
+        if (!InitializeSentence(&m_Lines[i], 16, device))
+            return false;
+
+        if (!UpdateSentence(m_Lines[i], "Lorem Ipsum", posX, posY - (i * LINE_SPACEING), 1.0f, 0.f, 0.0f))
+            return false;
+    }
     
-    if (!UpdateSentence(m_Text1, "Pishi Kur", 10, 570, 1.0f, 0.f, 0.0f, deviceContext))
-        return false;
-
-    if (!InitializeSentence(&m_Text2, 16, device))
-        return false;
-
-    if (!UpdateSentence(m_Text2, "i da begame", 10, 554, 1.0f, 0.f, 0.0f, deviceContext))
-        return false;
-
     return true;
 }
 
 void Text::Shutdown()
 {
-    // Release the first sentence.
-    ReleaseSentence(&m_Text1);
-
-    // Release the second sentence.
-    ReleaseSentence(&m_Text2);
+    for (uint16_t i = 0; i < m_NumberOfLines; ++i)
+        ReleaseSentence(&m_Lines[i]);
+   
+    delete[] m_Lines;
 
     // Release the font shader object.
     if (m_FontShader)
@@ -73,19 +81,14 @@ bool Text::Render(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3
 {
     bool result;
 
-
     // Draw the first sentence.
-    result = RenderSentence(deviceContext, m_Text1, worldMatrix, orthoMatrix);
-    if (!result)
+    for (uint16_t i = 0; i < m_NumberOfLines; ++i)
     {
-        return false;
-    }
-
-    // Draw the second sentence.
-    result = RenderSentence(deviceContext, m_Text2, worldMatrix, orthoMatrix);
-    if (!result)
-    {
-        return false;
+        result = RenderSentence(deviceContext, m_Lines[i], worldMatrix, orthoMatrix);
+        if (!result)
+        {
+            return false;
+        }
     }
 
     return true;
@@ -195,11 +198,14 @@ bool Text::InitializeSentence(SentenceType** sentence, int maxLength, ID3D11Devi
     return true;
 }
 
-bool Text::UpdateSentence(SentenceType* sentence, char* text, int posX, int posY, float r, float g, float b, ID3D11DeviceContext* deviceContext)
+bool Text::UpdateSentence(SentenceType* sentence, char* text, int posX, int posY, float r, float g, float b)
 {
     sentence->red = r;
     sentence->green = g;
     sentence->blue = b;
+
+    sentence->posX = posX;
+    sentence->posY = posY;
 
     int32_t numLetters = strlen(text);
     if (numLetters > sentence->maxLength)
@@ -214,14 +220,23 @@ bool Text::UpdateSentence(SentenceType* sentence, char* text, int posX, int posY
     m_Font->BuildVertexArray((void*)vertices, text, drawX, drawY);
 
     D3D11_MAPPED_SUBRESOURCE mappedResource;
-    HRESULT result = deviceContext->Map(sentence->vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    HRESULT result = m_DeviceContextCache->Map(sentence->vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 
     memcpy((VertexType*)mappedResource.pData, vertices, sizeof(VertexType) * sentence->vertexCount);
 
-    deviceContext->Unmap(sentence->vertexBuffer, 0);
+    m_DeviceContextCache->Unmap(sentence->vertexBuffer, 0);
     delete[] vertices;
 
     return true;
+}
+
+bool Text::SetText(char* text, uint16_t slot)
+{
+    int32_t numLetters = strlen(text);
+    if (numLetters > m_Lines[slot]->maxLength)
+        return false;
+
+    return UpdateSentence(m_Lines[slot], text, m_Lines[slot]->posX, m_Lines[slot]->posY, m_Lines[slot]->red, m_Lines[slot]->green, m_Lines[slot]->blue);
 }
 
 void Text::ReleaseSentence(SentenceType** sentence)
@@ -247,9 +262,9 @@ bool Text::RenderSentence(ID3D11DeviceContext* deviceContext, SentenceType* sent
     stride = sizeof(VertexType);
     offset = 0;
 
-    deviceContext->IASetVertexBuffers(0, 1, &sentence->vertexBuffer, &stride, &offset);
-    deviceContext->IASetIndexBuffer(sentence->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-    deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    m_DeviceContextCache->IASetVertexBuffers(0, 1, &sentence->vertexBuffer, &stride, &offset);
+    m_DeviceContextCache->IASetIndexBuffer(sentence->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+    m_DeviceContextCache->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     pixelColor = D3DXVECTOR4(sentence->red, sentence->green, sentence->blue, 1.0f);
 
