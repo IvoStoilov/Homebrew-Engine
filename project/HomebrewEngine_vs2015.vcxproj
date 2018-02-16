@@ -43,6 +43,7 @@
     <ClCompile Include="..\source\system\inputmanager.cpp" />
     <ClCompile Include="..\source\system\math\mat4x4.cpp" />
     <ClCompile Include="..\source\system\math\mathutil.cpp" />
+    <ClCompile Include="..\source\system\math\vec2.cpp" />
     <ClCompile Include="..\source\system\math\vec4.cpp" />
     <ClCompile Include="..\source\system\modelloader.cpp" />
     <ClCompile Include="..\source\win64\win64input.cpp" />
@@ -74,6 +75,7 @@
     <ClInclude Include="..\source\system\inputmanager.h" />
     <ClInclude Include="..\source\system\math\mat4x4.h" />
     <ClInclude Include="..\source\system\math\mathutil.h" />
+    <ClInclude Include="..\source\system\math\vec2.h" />
     <ClInclude Include="..\source\system\math\vec4.h" />
     <ClInclude Include="..\source\system\modelloader.h" />
     <ClInclude Include="..\source\win64\win64input.h" />

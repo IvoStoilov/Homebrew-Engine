@@ -118,6 +118,9 @@
     <ClCompile Include="..\source\system\clock.cpp">
       <Filter>Engine\system</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\system\math\vec2.cpp">
+      <Filter>Engine\system\math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\win64\win64viewprovider.h">
@@ -203,6 +206,9 @@
     </ClInclude>
     <ClInclude Include="..\source\system\clock.h">
       <Filter>Engine\system</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\system\math\vec2.h">
+      <Filter>Engine\system\math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

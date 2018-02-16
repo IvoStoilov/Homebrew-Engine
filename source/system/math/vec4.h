@@ -1,25 +1,26 @@
 #pragma once
 #include <stdint.h>
-#include <math.h>
-#include <d3d11.h>
-#include <d3dx10math.h>
-class mat4x4;
 
+class mat4x4;
+struct D3DXVECTOR4;
 class vec4
 {
 public:
    vec4();
    vec4(const vec4& value);
-   vec4(float x, float y, float z, float w);
+   vec4(float x, float y, float z, float w = 0);
    
    void operator=  (const vec4& rhs);
    void operator+= (const vec4& rhs);
+   void operator-= (const vec4& rhs);
+   void operator*= (const float rhs);
+   void operator/= (const float rhs);
 
    vec4 operator+ (const vec4& rhs) const;
    vec4 operator- (const vec4& rhs) const;
-
    vec4 operator/ (const float rhs) const;
    vec4 operator* (const float rhs) const;
+
    vec4 operator* (const mat4x4& rhs) const;
    void operator*=(const mat4x4& rhs);
 
@@ -43,7 +44,13 @@ public:
    static void Cross(const vec4&a, const vec4& b);
 
 public:
-   float _data[4];
+    union
+    {
+        float _data[4];
+        struct { float x, y, z, w; };
+        struct { float r, g, b, a; };
+    };
+  
 
 public:
    static const vec4 Zero;
