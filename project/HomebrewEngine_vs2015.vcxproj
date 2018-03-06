@@ -34,6 +34,7 @@
     <ClCompile Include="..\source\renderer\graphicsnode.cpp" />
     <ClCompile Include="..\source\renderer\lightshader.cpp" />
     <ClCompile Include="..\source\renderer\model2d.cpp" />
+    <ClCompile Include="..\source\renderer\terrain\terrain.cpp" />
     <ClCompile Include="..\source\renderer\texture.cpp" />
     <ClCompile Include="..\source\renderer\textureshader.cpp" />
     <ClCompile Include="..\source\system\clock.cpp" />
@@ -66,6 +67,7 @@
     <ClInclude Include="..\source\renderer\graphicsnode.h" />
     <ClInclude Include="..\source\renderer\lightshader.h" />
     <ClInclude Include="..\source\renderer\model2d.h" />
+    <ClInclude Include="..\source\renderer\terrain\terrain.h" />
     <ClInclude Include="..\source\renderer\texture.h" />
     <ClInclude Include="..\source\renderer\textureshader.h" />
     <ClInclude Include="..\source\system\clock.h" />

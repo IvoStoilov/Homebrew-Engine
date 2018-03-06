@@ -29,6 +29,9 @@
     <Filter Include="Engine\renderer\font">
       <UniqueIdentifier>{6d267fe1-f43f-428c-8750-4e9b50fb9ff9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\renderer\terrain">
+      <UniqueIdentifier>{b9122b8d-31e5-4574-b0fc-11dae02f0ba1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\win64\win64viewprovider.cpp">
@@ -121,6 +124,9 @@
     <ClCompile Include="..\source\system\math\vec2.cpp">
       <Filter>Engine\system\math</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\renderer\terrain\terrain.cpp">
+      <Filter>Engine\renderer\terrain</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\win64\win64viewprovider.h">
@@ -209,6 +215,9 @@
     </ClInclude>
     <ClInclude Include="..\source\system\math\vec2.h">
       <Filter>Engine\system\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\terrain\terrain.h">
+      <Filter>Engine\renderer\terrain</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
