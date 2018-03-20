@@ -21,7 +21,7 @@ public:
     
     bool Initialize(ID3D11Device* device, HWND hwnd);
     void Shutdown();
-    bool Render(ID3D11DeviceContext* deviceContext, uint32_t indexCount, D3DXMATRIX& worldMatrix, D3DXMATRIX& viewMatrix, D3DXMATRIX& projectionMatrix);
+    bool Render(ID3D11DeviceContext* deviceContext, uint32_t indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, D3DXMATRIX projectionMatrix);
 
 private:
     bool InitializeShader(ID3D11Device* device, HWND hwnd, const std::string& vsPath, const std::string& psPath);

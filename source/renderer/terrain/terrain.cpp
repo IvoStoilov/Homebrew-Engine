@@ -4,8 +4,8 @@
 using namespace DirectX;
 
 //Hardcoded Constants - TODO : make them data-driven
-const int32_t TERRAIN_WIDTH  = 256;
-const int32_t TERRAIN_HEIGHT = 256;
+const int32_t TERRAIN_WIDTH  = 50;
+const int32_t TERRAIN_HEIGHT = 50;
 
 const XMFLOAT4 DEFAULT_COLOR(1.f, 1.f, 1.f, 1.f);
 
@@ -41,7 +41,7 @@ bool Terrain::Render(ID3D11DeviceContext* deviceContext)
 
 bool Terrain::InitializeBuffers(ID3D11Device* device)
 {
-    m_VertexCount = (TERRAIN_WIDTH - 1) * (TERRAIN_HEIGHT - 1);
+    m_VertexCount = (TERRAIN_WIDTH - 1) * (TERRAIN_HEIGHT - 1) * 8;
     m_IndexCount = m_VertexCount;
 
     VertexType* vertices = new VertexType[m_VertexCount];
@@ -58,7 +58,7 @@ bool Terrain::InitializeBuffers(ID3D11Device* device)
             positionX = (float)i;
             positionZ = (float)(j + 1);
 
-            vertices[index].position = XMFLOAT3(positionX, 0.0f, positionZ);
+            vertices[index].position = XMFLOAT4(positionX, 0.0f, positionZ, 1.f);
             vertices[index].color = DEFAULT_COLOR;
             indices[index] = index;
             index++;
@@ -67,7 +67,7 @@ bool Terrain::InitializeBuffers(ID3D11Device* device)
             positionX = (float)(i + 1);
             positionZ = (float)(j + 1);
 
-            vertices[index].position = XMFLOAT3(positionX, 0.0f, positionZ);
+            vertices[index].position = XMFLOAT4(positionX, 0.0f, positionZ, 1.f);
             vertices[index].color = DEFAULT_COLOR;
             indices[index] = index;
             index++;
@@ -76,7 +76,7 @@ bool Terrain::InitializeBuffers(ID3D11Device* device)
             positionX = (float)(i + 1);
             positionZ = (float)(j + 1);
 
-            vertices[index].position = XMFLOAT3(positionX, 0.0f, positionZ);
+            vertices[index].position = XMFLOAT4(positionX, 0.0f, positionZ, 1.f);
             vertices[index].color = DEFAULT_COLOR;
             indices[index] = index;
             index++;
@@ -85,7 +85,7 @@ bool Terrain::InitializeBuffers(ID3D11Device* device)
             positionX = (float)(i + 1);
             positionZ = (float)j;
 
-            vertices[index].position = XMFLOAT3(positionX, 0.0f, positionZ);
+            vertices[index].position = XMFLOAT4(positionX, 0.0f, positionZ, 1.f);
             vertices[index].color = DEFAULT_COLOR;
             indices[index] = index;
             index++;
@@ -94,7 +94,7 @@ bool Terrain::InitializeBuffers(ID3D11Device* device)
             positionX = (float)(i + 1);
             positionZ = (float)j;
 
-            vertices[index].position = XMFLOAT3(positionX, 0.0f, positionZ);
+            vertices[index].position = XMFLOAT4(positionX, 0.0f, positionZ, 1.f);
             vertices[index].color = DEFAULT_COLOR;
             indices[index] = index;
             index++;
@@ -103,7 +103,7 @@ bool Terrain::InitializeBuffers(ID3D11Device* device)
             positionX = (float)i;
             positionZ = (float)j;
 
-            vertices[index].position = XMFLOAT3(positionX, 0.0f, positionZ);
+            vertices[index].position = XMFLOAT4(positionX, 0.0f, positionZ, 1.f);
             vertices[index].color = DEFAULT_COLOR;
             indices[index] = index;
             index++;
@@ -112,7 +112,7 @@ bool Terrain::InitializeBuffers(ID3D11Device* device)
             positionX = (float)i;
             positionZ = (float)j;
 
-            vertices[index].position = XMFLOAT3(positionX, 0.0f, positionZ);
+            vertices[index].position = XMFLOAT4(positionX, 0.0f, positionZ, 1.f);
             vertices[index].color = DEFAULT_COLOR;
             indices[index] = index;
             index++;
@@ -121,7 +121,7 @@ bool Terrain::InitializeBuffers(ID3D11Device* device)
             positionX = (float)i;
             positionZ = (float)(j + 1);
 
-            vertices[index].position = XMFLOAT3(positionX, 0.0f, positionZ);
+            vertices[index].position = XMFLOAT4(positionX, 0.0f, positionZ, 1.f);
             vertices[index].color = DEFAULT_COLOR;
             indices[index] = index;
             index++;
@@ -181,7 +181,7 @@ void Terrain::ShutdownBuffers()
 void Terrain::RenderBuffers(ID3D11DeviceContext* deviceContext)
 {
     uint32_t stride = sizeof(VertexType);
-    uint32_t offset;
+    uint32_t offset = 0;
 
     deviceContext->IASetVertexBuffers(0, 1, &m_VertexBuffer, &stride, &offset);
     deviceContext->IASetIndexBuffer(m_IndexBuffer, DXGI_FORMAT_R32_UINT, 0);

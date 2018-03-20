@@ -6,12 +6,15 @@
 #include "entitymodel/components/visualcomponent.h"
 
 #include "renderer/graphicsnode.h"
+#include "renderer/d3d11shader.h"
 #include "renderer/d3d11renderer.h"
 #include "renderer/d3d11.h"
 
 #include "renderer/model2d.h"
 #include "renderer/textureshader.h"
 #include "renderer/font/text.h"
+
+#include "renderer/terrain/terrain.h"
 
 #include "camera.h"
 #include "engine.h"
@@ -32,6 +35,13 @@ bool D3D11Renderer::Initialize(HWND hwnd, uint32_t screenWidth, uint32_t screenH
 
     m_TextureShader = new TextureShader();
     popAssert(m_TextureShader->Initialize(m_D3D->GetDevice(), hwnd), "asd");
+
+
+    m_TerrainShader = new D3D11Shader();
+    popAssert(m_TerrainShader->Initialize(m_D3D->GetDevice(), hwnd), "Terrain shader failed initing");
+
+    m_Terrain = new Terrain();
+    popAssert(m_Terrain->Initialize(m_D3D->GetDevice()), "Terrain mesh failed initing");
 
     m_Text = new Text();
     popAssert(m_Text->Initialize(m_D3D->GetDevice(), m_D3D->GetDeviceContext(), screenWidth, screenHeight, 3, 10, 590), "Text Init failed");
@@ -111,7 +121,15 @@ bool D3D11Renderer::Render()
 {
     mat4x4 globalMatrix;
     // Clear the buffers to begin the scene.
-    m_D3D->BeginScene(0.3f, 0.6f, 0.8f, 1.0f);
+    m_D3D->BeginScene(0.f, 0.f, 0.f, 0.f);
+
+    //Terrain Grid Render pass
+    {
+        D3DXMATRIX worldMatrix;
+        D3DXMatrixIdentity(&worldMatrix);
+        m_Terrain->Render(m_D3D->GetDeviceContext());
+        m_TerrainShader->Render(m_D3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, m_ViewMatrix, m_ProjectionMatrix);
+    }
 
     m_D3D->GetProjectionMatrix(m_ProjectionMatrix);
     for (GraphicsNode* node : m_Nodes)
@@ -121,8 +139,10 @@ bool D3D11Renderer::Render()
         node->Render(m_D3D->GetDeviceContext());
     }
     
-    { // TODO (istoilov) Integrate code into graphics node on next pass
-        //Render 2D models
+
+    // TODO (istoilov) Integrate code into graphics node on next pass
+    //Render 2D models
+    { 
         m_D3D->TurnDepthTestOff();
 
         char fpsText[40];

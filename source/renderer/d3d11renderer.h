@@ -10,6 +10,8 @@ class D3D11;
 class GraphicsNode;
 class Model2D;
 class TextureShader;
+class Terrain;
+class D3D11Shader;
 class VisualComponent;
 class Text;
 class D3D11Renderer
@@ -46,6 +48,8 @@ private:
     //temp hack
     Model2D* m_2DModel;
     TextureShader* m_TextureShader;
+    D3D11Shader* m_TerrainShader;
+    Terrain* m_Terrain;
     Text* m_Text;
 
     D3DXMATRIX m_ViewMatrix;

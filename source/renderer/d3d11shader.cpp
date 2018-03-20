@@ -14,8 +14,8 @@ source/renderer/shader/texturePS.hlsl
 */
 using namespace std;
 
-const string VS_SHADER_PATH = "source/renderer/shader/simpleVS.hlsl";
-const string PS_SHADER_PATH = "source/renderer/shader/simplePS.hlsl";
+const string VS_SHADER_PATH = "../../source/renderer/shader/simpleVS.hlsl";
+const string PS_SHADER_PATH = "../../source/renderer/shader/simplePS.hlsl";
 
 D3D11Shader::D3D11Shader() :
     m_VertexShader(nullptr),
@@ -38,7 +38,7 @@ void D3D11Shader::Shutdown()
     ShutdownShader();
 }
 
-bool D3D11Shader::Render(ID3D11DeviceContext* deviceContext, uint32_t indexCount, D3DXMATRIX& worldMatrix, D3DXMATRIX& viewMatrix, D3DXMATRIX& projectionMatrix)
+bool D3D11Shader::Render(ID3D11DeviceContext* deviceContext, uint32_t indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, D3DXMATRIX projectionMatrix)
 {
     // Set the shader parameters that it will use for rendering.
     if(!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix))
