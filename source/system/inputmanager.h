@@ -16,7 +16,7 @@ class InputManager
 public:
     enum class Key
     {
-        W, A, S, D
+        W, A, S, D, Q, E
     };
 
     enum class MouseButton

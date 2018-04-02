@@ -33,7 +33,7 @@ public:
     Text();
     ~Text();
 
-    bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, uint16_t screenWidth, uint16_t screenHeight, 
+    bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, uint32_t maxLength, uint16_t screenWidth, uint16_t screenHeight, 
                     uint16_t numberOfLines = 1, int16_t posX = 0, int16_t posY = 0);
     void Shutdown();
     bool Render(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX orthoMatrix);

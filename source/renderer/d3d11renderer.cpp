@@ -44,7 +44,7 @@ bool D3D11Renderer::Initialize(HWND hwnd, uint32_t screenWidth, uint32_t screenH
     popAssert(m_Terrain->Initialize(m_D3D->GetDevice()), "Terrain mesh failed initing");
 
     m_Text = new Text();
-    popAssert(m_Text->Initialize(m_D3D->GetDevice(), m_D3D->GetDeviceContext(), screenWidth, screenHeight, 3, 10, 590), "Text Init failed");
+    popAssert(m_Text->Initialize(m_D3D->GetDevice(), m_D3D->GetDeviceContext(), 40, screenWidth, screenHeight, 5, 10, 590), "Text Init failed");
 
     return true;
 }
@@ -145,17 +145,26 @@ bool D3D11Renderer::Render()
     { 
         m_D3D->TurnDepthTestOff();
 
+
+        // TODO (istoilov) Make a dedicated UI/2D DebugDisplay Render
         char fpsText[40];
         char cpuText[40];
         char frameTimeText[40];
+        char cameraPosText[50];
+        char cameraMovespeed[40];
         std::sprintf(fpsText, "FPS : %d", g_Engine->GetFPS());
         std::sprintf(cpuText, "CPU: %d%%", g_Engine->GetCPUUsage());
         std::sprintf(frameTimeText, "Engine: %.1f ms", g_Engine->GetFrameTime());
+        vec4 cameraPos = g_Engine->GetCamera()->GetPosition();
+        std::sprintf(cameraPosText, "Cam pos: %.1f, %.1f, %.1f", cameraPos.x, cameraPos.y, cameraPos.z);
+        std::sprintf(cameraMovespeed, "Cam mov speed %.1f m/s", g_Engine->GetCamera()->GetMoveSpeed());
 
         //TODO (istoilov) Implement smart line system in the Text Class, change hardcoded Sentances with dynamic arrays
         m_Text->SetText(fpsText, 0);
         m_Text->SetText(cpuText, 1);
         m_Text->SetText(frameTimeText, 2);
+        m_Text->SetText(cameraPosText, 3);
+        m_Text->SetText(cameraMovespeed, 4);
 
         D3DXMATRIX orthoMatrix;
         D3DXMATRIX worldMatrix;

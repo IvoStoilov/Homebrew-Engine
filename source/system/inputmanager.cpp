@@ -198,6 +198,8 @@ bool InputManager::IsKeyPressed(InputManager::Key key)
         case Key::A : return (m_KeyboardState[DIK_A] & 0x80); break;
         case Key::S : return (m_KeyboardState[DIK_S] & 0x80); break;
         case Key::D : return (m_KeyboardState[DIK_D] & 0x80); break;
+        case Key::Q : return (m_KeyboardState[DIK_Q] & 0x80); break;
+        case Key::E : return (m_KeyboardState[DIK_E] & 0x80); break;
     }
 
     return false;

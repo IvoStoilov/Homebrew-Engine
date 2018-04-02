@@ -180,9 +180,6 @@
     <ClInclude Include="..\source\entitymodel\entity.h">
       <Filter>Engine\entitymodel</Filter>
     </ClInclude>
-    <ClInclude Include="..\source\engine.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
     <ClInclude Include="..\source\renderer\graphicsnode.h">
       <Filter>Engine\renderer</Filter>
     </ClInclude>
@@ -218,6 +215,9 @@
     </ClInclude>
     <ClInclude Include="..\source\renderer\terrain\terrain.h">
       <Filter>Engine\renderer\terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\engine.h">
+      <Filter>Engine\system</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

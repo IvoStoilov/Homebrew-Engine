@@ -11,6 +11,8 @@ public:
     void SetPosition(float, float, float);
     void SetRotation(float, float, float);
 
+    inline float GetMoveSpeed() const { return m_MoveSpeed; }
+
     vec4 GetPosition() const;
     vec4 GetRotation() const;
 

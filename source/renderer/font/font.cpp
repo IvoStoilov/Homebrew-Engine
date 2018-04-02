@@ -5,6 +5,9 @@
 
 #include <fstream>
 
+//Set letter spacing to 2px.
+const float LETTER_SPACING = 2.f;
+
 Font::Font():
     m_Texture(nullptr),
     m_Font(nullptr)
@@ -135,7 +138,7 @@ void Font::BuildVertexArray(void* outVertexArray, const std::string& textToRende
             index++;
 
             // Update the x location for drawing by the size of the letter and one pixel.
-            drawX = drawX + m_Font[letter].size * scaleWidth + 5.0f;
+            drawX = drawX + m_Font[letter].size * scaleWidth + LETTER_SPACING;
         }
     }
 }

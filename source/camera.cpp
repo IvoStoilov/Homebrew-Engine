@@ -72,6 +72,16 @@ void Camera::Update()
 {
     UpdateMovement();
 
+    if (g_InputManager->IsKeyPressed(InputManager::Key::Q))
+    {
+        m_MoveSpeed += .5f;
+    }
+
+    if (g_InputManager->IsKeyPressed(InputManager::Key::E) && (m_MoveSpeed - .5f) > 0)
+    {
+        m_MoveSpeed -= .5f;
+    }
+
     D3DXVECTOR3 up, position, lookAt;
     float yaw, pitch, roll;
     D3DXMATRIX rotationMatrix;

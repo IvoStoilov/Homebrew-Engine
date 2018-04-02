@@ -4,6 +4,9 @@
 
 bool SHOW_CURSOR = false;
 
+const uint32_t WINDOWED_SCREEN_WIDTH = 1024;
+const uint32_t WINDOWED_SCREEN_HEIGHT = 720;
+
 Win64_ViewProvider::Win64_ViewProvider() :
     m_Fullscreen(false)
 {
@@ -112,8 +115,8 @@ void Win64_ViewProvider::InitializeWindows(int& screenWidth, int& screenHeight)
     else
     {
         // If windowed then set it to 800x600 resolution.
-        screenWidth = 800;
-        screenHeight = 600;
+        screenWidth = WINDOWED_SCREEN_WIDTH;
+        screenHeight = WINDOWED_SCREEN_HEIGHT;
 
         // Place the window in the middle of the screen.
         m_WindowPosX = (GetSystemMetrics(SM_CXSCREEN) - screenWidth) / 2;
