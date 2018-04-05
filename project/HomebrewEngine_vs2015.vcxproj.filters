@@ -246,4 +246,7 @@
       <Filter>Engine\renderer\shaders</Filter>
     </FxCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="..\tools\debugger_visualization\modelloader_vertexdata.natvis" />
+  </ItemGroup>
 </Project>

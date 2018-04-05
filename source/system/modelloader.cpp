@@ -85,6 +85,9 @@ bool ModelLoader::LoadBMPFile(const std::string& filepath, std::vector<VertexDat
             vertex.uv[1] = (float)j;
             for (uint32_t k = 0; k < bytesPerPixel; ++k)
             {
+                if (rawData[index] == '\0')
+                    index++;
+
                 vertex.color[k] = rawData[index];
                 index++;
             }

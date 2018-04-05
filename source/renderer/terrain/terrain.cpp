@@ -4,8 +4,8 @@
 using namespace DirectX;
 
 //Hardcoded Constants - TODO : make them data-driven
-const int32_t DEFAULT_TERRAIN_U_SIZE = 950;
-const int32_t DEFAULT_TERRAIN_V_SIZE = 950;
+const int32_t DEFAULT_TERRAIN_U_SIZE = 60;
+const int32_t DEFAULT_TERRAIN_V_SIZE = 60;
 
 //If true will use DEFAULT_TERRAIN_U_SIZE / DEFAULT_TERRAIN_V_SIZE instead of the height map size
 const bool USE_DEFAULT_UV_SIZE = false;
@@ -13,9 +13,10 @@ const bool USE_DEFAULT_UV_SIZE = false;
 const float TERRAIN_U_RATIO = 1.f;
 const float TERRAIN_V_RATIO = 1.f;
 
-const float MAX_TERRAIN_HEIGHT = 100.f;
+const float MAX_TERRAIN_HEIGHT = 250.f;
 
 const XMFLOAT4 DEFAULT_COLOR(1.f, 1.f, 1.f, 1.f);
+const XMFLOAT4 DEEP_COLOR(0.2f, 1.f, 0.2f, 1.f);
 
 const std::string TERRAIN_HEIGHT_MAP_PATH = "../../resource/terrain/terrainheightmap3.bmp";
 
@@ -76,11 +77,16 @@ void Terrain::NormalizeHeight()
     int32_t ratio = m_HeightMapVSize / m_TerrainVSize;
     for (uint32_t i = 0; i < m_HeightMapData.size(); ++i)
     {
-        m_HeightMapData[i].color[0] = (m_HeightMapData[i].color[0] / 255.f) * MAX_TERRAIN_HEIGHT;
+        //m_HeightMapData[i].color[0] = (m_HeightMapData[i].color[0] / 255.f) * MAX_TERRAIN_HEIGHT;
         m_HeightMapData[i].uv[0] *= TERRAIN_U_RATIO;
         m_HeightMapData[i].uv[1] *= TERRAIN_V_RATIO;
     }
 
+}
+
+XMFLOAT4 ColorSelector(float height)
+{
+    return height < 40 ? DEEP_COLOR : DEFAULT_COLOR;
 }
 
 bool Terrain::InitializeBuffers(ID3D11Device* device)
@@ -104,21 +110,31 @@ bool Terrain::InitializeBuffers(ID3D11Device* device)
         {
             //Feeding the Texture height. Should not rely on magic numbers and figure out a systemic way to calculate
             //the vertex location in one-dim-array to the grid
-            uint32_t index1 = (m_HeightMapVSize * (j + 0) * scaleV) + (i + 0) * scaleU;  // Bottom left.
-            uint32_t index2 = (m_HeightMapVSize * (j + 0) * scaleV) + (i + 1) * scaleU;  // Bottom right.
-            uint32_t index3 = (m_HeightMapVSize * (j + 1) * scaleV) + (i + 0) * scaleU;  // Upper left.
-            uint32_t index4 = (m_HeightMapVSize * (j + 1) * scaleV) + (i + 1) * scaleU;  // Upper right.
+            uint32_t index1 = (m_HeightMapVSize * (j + 0) * scaleV) + (i + 1) * scaleU;  // Bottom left.
+            uint32_t index2 = (m_HeightMapVSize * (j + 0) * scaleV) + (i + 0) * scaleU;  // Bottom right.
+            uint32_t index3 = (m_HeightMapVSize * (j + 1) * scaleV) + (i + 1) * scaleU;  // Upper left.
+            uint32_t index4 = (m_HeightMapVSize * (j + 1) * scaleV) + (i + 0) * scaleU;  // Upper right.
+
+            if (m_HeightMapData[index1].color[0] < 1 ||
+                m_HeightMapData[index2].color[0] < 1 ||
+                m_HeightMapData[index3].color[0] < 1 ||
+                m_HeightMapData[index4].color[0] < 1  )
+            {
+                int a = 9;
+            }
+
+
 
             {
                 // Upper left.
                 vertices[index].position = XMFLOAT4(m_HeightMapData[index3].uv[0], m_HeightMapData[index3].color[0], m_HeightMapData[index3].uv[1], 0.f);
-                vertices[index].color = DEFAULT_COLOR;
+                vertices[index].color = ColorSelector(vertices[index].position.y);
                 indices[index] = index;
                 index++;
 
                 // Upper right.
                 vertices[index].position = XMFLOAT4(m_HeightMapData[index4].uv[0], m_HeightMapData[index4].color[0], m_HeightMapData[index4].uv[1], 0.f);
-                vertices[index].color = DEFAULT_COLOR;
+                vertices[index].color = ColorSelector(vertices[index].position.y);
                 indices[index] = index;
                 index++;
             }
@@ -126,13 +142,13 @@ bool Terrain::InitializeBuffers(ID3D11Device* device)
             {
                 // Upper right.
                 vertices[index].position = XMFLOAT4(m_HeightMapData[index4].uv[0], m_HeightMapData[index4].color[0], m_HeightMapData[index4].uv[1], 0.f);
-                vertices[index].color = DEFAULT_COLOR;
+                vertices[index].color = ColorSelector(vertices[index].position.y);
                 indices[index] = index;
                 index++;
 
                 // Bottom left.
                 vertices[index].position = XMFLOAT4(m_HeightMapData[index1].uv[0], m_HeightMapData[index1].color[0], m_HeightMapData[index1].uv[1], 0.f);
-                vertices[index].color = DEFAULT_COLOR;
+                vertices[index].color = ColorSelector(vertices[index].position.y);
                 indices[index] = index;
                 index++;
             }
@@ -140,13 +156,13 @@ bool Terrain::InitializeBuffers(ID3D11Device* device)
             {
                 // Bottom left.
                 vertices[index].position = XMFLOAT4(m_HeightMapData[index1].uv[0], m_HeightMapData[index1].color[0], m_HeightMapData[index1].uv[1], 0.f);
-                vertices[index].color = DEFAULT_COLOR;
+                vertices[index].color = ColorSelector(vertices[index].position.y);
                 indices[index] = index;
                 index++;
 
                 // Upper left.
                 vertices[index].position = XMFLOAT4(m_HeightMapData[index3].uv[0], m_HeightMapData[index3].color[0], m_HeightMapData[index3].uv[1], 0.f);
-                vertices[index].color = DEFAULT_COLOR;
+                vertices[index].color = ColorSelector(vertices[index].position.y);
                 indices[index] = index;
                 index++;
             }
@@ -154,13 +170,13 @@ bool Terrain::InitializeBuffers(ID3D11Device* device)
             {
                 // Bottom left.
                 vertices[index].position = XMFLOAT4(m_HeightMapData[index1].uv[0], m_HeightMapData[index1].color[0], m_HeightMapData[index1].uv[1], 0.f);
-                vertices[index].color = DEFAULT_COLOR;
+                vertices[index].color = ColorSelector(vertices[index].position.y);
                 indices[index] = index;
                 index++;
 
                 // Upper right.
                 vertices[index].position = XMFLOAT4(m_HeightMapData[index4].uv[0], m_HeightMapData[index4].color[0], m_HeightMapData[index4].uv[1], 0.f);
-                vertices[index].color = DEFAULT_COLOR;
+                vertices[index].color = ColorSelector(vertices[index].position.y);
                 indices[index] = index;
                 index++;
             }
@@ -168,13 +184,13 @@ bool Terrain::InitializeBuffers(ID3D11Device* device)
             {
                 // Upper right.
                 vertices[index].position = XMFLOAT4(m_HeightMapData[index4].uv[0], m_HeightMapData[index4].color[0], m_HeightMapData[index4].uv[1], 0.f);
-                vertices[index].color = DEFAULT_COLOR;
+                vertices[index].color = ColorSelector(vertices[index].position.y);
                 indices[index] = index;
                 index++;
 
                 // Bottom right.
                 vertices[index].position = XMFLOAT4(m_HeightMapData[index2].uv[0], m_HeightMapData[index2].color[0], m_HeightMapData[index2].uv[1], 0.f);
-                vertices[index].color = DEFAULT_COLOR;
+                vertices[index].color = ColorSelector(vertices[index].position.y);
                 indices[index] = index;
                 index++;
             }
@@ -182,13 +198,13 @@ bool Terrain::InitializeBuffers(ID3D11Device* device)
             {
                 // Bottom right.
                 vertices[index].position = XMFLOAT4(m_HeightMapData[index2].uv[0], m_HeightMapData[index2].color[0], m_HeightMapData[index2].uv[1], 0.f);
-                vertices[index].color = DEFAULT_COLOR;
+                vertices[index].color = ColorSelector(vertices[index].position.y);
                 indices[index] = index;
                 index++;
 
                 // Bottom left.
                 vertices[index].position = XMFLOAT4(m_HeightMapData[index1].uv[0], m_HeightMapData[index1].color[0], m_HeightMapData[index1].uv[1], 0.f);
-                vertices[index].color = DEFAULT_COLOR;
+                vertices[index].color = ColorSelector(vertices[index].position.y);
                 indices[index] = index;
                 index++;
             }

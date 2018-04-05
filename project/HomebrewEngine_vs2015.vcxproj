@@ -163,6 +163,9 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="..\tools\debugger_visualization\modelloader_vertexdata.natvis" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{96D03399-BE2F-4C5F-A9B9-7E8483E69248}</ProjectGuid>
     <RootNamespace>HomebrewEngine</RootNamespace>
