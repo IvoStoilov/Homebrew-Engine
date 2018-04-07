@@ -63,7 +63,7 @@ bool ModelLoader::LoadBMPFile(const std::string& filepath, std::vector<VertexDat
         return false;
 
     uint32_t bytesPerPixel = (uint32_t)bitmapInfoHeader.biBitCount / 8;
-    uint32_t rawDataSize = bitmapInfoHeader.biWidth * bitmapInfoHeader.biHeight * bytesPerPixel;
+	uint32_t rawDataSize = bitmapInfoHeader.biSizeImage;
     outBMPwidth  = bitmapInfoHeader.biWidth;
     outBMPheight = bitmapInfoHeader.biHeight;
 
@@ -86,7 +86,7 @@ bool ModelLoader::LoadBMPFile(const std::string& filepath, std::vector<VertexDat
             for (uint32_t k = 0; k < bytesPerPixel; ++k)
             {
                 if (rawData[index] == '\0')
-                    index++;
+                index++;
 
                 vertex.color[k] = rawData[index];
                 index++;
