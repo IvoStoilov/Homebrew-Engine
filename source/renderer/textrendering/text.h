@@ -2,6 +2,7 @@
 #include <d3d11.h>
 #include <d3dx10math.h>
 #include <stdint.h>
+#include <vector>
 
 class Font;
 class FontShader;
@@ -33,12 +34,12 @@ public:
     Text();
     ~Text();
 
-    bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, uint32_t maxLength, uint16_t screenWidth, uint16_t screenHeight, 
-                    uint16_t numberOfLines = 1, int16_t posX = 0, int16_t posY = 0);
+    bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, uint16_t screenWidth, uint16_t screenHeight, int16_t posX = 0, int16_t posY = 0);
     void Shutdown();
     bool Render(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX orthoMatrix);
 
     bool SetText(char* text, uint16_t slot);
+    bool AppendLine(char* text, uint32_t maxLength, uint8_t r = 255, uint8_t g = 255, uint8_t b = 255);
 private:
     bool InitializeSentence(SentenceType** sentence, int maxLength, ID3D11Device* device);
     bool UpdateSentence(SentenceType* sentence, char* text, int posX, int posY, float r, float g, float b);
@@ -50,9 +51,11 @@ private:
     FontShader* m_FontShader;
     uint16_t m_ScreenWidth;
     uint16_t m_ScreenHeight;
+    int16_t m_PosX;
+    int16_t m_PosY;
 
     ID3D11DeviceContext* m_DeviceContextCache;
+    ID3D11Device*        m_DeviceCache;
 
-    uint16_t m_NumberOfLines;
-    SentenceType** m_Lines;
+    std::vector<SentenceType*> m_Lines;
 };

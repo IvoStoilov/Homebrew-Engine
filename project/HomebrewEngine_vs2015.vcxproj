@@ -28,13 +28,14 @@
     <ClCompile Include="..\source\renderer\d3d11model.cpp" />
     <ClCompile Include="..\source\renderer\d3d11renderer.cpp" />
     <ClCompile Include="..\source\renderer\d3d11shader.cpp" />
-    <ClCompile Include="..\source\renderer\font\font.cpp" />
-    <ClCompile Include="..\source\renderer\font\fontshader.cpp" />
-    <ClCompile Include="..\source\renderer\font\text.cpp" />
     <ClCompile Include="..\source\renderer\graphicsnode.cpp" />
     <ClCompile Include="..\source\renderer\lightshader.cpp" />
     <ClCompile Include="..\source\renderer\model2d.cpp" />
     <ClCompile Include="..\source\renderer\terrain\terrain.cpp" />
+    <ClCompile Include="..\source\renderer\textrendering\font.cpp" />
+    <ClCompile Include="..\source\renderer\textrendering\fontshader.cpp" />
+    <ClCompile Include="..\source\renderer\textrendering\text.cpp" />
+    <ClCompile Include="..\source\renderer\textrendering\textrenderer.cpp" />
     <ClCompile Include="..\source\renderer\texture.cpp" />
     <ClCompile Include="..\source\renderer\textureshader.cpp" />
     <ClCompile Include="..\source\system\clock.cpp" />
@@ -61,13 +62,15 @@
     <ClInclude Include="..\source\renderer\d3d11model.h" />
     <ClInclude Include="..\source\renderer\d3d11renderer.h" />
     <ClInclude Include="..\source\renderer\d3d11shader.h" />
-    <ClInclude Include="..\source\renderer\font\font.h" />
-    <ClInclude Include="..\source\renderer\font\fontshader.h" />
-    <ClInclude Include="..\source\renderer\font\text.h" />
     <ClInclude Include="..\source\renderer\graphicsnode.h" />
+    <ClInclude Include="..\source\renderer\isubrenderer.h" />
     <ClInclude Include="..\source\renderer\lightshader.h" />
     <ClInclude Include="..\source\renderer\model2d.h" />
     <ClInclude Include="..\source\renderer\terrain\terrain.h" />
+    <ClInclude Include="..\source\renderer\textrendering\font.h" />
+    <ClInclude Include="..\source\renderer\textrendering\fontshader.h" />
+    <ClInclude Include="..\source\renderer\textrendering\text.h" />
+    <ClInclude Include="..\source\renderer\textrendering\textrenderer.h" />
     <ClInclude Include="..\source\renderer\texture.h" />
     <ClInclude Include="..\source\renderer\textureshader.h" />
     <ClInclude Include="..\source\system\clock.h" />
@@ -219,25 +222,25 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)temp\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)extern;$(SolutionDir)source;$(DXSDK_DIR)\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(DXSDK_DIR)Include;$(SolutionDir)source;$(SolutionDir)extern;$(IncludePath)</IncludePath>
     <LibraryPath>$(DXSDK_DIR)\Lib\x86;$(SolutionDir)bin\$(Configuration);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\temp\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)\extern;$(SolutionDir)\source;$(DXSDK_DIR)\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(DXSDK_DIR)Include;$(SolutionDir)source;$(SolutionDir)extern;$(IncludePath)</IncludePath>
     <LibraryPath>$(DXSDK_DIR)\Lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\temp\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)\extern;$(SolutionDir)\source;$(DXSDK_DIR)\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(DXSDK_DIR)Include;$(SolutionDir)source;$(SolutionDir)extern;$(IncludePath)</IncludePath>
     <LibraryPath>$(DXSDK_DIR)\Lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\temp\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)\extern;$(SolutionDir)\source;$(DXSDK_DIR)\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(DXSDK_DIR)Include;$(SolutionDir)source;$(SolutionDir)extern;$(IncludePath)</IncludePath>
     <LibraryPath>$(DXSDK_DIR)\Lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -245,7 +248,7 @@
       <WarningLevel>Level2</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)source;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
@@ -260,7 +263,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)source;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <MinimalRebuild>false</MinimalRebuild>
@@ -277,7 +280,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)source;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -292,7 +295,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)source;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

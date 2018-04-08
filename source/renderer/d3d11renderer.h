@@ -8,12 +8,11 @@ const float SCREEN_NEAR = 0.1f;
 
 class D3D11;
 class GraphicsNode;
-class Model2D;
 class TextureShader;
 class Terrain;
 class D3D11Shader;
 class VisualComponent;
-class Text;
+class ISubRenderer;
 class D3D11Renderer
 {
 private:
@@ -43,15 +42,13 @@ private:
     D3D11* m_D3D;
 
     std::vector<GraphicsNode*> m_Nodes;
-    //std::vector<GraphicsNode*> m_2DNodes;
+    std::vector<ISubRenderer*> m_SubRenderers;
 
     //temp hack
-    Model2D* m_2DModel;
     TextureShader* m_TextureShader;
     D3D11Shader* m_TerrainShader;
     Terrain* m_Terrain;
-    Text* m_Text;
-
+    
     D3DXMATRIX m_ViewMatrix;
     D3DXMATRIX m_ProjectionMatrix;
     D3DXMATRIX m_WorldMatrix;

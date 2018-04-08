@@ -26,11 +26,11 @@
     <Filter Include="Engine\entitymodel\components">
       <UniqueIdentifier>{de0de442-a69c-4067-915d-366827c63343}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\renderer\font">
-      <UniqueIdentifier>{6d267fe1-f43f-428c-8750-4e9b50fb9ff9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\renderer\terrain">
       <UniqueIdentifier>{b9122b8d-31e5-4574-b0fc-11dae02f0ba1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\renderer\textrendering">
+      <UniqueIdentifier>{6d267fe1-f43f-428c-8750-4e9b50fb9ff9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -103,15 +103,6 @@
     <ClCompile Include="..\source\entitymodel\components\visualcomponent.cpp">
       <Filter>Engine\entitymodel\components</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\renderer\font\font.cpp">
-      <Filter>Engine\renderer\font</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\renderer\font\fontshader.cpp">
-      <Filter>Engine\renderer\font</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\renderer\font\text.cpp">
-      <Filter>Engine\renderer\font</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\system\fpscounter.cpp">
       <Filter>Engine\system</Filter>
     </ClCompile>
@@ -126,6 +117,18 @@
     </ClCompile>
     <ClCompile Include="..\source\renderer\terrain\terrain.cpp">
       <Filter>Engine\renderer\terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\textrendering\font.cpp">
+      <Filter>Engine\renderer\textrendering</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\textrendering\fontshader.cpp">
+      <Filter>Engine\renderer\textrendering</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\textrendering\text.cpp">
+      <Filter>Engine\renderer\textrendering</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\textrendering\textrenderer.cpp">
+      <Filter>Engine\renderer\textrendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -192,15 +195,6 @@
     <ClInclude Include="..\source\entitymodel\components\visualcomponent.h">
       <Filter>Engine\entitymodel\components</Filter>
     </ClInclude>
-    <ClInclude Include="..\source\renderer\font\font.h">
-      <Filter>Engine\renderer\font</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source\renderer\font\fontshader.h">
-      <Filter>Engine\renderer\font</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source\renderer\font\text.h">
-      <Filter>Engine\renderer\font</Filter>
-    </ClInclude>
     <ClInclude Include="..\source\system\fpscounter.h">
       <Filter>Engine\system</Filter>
     </ClInclude>
@@ -216,8 +210,23 @@
     <ClInclude Include="..\source\renderer\terrain\terrain.h">
       <Filter>Engine\renderer\terrain</Filter>
     </ClInclude>
+    <ClInclude Include="..\source\renderer\isubrenderer.h">
+      <Filter>Engine\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\textrendering\textrenderer.h">
+      <Filter>Engine\renderer\textrendering</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\textrendering\font.h">
+      <Filter>Engine\renderer\textrendering</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\textrendering\fontshader.h">
+      <Filter>Engine\renderer\textrendering</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\textrendering\text.h">
+      <Filter>Engine\renderer\textrendering</Filter>
+    </ClInclude>
     <ClInclude Include="..\source\engine.h">
-      <Filter>Engine\system</Filter>
+      <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

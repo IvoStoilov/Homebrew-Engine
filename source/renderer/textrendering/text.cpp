@@ -1,6 +1,6 @@
-#include "renderer/font/text.h"
-#include "renderer/font/font.h"
-#include "renderer/font/fontshader.h"
+#include "renderer/textrendering/text.h"
+#include "renderer/textrendering/font.h"
+#include "renderer/textrendering/fontshader.h"
 
 const std::string FONT_TEXTURE_PATH = "../../resource/font/fontPic.png";
 const std::string FONT_DATA_PATH = "../../resource/font/fontData.txt";
@@ -12,27 +12,27 @@ const uint32_t LINE_SPACEING = 16;
 
 Text::Text() :
     m_Font(nullptr),
-    m_FontShader(nullptr),
-    m_Lines(nullptr)
+    m_FontShader(nullptr)
 {}
 
 Text::~Text()
 {}
 
-bool Text::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, uint32_t maxLength, uint16_t screenWidth, uint16_t screenHeight, uint16_t numberOfLines, int16_t posX, int16_t posY)
+bool Text::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, uint16_t screenWidth, uint16_t screenHeight, int16_t posX/*= 0*/, int16_t posY/*= 0*/)
 {
     if (!deviceContext)
         return false;
 
-    m_NumberOfLines = numberOfLines;
-    m_Lines = new SentenceType*[m_NumberOfLines];
-    if (!m_Lines)
+    if (!device)
         return false;
 
     m_DeviceContextCache = deviceContext;
+    m_DeviceCache = device;
 
     m_ScreenWidth = screenWidth;
     m_ScreenHeight = screenHeight;
+    m_PosX = posX;
+    m_PosY = posY;
 
     m_Font = new Font();
     if (!m_Font->Initialize(device, FONT_DATA_PATH, FONT_TEXTURE_PATH))
@@ -41,26 +41,18 @@ bool Text::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, 
     m_FontShader = new FontShader();
     if (!m_FontShader->Initialize(device))
         return false;
-
-    for (uint32_t i = 0; i < m_NumberOfLines; ++i)
-    {
-        m_Lines[i] = new SentenceType();
-        if (!InitializeSentence(&m_Lines[i], maxLength, device))
-            return false;
-
-        if (!UpdateSentence(m_Lines[i], "Lorem Ipsum", posX, posY - (i * LINE_SPACEING), 1.0f, 0.f, 0.0f))
-            return false;
-    }
     
     return true;
 }
 
 void Text::Shutdown()
 {
-    for (uint16_t i = 0; i < m_NumberOfLines; ++i)
+    for (uint16_t i = 0; i < m_Lines.size(); ++i)
+    {
         ReleaseSentence(&m_Lines[i]);
-   
-    delete[] m_Lines;
+    }
+
+    m_Lines.clear();
 
     // Release the font shader object.
     if (m_FontShader)
@@ -82,7 +74,7 @@ bool Text::Render(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3
     bool result;
 
     // Draw the first sentence.
-    for (uint16_t i = 0; i < m_NumberOfLines; ++i)
+    for (uint16_t i = 0; i < m_Lines.size(); ++i)
     {
         result = RenderSentence(deviceContext, m_Lines[i], worldMatrix, orthoMatrix);
         if (!result)
@@ -232,11 +224,28 @@ bool Text::UpdateSentence(SentenceType* sentence, char* text, int posX, int posY
 
 bool Text::SetText(char* text, uint16_t slot)
 {
+    if (slot >= m_Lines.size())
+        return false;
+
     int32_t numLetters = strlen(text);
     if (numLetters > m_Lines[slot]->maxLength)
         return false;
 
     return UpdateSentence(m_Lines[slot], text, m_Lines[slot]->posX, m_Lines[slot]->posY, m_Lines[slot]->red, m_Lines[slot]->green, m_Lines[slot]->blue);
+}
+
+bool Text::AppendLine(char* text, uint32_t maxLength, uint8_t r/*=255*/, uint8_t g/*=255*/, uint8_t b/*=255*/)
+{
+    SentenceType* newLine = new SentenceType();
+    if (!InitializeSentence(&newLine, maxLength, m_DeviceCache))
+        return false;
+
+    int16_t verticalOffset = LINE_SPACEING * m_Lines.size();
+    if (!UpdateSentence(newLine, text, m_PosX, m_PosY - verticalOffset, r, g, b))
+        return false;
+
+    m_Lines.push_back(newLine);
+    return true;
 }
 
 void Text::ReleaseSentence(SentenceType** sentence)
