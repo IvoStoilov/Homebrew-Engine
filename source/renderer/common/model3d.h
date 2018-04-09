@@ -7,11 +7,10 @@
 
 #include <string>
 #include <vector>
-#include "renderer\texture.h"
 #include "system\modelloader.h"
 
 class Texture;
-class D3D11Model
+class Model3D
 {
 private:
     struct VertexType
@@ -22,15 +21,16 @@ private:
     };
 
 public:
-    D3D11Model();
-    ~D3D11Model();
+    Model3D();
+    ~Model3D();
 
     bool Initialize(ID3D11Device* device, std::string& modelPath, std::string& texturePath);
     void Shutdown();
     void Render(ID3D11DeviceContext* device);
     
     inline int GetIndexCount() { return m_IndexCount; }
-    inline ID3D11ShaderResourceView* GetTexture() { return m_Texture->GetTexture(); }
+    ID3D11ShaderResourceView* GetTexture();
+
 private:
     bool InitializeBuffers(ID3D11Device* device);
     void ShutdownBuffers();

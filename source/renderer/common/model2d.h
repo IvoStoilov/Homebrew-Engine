@@ -7,8 +7,6 @@
 
 #include <string>
 
-#include "renderer/texture.h"
-
 class Texture;
 class Model2D
 {
@@ -28,7 +26,7 @@ public:
     bool Render(ID3D11DeviceContext* deviceContext, int32_t posX, int32_t posY);
 
     inline int GetIndexCount() { return m_IndexCount; }
-    inline ID3D11ShaderResourceView* GetTexture() { return m_Texture->GetTexture(); }
+    ID3D11ShaderResourceView* GetTexture();
     inline D3DXMATRIX GetWorldMatrix() const { return m_WorldMatrix; }
 
 private:

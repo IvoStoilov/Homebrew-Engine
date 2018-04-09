@@ -8,9 +8,6 @@ const float SCREEN_NEAR = 0.1f;
 
 class D3D11;
 class GraphicsNode;
-class TextureShader;
-class Terrain;
-class D3D11Shader;
 class VisualComponent;
 class ISubRenderer;
 class D3D11Renderer
@@ -43,12 +40,7 @@ private:
 
     std::vector<GraphicsNode*> m_Nodes;
     std::vector<ISubRenderer*> m_SubRenderers;
-
-    //temp hack
-    TextureShader* m_TextureShader;
-    D3D11Shader* m_TerrainShader;
-    Terrain* m_Terrain;
-    
+  
     D3DXMATRIX m_ViewMatrix;
     D3DXMATRIX m_ProjectionMatrix;
     D3DXMATRIX m_WorldMatrix;

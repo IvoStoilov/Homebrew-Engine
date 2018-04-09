@@ -1,15 +1,16 @@
-#include "renderer\d3d11model.h"
+#include "renderer/common/model3d.h"
+#include "renderer/common/texture.h"
 
-D3D11Model::D3D11Model() :
+Model3D::Model3D() :
     m_VertexCount(0),
     m_IndexCount(0),
     m_Texture(nullptr)
 {}
 
-D3D11Model::~D3D11Model()
+Model3D::~Model3D()
 {}
 
-bool D3D11Model::Initialize(ID3D11Device* device, std::string& modelPath, std::string& texturePath)
+bool Model3D::Initialize(ID3D11Device* device, std::string& modelPath, std::string& texturePath)
 {
     bool result = ModelLoader::LoadBGDFile(modelPath, m_VertexData);
     if (!result)
@@ -26,18 +27,18 @@ bool D3D11Model::Initialize(ID3D11Device* device, std::string& modelPath, std::s
     return true;
 }
 
-void D3D11Model::Shutdown()
+void Model3D::Shutdown()
 {
     ReleaseTexture();
     ShutdownBuffers();
 }
 
-void D3D11Model::Render(ID3D11DeviceContext* device)
+void Model3D::Render(ID3D11DeviceContext* device)
 {
     RenderBuffers(device);
 }
 
-bool D3D11Model::InitializeBuffers(ID3D11Device* device)
+bool Model3D::InitializeBuffers(ID3D11Device* device)
 {
     HRESULT result;
 
@@ -111,7 +112,7 @@ bool D3D11Model::InitializeBuffers(ID3D11Device* device)
     return true;
 }
 
-void D3D11Model::ShutdownBuffers()
+void Model3D::ShutdownBuffers()
 {
     // Release the index buffer.
     if (m_IndexBuffer)
@@ -129,7 +130,7 @@ void D3D11Model::ShutdownBuffers()
 }
 
 
-bool D3D11Model::LoadTexture(ID3D11Device* device, std::string& texturePath)
+bool Model3D::LoadTexture(ID3D11Device* device, std::string& texturePath)
 {
     bool result = false;
 
@@ -140,7 +141,7 @@ bool D3D11Model::LoadTexture(ID3D11Device* device, std::string& texturePath)
     return m_Texture->Initialize(device, texturePath);
 }
 
-void D3D11Model::ReleaseTexture()
+void Model3D::ReleaseTexture()
 {
     if (m_Texture)
     {
@@ -150,7 +151,7 @@ void D3D11Model::ReleaseTexture()
     }
 }
 
-void D3D11Model::RenderBuffers(ID3D11DeviceContext* deviceContext)
+void Model3D::RenderBuffers(ID3D11DeviceContext* deviceContext)
 {
     unsigned int stride;
     unsigned int offset;
@@ -168,6 +169,9 @@ void D3D11Model::RenderBuffers(ID3D11DeviceContext* deviceContext)
 
     // Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
     deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
 
-    return;
+ID3D11ShaderResourceView* Model3D::GetTexture()
+{ 
+    return m_Texture->GetTexture(); 
 }

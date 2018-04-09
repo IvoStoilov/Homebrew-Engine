@@ -1,4 +1,5 @@
-#include "renderer/model2d.h"
+#include "renderer/common/model2d.h"
+#include "renderer/common/texture.h"
 
 #include "system/error.h"
 #include "engine.h"
@@ -252,4 +253,9 @@ void Model2D::RenderBuffers(ID3D11DeviceContext* deviceContext)
 
     // Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
     deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
+
+ID3D11ShaderResourceView* Model2D::GetTexture() 
+{ 
+    return m_Texture->GetTexture(); 
 }

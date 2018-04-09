@@ -1,4 +1,4 @@
-#include "renderer/texture.h"
+#include "renderer/common/texture.h"
 #include "extern/DirectXTK/Inc/WICTextureLoader.h"
 
 Texture::Texture() :

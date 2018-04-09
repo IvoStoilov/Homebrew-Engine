@@ -1,6 +1,6 @@
 #include "renderer/graphicsnode.h"
-#include "renderer/d3d11model.h"
-#include "renderer/lightshader.h"
+#include "renderer/common/model3d.h"
+#include "renderer/common/lightshader.h"
 
 #include "entitymodel/entity.h"
 #include "entitymodel/components/visualcomponent.h"
@@ -18,7 +18,7 @@ D3DXVECTOR4 LIGHT_DIRECTION(-.3f, +.3f, 1.f, 0.f);
 void GraphicsNode::Initialize(ID3D11Device* device)
 {
     // Create the model object.
-    m_Model = new D3D11Model();
+    m_Model = new Model3D();
     popAssert(m_Model != nullptr, "Memory Alloc Failed");
     popAssert(m_Model->Initialize(device, m_Owner->GetModelPath(), m_Owner->GetTexturePath()), "Model Init Failed");
 

@@ -6,18 +6,14 @@
 #include "entitymodel/components/visualcomponent.h"
 
 #include "renderer/graphicsnode.h"
-#include "renderer/d3d11shader.h"
 #include "renderer/d3d11renderer.h"
 #include "renderer/d3d11.h"
 
-#include "renderer/model2d.h"
-#include "renderer/textureshader.h"
+#include "renderer/textrendering/textrenderer.h"
 #include "renderer/textrendering/text.h"
 
 #include "renderer/isubrenderer.h"
-#include "renderer/textrendering/textrenderer.h"
-
-#include "renderer/terrain/terrain.h"
+#include "renderer/terrain/terrainrenderer.h"
 
 #include "camera.h"
 #include "engine.h"
@@ -35,19 +31,13 @@ bool D3D11Renderer::Initialize(HWND hwnd, uint32_t screenWidth, uint32_t screenH
     ISubRenderer* textRenderer = new TextRenderer(screenWidth, screenHeight);
     m_SubRenderers.push_back(textRenderer);
 
+    ISubRenderer* terrainRenderer = new TerrainRenderer();
+    m_SubRenderers.push_back(terrainRenderer);
+
     for (ISubRenderer* subRenderer : m_SubRenderers)
     {
         popAssert(subRenderer->Initialize(m_D3D->GetDevice(), m_D3D->GetDeviceContext()), "subRenderer failed init");
     }
-
-    m_TextureShader = new TextureShader();
-    popAssert(m_TextureShader->Initialize(m_D3D->GetDevice(), hwnd), "asd");
-
-    m_TerrainShader = new D3D11Shader();
-    popAssert(m_TerrainShader->Initialize(m_D3D->GetDevice(), hwnd), "Terrain shader failed initing");
-
-    m_Terrain = new Terrain();
-    popAssert(m_Terrain->Initialize(m_D3D->GetDevice()), "Terrain mesh failed initing");
 
     return true;
 }
@@ -65,12 +55,6 @@ void D3D11Renderer::Shutdown()
     for (ISubRenderer* subRenderer : m_SubRenderers)
     {
         subRenderer->Shutdown();
-    }
-
-    if (m_TextureShader)
-    {
-        m_TextureShader->Shutdown();
-        delete m_TextureShader;
     }
 
     if (m_D3D)
@@ -109,27 +93,22 @@ bool D3D11Renderer::PreFrame()
 
     m_ViewMatrix = viewMatrix.ToD3DXMATRIX();
 
+    for (ISubRenderer* subRenderer : m_SubRenderers)
+        subRenderer->UpdateViewMatrix(viewMatrix);
+
     return true;
 }
 
 bool D3D11Renderer::Render()
 {
-    mat4x4 globalMatrix;
     // Clear the buffers to begin the scene.
     m_D3D->BeginScene(0.f, 0.f, 0.f, 0.f);
 
-    //Terrain Grid Render pass
-    {
-        D3DXMATRIX worldMatrix;
-        D3DXMatrixIdentity(&worldMatrix);
-        m_Terrain->Render(m_D3D->GetDeviceContext());
-        m_TerrainShader->Render(m_D3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, m_ViewMatrix, m_ProjectionMatrix);
-    }
-
+    //TODO istoilov : Move code to a dedicated solid object sub renderer.
     m_D3D->GetProjectionMatrix(m_ProjectionMatrix);
     for (GraphicsNode* node : m_Nodes)
     {
-        node->SetProjectionMatrix(mat4x4(m_ProjectionMatrix)); // TODO (istoilov) fix nasty hack;
+        node->SetProjectionMatrix(mat4x4(m_ProjectionMatrix));
         node->SetViewMatrix(m_ViewMatrix);
         node->Render(m_D3D->GetDeviceContext());
     }

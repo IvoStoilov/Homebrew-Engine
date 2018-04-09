@@ -5,7 +5,7 @@
 #include <string>
 
 
-class D3D11Shader
+class ColorShader
 {
 private:
     struct MatrixBufferType
@@ -16,17 +16,16 @@ private:
     };
 
 public:
-    D3D11Shader();
-    ~D3D11Shader();
+    ColorShader();
+    ~ColorShader();
     
-    bool Initialize(ID3D11Device* device, HWND hwnd);
+    bool Initialize(ID3D11Device* device);
     void Shutdown();
     bool Render(ID3D11DeviceContext* deviceContext, uint32_t indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, D3DXMATRIX projectionMatrix);
 
 private:
-    bool InitializeShader(ID3D11Device* device, HWND hwnd, const std::string& vsPath, const std::string& psPath);
+    bool InitializeShader(ID3D11Device* device, const std::string& vsPath, const std::string& psPath);
     void ShutdownShader();
-    void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
     bool SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX& worldMatrix, D3DXMATRIX& viewMatrix, D3DXMATRIX& projectionMatrix);
     void RenderShader(ID3D11DeviceContext*, int);

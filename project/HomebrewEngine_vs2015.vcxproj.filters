@@ -32,6 +32,9 @@
     <Filter Include="Engine\renderer\textrendering">
       <UniqueIdentifier>{6d267fe1-f43f-428c-8750-4e9b50fb9ff9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\renderer\common">
+      <UniqueIdentifier>{694d5130-4de5-40e0-b6fb-43b46e95009f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\win64\win64viewprovider.cpp">
@@ -49,26 +52,11 @@
     <ClCompile Include="..\source\renderer\d3d11.cpp">
       <Filter>Engine\renderer</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\renderer\d3d11model.cpp">
-      <Filter>Engine\renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\renderer\d3d11shader.cpp">
-      <Filter>Engine\renderer</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\camera.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\renderer\texture.cpp">
-      <Filter>Engine\renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\renderer\textureshader.cpp">
-      <Filter>Engine\renderer</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\system\error.cpp">
       <Filter>Engine\system</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\renderer\lightshader.cpp">
-      <Filter>Engine\renderer</Filter>
     </ClCompile>
     <ClCompile Include="..\source\system\modelloader.cpp">
       <Filter>Engine\system</Filter>
@@ -92,9 +80,6 @@
       <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="..\source\renderer\graphicsnode.cpp">
-      <Filter>Engine\renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\renderer\model2d.cpp">
       <Filter>Engine\renderer</Filter>
     </ClCompile>
     <ClCompile Include="..\source\entitymodel\components\component.cpp">
@@ -130,6 +115,27 @@
     <ClCompile Include="..\source\renderer\textrendering\textrenderer.cpp">
       <Filter>Engine\renderer\textrendering</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\renderer\common\model3d.cpp">
+      <Filter>Engine\renderer\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\common\model2d.cpp">
+      <Filter>Engine\renderer\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\common\texture.cpp">
+      <Filter>Engine\renderer\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\common\colorshader.cpp">
+      <Filter>Engine\renderer\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\common\lightshader.cpp">
+      <Filter>Engine\renderer\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\common\textureshader.cpp">
+      <Filter>Engine\renderer\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\terrain\terrainrenderer.cpp">
+      <Filter>Engine\renderer\terrain</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\win64\win64viewprovider.h">
@@ -144,26 +150,11 @@
     <ClInclude Include="..\source\renderer\d3d11.h">
       <Filter>Engine\renderer</Filter>
     </ClInclude>
-    <ClInclude Include="..\source\renderer\d3d11model.h">
-      <Filter>Engine\renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source\renderer\d3d11shader.h">
-      <Filter>Engine\renderer</Filter>
-    </ClInclude>
     <ClInclude Include="..\source\camera.h">
       <Filter>Engine</Filter>
     </ClInclude>
-    <ClInclude Include="..\source\renderer\texture.h">
-      <Filter>Engine\renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source\renderer\textureshader.h">
-      <Filter>Engine\renderer</Filter>
-    </ClInclude>
     <ClInclude Include="..\source\system\error.h">
       <Filter>Engine\system</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source\renderer\lightshader.h">
-      <Filter>Engine\renderer</Filter>
     </ClInclude>
     <ClInclude Include="..\source\system\modelloader.h">
       <Filter>Engine\system</Filter>
@@ -184,9 +175,6 @@
       <Filter>Engine\entitymodel</Filter>
     </ClInclude>
     <ClInclude Include="..\source\renderer\graphicsnode.h">
-      <Filter>Engine\renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source\renderer\model2d.h">
       <Filter>Engine\renderer</Filter>
     </ClInclude>
     <ClInclude Include="..\source\entitymodel\components\component.h">
@@ -227,6 +215,27 @@
     </ClInclude>
     <ClInclude Include="..\source\engine.h">
       <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\common\model3d.h">
+      <Filter>Engine\renderer\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\common\model2d.h">
+      <Filter>Engine\renderer\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\common\texture.h">
+      <Filter>Engine\renderer\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\common\colorshader.h">
+      <Filter>Engine\renderer\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\common\lightshader.h">
+      <Filter>Engine\renderer\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\common\textureshader.h">
+      <Filter>Engine\renderer\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\terrain\terrainrenderer.h">
+      <Filter>Engine\renderer\terrain</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

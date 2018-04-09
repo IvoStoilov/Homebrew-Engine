@@ -1,7 +1,7 @@
 #pragma once
 #include "system/math/mat4x4.h"
 
-class D3D11Model;
+class Model3D;
 class LightShader;
 class VisualComponent;
 struct ID3D11Device;
@@ -29,5 +29,5 @@ private:
 
     //TODO (istoilov) : Make an abstraction over shader implementations
     LightShader* m_LightShader;
-    D3D11Model* m_Model;
+    Model3D* m_Model;
 };

@@ -1,8 +1,9 @@
-#include "renderer/d3d11shader.h"
+#include "renderer/common/colorshader.h"
+#include "system/error.h"
+
 #include <d3d11.h>
 #include <D3DCompiler.h>
 #include <d3dx11async.h>
-#include <fstream>
 
 /*
 Shader Paths :
@@ -17,7 +18,7 @@ using namespace std;
 const string VS_SHADER_PATH = "../../source/renderer/shader/simpleVS.hlsl";
 const string PS_SHADER_PATH = "../../source/renderer/shader/simplePS.hlsl";
 
-D3D11Shader::D3D11Shader() :
+ColorShader::ColorShader() :
     m_VertexShader(nullptr),
     m_PixelShader(nullptr),
     m_Layout(nullptr),
@@ -25,20 +26,20 @@ D3D11Shader::D3D11Shader() :
 {
 }
 
-D3D11Shader::~D3D11Shader()
+ColorShader::~ColorShader()
 {}
 
-bool D3D11Shader::Initialize(ID3D11Device* device, HWND hwnd)
+bool ColorShader::Initialize(ID3D11Device* device)
 {
-    return InitializeShader(device, hwnd, VS_SHADER_PATH, PS_SHADER_PATH);
+    return InitializeShader(device, VS_SHADER_PATH, PS_SHADER_PATH);
 }
 
-void D3D11Shader::Shutdown()
+void ColorShader::Shutdown()
 {
     ShutdownShader();
 }
 
-bool D3D11Shader::Render(ID3D11DeviceContext* deviceContext, uint32_t indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, D3DXMATRIX projectionMatrix)
+bool ColorShader::Render(ID3D11DeviceContext* deviceContext, uint32_t indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, D3DXMATRIX projectionMatrix)
 {
     // Set the shader parameters that it will use for rendering.
     if(!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix))
@@ -50,7 +51,7 @@ bool D3D11Shader::Render(ID3D11DeviceContext* deviceContext, uint32_t indexCount
     return true;
 }
 
-bool D3D11Shader::InitializeShader(ID3D11Device* device, HWND hwnd, const std::string& vsPath, const std::string& psPath)
+bool ColorShader::InitializeShader(ID3D11Device* device, const std::string& vsPath, const std::string& psPath)
 {
     HRESULT result;
     ID3D10Blob* errorMessage;
@@ -67,55 +68,22 @@ bool D3D11Shader::InitializeShader(ID3D11Device* device, HWND hwnd, const std::s
 
     // Compile the vertex shader code.
     result = D3DX11CompileFromFile(vsPath.c_str(), NULL, NULL, "main", "vs_5_0", (D3D10_SHADER_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG), 0, NULL,
-            &vertexShaderBuffer, &errorMessage, NULL);
-    if (FAILED(result))
-    {
-        // If the shader failed to compile it should have writen something to the error message.
-        if (errorMessage)
-        {
-            //OutputShaderErrorMessage(errorMessage, hwnd, vsPath.c_str());
-        }
-        // If there was nothing in the error message then it simply could not find the shader file itself.
-        else
-        {
-//            MessageBox(hwnd, vsPath, L"Missing Shader File", MB_OK);
-        }
-
-        return false;
-    }
+             &vertexShaderBuffer, &errorMessage, NULL);
+    popAssert(!FAILED(result), "ColorShaderVS Compilation Failed.");
 
     // Compile the pixel shader code.
     result = D3DX11CompileFromFile(psPath.c_str(), NULL, NULL, "main", "ps_5_0", (D3D10_SHADER_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG), 0, NULL,
-        &pixelShaderBuffer, &errorMessage, NULL);
-    if (FAILED(result))
-    {
-        // If the shader failed to compile it should have writen something to the error message.
-        if (errorMessage)
-        {
-            //OutputShaderErrorMessage(errorMessage, hwnd, psPath.c_str());
-        }
-        // If there was  nothing in the error message then it simply could not find the file itself.
-        else
-        {
-//            MessageBox(hwnd, psPath, L"Missing Shader File", MB_OK);
-        }
-
-        return false;
-    }
+             &pixelShaderBuffer, &errorMessage, NULL);
+    popAssert(!FAILED(result), "ColorShaderPS Compilation Failed.");
 
     // Create the vertex shader from the buffer.
     result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_VertexShader);
-    if (FAILED(result))
-    {
-        return false;
-    }
+    popAssert(!FAILED(result), "ColorShader::InitializeShader::CreateVertexShader failed");
 
     // Create the pixel shader from the buffer.
     result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_PixelShader);
-    if (FAILED(result))
-    {
-        return false;
-    }
+    popAssert(!FAILED(result), "ColorShader::InitializeShader::CreateVertexShader failed");
+
 
     // Now setup the layout of the data that goes into the shader.
     // This setup needs to match the VertexType stucture in the ModelClass and in the shader.
@@ -141,10 +109,7 @@ bool D3D11Shader::InitializeShader(ID3D11Device* device, HWND hwnd, const std::s
     // Create the vertex input layout.
     result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(),
         vertexShaderBuffer->GetBufferSize(), &m_Layout);
-    if (FAILED(result))
-    {
-        return false;
-    }
+    popAssert(!FAILED(result), "ColorShader::InitializeShader::CreateInputLayout failed");
 
     // Release the vertex shader buffer and pixel shader buffer since they are no longer needed.
     vertexShaderBuffer->Release();
@@ -164,15 +129,12 @@ bool D3D11Shader::InitializeShader(ID3D11Device* device, HWND hwnd, const std::s
 
     // Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
     result = device->CreateBuffer(&matrixBufferDesc, NULL, &m_MatrixBuffer);
-    if (FAILED(result))
-    {
-        return false;
-    }
+    popAssert(!FAILED(result), "ColorShader::InitializeShader::CreateBuffer failed");
 
     return true;
 }
 
-void D3D11Shader::ShutdownShader()
+void ColorShader::ShutdownShader()
 {
     // Release the matrix constant buffer.
     if (m_MatrixBuffer)
@@ -203,41 +165,7 @@ void D3D11Shader::ShutdownShader()
     }
 }
 
-void D3D11Shader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
-{
-    char* compileErrors;
-    unsigned long bufferSize, i;
-    ofstream fout;
-
-    // Get a pointer to the error message text buffer.
-    compileErrors = (char*)(errorMessage->GetBufferPointer());
-
-    // Get the length of the message.
-    bufferSize = errorMessage->GetBufferSize();
-
-    // Open a file to write the error message to.
-    fout.open("shader-error.txt");
-
-    // Write out the error message.
-    for (i = 0; i < bufferSize; i++)
-    {
-        fout << compileErrors[i];
-    }
-
-    // Close the file.
-    fout.close();
-
-    // Release the error message.
-    errorMessage->Release();
-    errorMessage = 0;
-
-    // Pop a message up on the screen to notify the user to check the text file for compile errors.
-//    MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
-
-    return;
-}
-
-bool D3D11Shader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX& worldMatrix,
+bool ColorShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX& worldMatrix,
     D3DXMATRIX& viewMatrix, D3DXMATRIX& projectionMatrix)
 {
     HRESULT result;
@@ -278,7 +206,7 @@ bool D3D11Shader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMA
     return true;
 }
 
-void D3D11Shader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
+void ColorShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
 {
     // Set the vertex input layout.
     deviceContext->IASetInputLayout(m_Layout);
