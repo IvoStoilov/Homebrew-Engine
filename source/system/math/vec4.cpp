@@ -32,9 +32,27 @@ vec4::vec4(const vec4& value)
     memcpy(_data, value._data, sizeof(_data));
 }
 
+vec4::vec4(std::array<float, 3>& value)
+{
+    _data[0] = value[0];
+    _data[1] = value[1];
+    _data[2] = value[2];
+    _data[3] = 0;
+}
+
 void vec4::operator= (const vec4& rhs)
 {
    memcpy(_data, rhs._data, sizeof(rhs._data));
+}
+
+bool vec4::operator==(const vec4& rhs) const
+{
+    return (x == rhs.x && y == rhs.y && z == rhs.z);
+}
+
+bool vec4::operator!=(const vec4& rhs) const
+{
+    return !this->operator==(rhs);
 }
 
 void vec4::operator+= (const vec4& rhs)

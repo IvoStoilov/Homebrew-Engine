@@ -4,10 +4,10 @@
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow)
 {
-    AllocConsole();
-    freopen("CONIN$", "r", stdin);
-    freopen("CONOUT$", "w", stdout);
-    freopen("CONOUT$", "w", stderr);
+    //AllocConsole();
+    //freopen("CONIN$", "r", stdin);
+    //freopen("CONOUT$", "w", stdout);
+    //freopen("CONOUT$", "w", stderr);
 
     // Create the system object.
     Win64_ViewProvider* viewProvider = new Win64_ViewProvider();

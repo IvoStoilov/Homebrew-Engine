@@ -6,6 +6,7 @@
 
 #include "system/modelloader.h"
 
+class Mesh;
 class Terrain
 {
 private:
@@ -27,13 +28,21 @@ public:
 
 private:
     bool InitializeBuffers(ID3D11Device* device);
+    bool InitializeTerrainMesh();
     bool LoadTerrainData();
     void NormalizeHeight();
     void ShutdownBuffers();
     void RenderBuffers(ID3D11DeviceContext* deviceContext);
 
+
+    void SetupBuffersForWireframe(uint32_t*& indexes);
+    void SetupBuffersForSolid    (uint32_t*& indexes);
+    float TestHeightInUV(float x, float y);
+
 private:
     std::vector<ModelLoader::VertexData> m_HeightMapData;
+
+    Mesh* m_Mesh;
 
     int32_t m_HeightMapUSize;
     int32_t m_HeightMapVSize;

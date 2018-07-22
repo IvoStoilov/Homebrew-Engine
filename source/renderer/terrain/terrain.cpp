@@ -1,26 +1,34 @@
 #include "renderer/terrain/terrain.h"
+#include "renderer/common/mesh.h"
 #include "system/error.h"
+
+#include <fstream>
 
 using namespace DirectX;
 
 //Hardcoded Constants - TODO : make them data-driven
-const int32_t DEFAULT_TERRAIN_U_SIZE = 60;
-const int32_t DEFAULT_TERRAIN_V_SIZE = 60;
+const int32_t DEFAULT_TERRAIN_U_SIZE = 256;
+const int32_t DEFAULT_TERRAIN_V_SIZE = 256;
 
 //If true will use DEFAULT_TERRAIN_U_SIZE / DEFAULT_TERRAIN_V_SIZE instead of the height map size
-const bool USE_DEFAULT_UV_SIZE = false;
+const bool USE_DEFAULT_UV_SIZE = true;
+const bool DRAW_WIREFRAME = false;
 
 const float TERRAIN_U_RATIO = 1.f;
 const float TERRAIN_V_RATIO = 1.f;
 
-const float MAX_TERRAIN_HEIGHT = 250.f;
+const float MAX_TERRAIN_HEIGHT = 60.f;
 
 const XMFLOAT4 DEFAULT_COLOR(1.f, 1.f, 1.f, 1.f);
 const XMFLOAT4 DEEP_COLOR(0.2f, 1.f, 0.2f, 1.f);
+const XMFLOAT4 GRAY_COLOR(0.5f, 0.5f, 0.5f, 1.f);
+
 
 const std::string TERRAIN_HEIGHT_MAP_PATH = "../../resource/terrain/terrainheightmap3.bmp";
+const std::string TERRAIN_MESH_PATH = "../../resource/terrain/terrainplane256x256.obj";
 
 Terrain::Terrain() :
+    m_Mesh(nullptr),
     m_HeightMapUSize(0),
     m_HeightMapVSize(0),
     m_TerrainUSize(DEFAULT_TERRAIN_U_SIZE),
@@ -39,6 +47,9 @@ bool Terrain::Initialize(ID3D11Device* device)
     if (!LoadTerrainData())
         return false;
 
+    if (!InitializeTerrainMesh())
+        return false;
+
     if (!InitializeBuffers(device))
         return false;
 
@@ -47,6 +58,7 @@ bool Terrain::Initialize(ID3D11Device* device)
 
 void Terrain::Shutdown()
 {
+    m_Mesh->Shutdown();
     ShutdownBuffers();
 }
 
@@ -72,12 +84,19 @@ bool Terrain::LoadTerrainData()
     return true;
 }
 
+bool Terrain::InitializeTerrainMesh()
+{
+    m_Mesh = new Mesh();
+    m_Mesh->InitializeMeshFromFile(TERRAIN_MESH_PATH);
+    return true;
+}
+
 void Terrain::NormalizeHeight()
 {
     int32_t ratio = m_HeightMapVSize / m_TerrainVSize;
     for (uint32_t i = 0; i < m_HeightMapData.size(); ++i)
     {
-        //m_HeightMapData[i].color[0] = (m_HeightMapData[i].color[0] / 255.f) * MAX_TERRAIN_HEIGHT;
+        m_HeightMapData[i].color[0] = (m_HeightMapData[i].color[0] / 255.f) * MAX_TERRAIN_HEIGHT;
         m_HeightMapData[i].uv[0] *= TERRAIN_U_RATIO;
         m_HeightMapData[i].uv[1] *= TERRAIN_V_RATIO;
     }
@@ -86,7 +105,48 @@ void Terrain::NormalizeHeight()
 
 XMFLOAT4 ColorSelector(float height)
 {
+    return GRAY_COLOR;
     return height < 40 ? DEEP_COLOR : DEFAULT_COLOR;
+}
+
+void Terrain::SetupBuffersForSolid(uint32_t*& indexes)
+{
+    std::vector<uint32_t>& meshIndexes = m_Mesh->GetIndexes();
+    indexes = new uint32_t[m_IndexCount];
+
+    for (uint32_t i = 0; i < m_IndexCount; i++)
+    {
+        indexes[i] = meshIndexes[i];
+    }
+}
+
+void Terrain::SetupBuffersForWireframe(uint32_t*& indexes)
+{
+    std::vector<uint32_t>& meshIndexes = m_Mesh->GetIndexes();
+    m_IndexCount *= 2;
+    indexes = new uint32_t[m_IndexCount];
+
+    uint32_t j = 0;
+    for (uint32_t i = 0; i < meshIndexes.size(); i+=3)
+    {
+        indexes[j++] = meshIndexes[i];
+        indexes[j++] = meshIndexes[i + 1];
+        indexes[j++] = meshIndexes[i + 1];
+        indexes[j++] = meshIndexes[i + 2];
+        indexes[j++] = meshIndexes[i + 2];
+        indexes[j++] = meshIndexes[i];
+    }
+}
+
+float Terrain::TestHeightInUV(float x, float y)
+{
+    float normX = (x / DEFAULT_TERRAIN_U_SIZE) + 0.5f;
+    float normY = (y / DEFAULT_TERRAIN_V_SIZE) + 0.5f;
+
+    uint32_t heightMapX = (uint32_t)(normX * m_HeightMapUSize);
+    uint32_t heightMapY = (uint32_t)(normY * m_HeightMapVSize);
+
+    return m_HeightMapData[heightMapX * m_HeightMapUSize + heightMapY].color[0];
 }
 
 bool Terrain::InitializeBuffers(ID3D11Device* device)
@@ -97,119 +157,28 @@ bool Terrain::InitializeBuffers(ID3D11Device* device)
     int32_t scaleV = m_HeightMapVSize / m_TerrainVSize;
     int32_t scaleU = m_HeightMapUSize / m_TerrainUSize;
 
-    m_VertexCount = (m_TerrainUSize - 1) * (m_TerrainVSize - 1) * 12;
-    m_IndexCount = m_VertexCount;
+    std::vector<Mesh::Vertex*>& meshVertices = m_Mesh->GetVertices();
+    std::vector<uint32_t>& meshIndexes = m_Mesh->GetIndexes();
 
-    VertexType* vertices = new VertexType[m_VertexCount];
-    uint32_t* indices = new uint32_t[m_IndexCount];
+    m_VertexCount = meshVertices.size();
+    m_IndexCount = meshIndexes.size();
+    
+    VertexType* vertices = nullptr;
+    uint32_t*   indices  = nullptr;
 
-    uint32_t index = 0;
-    for (uint32_t j = 0; j < (m_TerrainVSize - 1); ++j)
+    vertices = new VertexType[m_VertexCount];
+    for (uint32_t i = 0; i < m_VertexCount; i++)
     {
-        for (uint32_t i = 0; i < (m_TerrainUSize - 1); ++i)
-        {
-            //Feeding the Texture height. Should not rely on magic numbers and figure out a systemic way to calculate
-            //the vertex location in one-dim-array to the grid
-            uint32_t index1 = (m_HeightMapVSize * (j + 0) * scaleV) + (i + 1) * scaleU;  // Bottom left.
-            uint32_t index2 = (m_HeightMapVSize * (j + 0) * scaleV) + (i + 0) * scaleU;  // Bottom right.
-            uint32_t index3 = (m_HeightMapVSize * (j + 1) * scaleV) + (i + 1) * scaleU;  // Upper left.
-            uint32_t index4 = (m_HeightMapVSize * (j + 1) * scaleV) + (i + 0) * scaleU;  // Upper right.
-
-            if (m_HeightMapData[index1].color[0] < 1 ||
-                m_HeightMapData[index2].color[0] < 1 ||
-                m_HeightMapData[index3].color[0] < 1 ||
-                m_HeightMapData[index4].color[0] < 1  )
-            {
-                int a = 9;
-            }
-
-
-
-            {
-                // Upper left.
-                vertices[index].position = XMFLOAT4(m_HeightMapData[index3].uv[0], m_HeightMapData[index3].color[0], m_HeightMapData[index3].uv[1], 0.f);
-                vertices[index].color = ColorSelector(vertices[index].position.y);
-                indices[index] = index;
-                index++;
-
-                // Upper right.
-                vertices[index].position = XMFLOAT4(m_HeightMapData[index4].uv[0], m_HeightMapData[index4].color[0], m_HeightMapData[index4].uv[1], 0.f);
-                vertices[index].color = ColorSelector(vertices[index].position.y);
-                indices[index] = index;
-                index++;
-            }
-
-            {
-                // Upper right.
-                vertices[index].position = XMFLOAT4(m_HeightMapData[index4].uv[0], m_HeightMapData[index4].color[0], m_HeightMapData[index4].uv[1], 0.f);
-                vertices[index].color = ColorSelector(vertices[index].position.y);
-                indices[index] = index;
-                index++;
-
-                // Bottom left.
-                vertices[index].position = XMFLOAT4(m_HeightMapData[index1].uv[0], m_HeightMapData[index1].color[0], m_HeightMapData[index1].uv[1], 0.f);
-                vertices[index].color = ColorSelector(vertices[index].position.y);
-                indices[index] = index;
-                index++;
-            }
-
-            {
-                // Bottom left.
-                vertices[index].position = XMFLOAT4(m_HeightMapData[index1].uv[0], m_HeightMapData[index1].color[0], m_HeightMapData[index1].uv[1], 0.f);
-                vertices[index].color = ColorSelector(vertices[index].position.y);
-                indices[index] = index;
-                index++;
-
-                // Upper left.
-                vertices[index].position = XMFLOAT4(m_HeightMapData[index3].uv[0], m_HeightMapData[index3].color[0], m_HeightMapData[index3].uv[1], 0.f);
-                vertices[index].color = ColorSelector(vertices[index].position.y);
-                indices[index] = index;
-                index++;
-            }
-
-            {
-                // Bottom left.
-                vertices[index].position = XMFLOAT4(m_HeightMapData[index1].uv[0], m_HeightMapData[index1].color[0], m_HeightMapData[index1].uv[1], 0.f);
-                vertices[index].color = ColorSelector(vertices[index].position.y);
-                indices[index] = index;
-                index++;
-
-                // Upper right.
-                vertices[index].position = XMFLOAT4(m_HeightMapData[index4].uv[0], m_HeightMapData[index4].color[0], m_HeightMapData[index4].uv[1], 0.f);
-                vertices[index].color = ColorSelector(vertices[index].position.y);
-                indices[index] = index;
-                index++;
-            }
-
-            {
-                // Upper right.
-                vertices[index].position = XMFLOAT4(m_HeightMapData[index4].uv[0], m_HeightMapData[index4].color[0], m_HeightMapData[index4].uv[1], 0.f);
-                vertices[index].color = ColorSelector(vertices[index].position.y);
-                indices[index] = index;
-                index++;
-
-                // Bottom right.
-                vertices[index].position = XMFLOAT4(m_HeightMapData[index2].uv[0], m_HeightMapData[index2].color[0], m_HeightMapData[index2].uv[1], 0.f);
-                vertices[index].color = ColorSelector(vertices[index].position.y);
-                indices[index] = index;
-                index++;
-            }
-
-            {
-                // Bottom right.
-                vertices[index].position = XMFLOAT4(m_HeightMapData[index2].uv[0], m_HeightMapData[index2].color[0], m_HeightMapData[index2].uv[1], 0.f);
-                vertices[index].color = ColorSelector(vertices[index].position.y);
-                indices[index] = index;
-                index++;
-
-                // Bottom left.
-                vertices[index].position = XMFLOAT4(m_HeightMapData[index1].uv[0], m_HeightMapData[index1].color[0], m_HeightMapData[index1].uv[1], 0.f);
-                vertices[index].color = ColorSelector(vertices[index].position.y);
-                indices[index] = index;
-                index++;
-            }
-        }
+        float height = TestHeightInUV(meshVertices[i]->m_Position.x, meshVertices[i]->m_Position.z);
+        vertices[i].position = XMFLOAT4(meshVertices[i]->m_Position.x * scaleU, height, meshVertices[i]->m_Position.z * scaleV, 0.f);
+        vertices[i].color = ColorSelector(vertices[i].position.y);
     }
+
+    if (DRAW_WIREFRAME)
+        SetupBuffersForWireframe(indices);
+    else
+        SetupBuffersForSolid(indices);
+
 
     HRESULT result;
 
@@ -268,5 +237,6 @@ void Terrain::RenderBuffers(ID3D11DeviceContext* deviceContext)
 
     deviceContext->IASetVertexBuffers(0, 1, &m_VertexBuffer, &stride, &offset);
     deviceContext->IASetIndexBuffer(m_IndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-    deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+    D3D_PRIMITIVE_TOPOLOGY drawTopology = DRAW_WIREFRAME ? D3D11_PRIMITIVE_TOPOLOGY_LINELIST : D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+    deviceContext->IASetPrimitiveTopology(drawTopology);
 }

@@ -606,8 +606,8 @@ xcopy /y $(SolutionDir)extern\DirectXTK\Bin\Desktop_2015_Win10\Win32\$(Configura
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(SolutionDir)\extern\DirectXTK\Bin\Desktop_2015_Win10\x64\$(Configuration)\DirectXTK.lib $(SolutionDir)\bin\$(Configuration)
-xcopy $(SolutionDir)\extern\DirectXTK\Bin\Desktop_2015_Win10\x64\$(Configuration)\DirectXTK.pdb $(SolutionDir)\bin\$(Configuration)</Command>
+      <Command>xcopy $(SolutionDir)\extern\DirectXTK\Bin\Desktop_2015_Win10\$(Platform)\$(Configuration)\DirectXTK.lib $(SolutionDir)\bin\$(Configuration)
+xcopy $(SolutionDir)\extern\DirectXTK\Bin\Desktop_2015_Win10\$(Platform)\$(Configuration)\DirectXTK.pdb $(SolutionDir)\bin\$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -631,8 +631,8 @@ xcopy $(SolutionDir)\extern\DirectXTK\Bin\Desktop_2015_Win10\x64\$(Configuration
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(SolutionDir)\extern\DirectXTK\Bin\Desktop_2015_Win10\x64\$(Configuration)\DirectXTK.lib $(SolutionDir)\bin\$(Configuration)
-xcopy $(SolutionDir)\extern\DirectXTK\Bin\Desktop_2015_Win10\x64\$(Configuration)\DirectXTK.pdb $(SolutionDir)\bin\$(Configuration)</Command>
+      <Command>xcopy /y $(SolutionDir)\extern\DirectXTK\Bin\Desktop_2015_Win10\$(Platform)\$(Configuration)\DirectXTK.lib $(SolutionDir)\bin\$(Configuration)
+xcopy /y $(SolutionDir)\extern\DirectXTK\Bin\Desktop_2015_Win10\$(Platform)\$(Configuration)\DirectXTK.pdb $(SolutionDir)\bin\$(Configuration)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

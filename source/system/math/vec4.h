@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <array>
 
 class mat4x4;
 struct D3DXVECTOR4;
@@ -8,7 +9,11 @@ class vec4
 public:
    vec4();
    vec4(const vec4& value);
+   vec4(std::array<float, 3>& value);
    vec4(float x, float y, float z, float w = 0);
+
+   bool operator==(const vec4& rhs) const;
+   bool operator!=(const vec4& rhs) const;
    
    void operator=  (const vec4& rhs);
    void operator+= (const vec4& rhs);

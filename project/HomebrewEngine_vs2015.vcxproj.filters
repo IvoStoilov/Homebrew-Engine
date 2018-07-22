@@ -136,6 +136,9 @@
     <ClCompile Include="..\source\renderer\terrain\terrainrenderer.cpp">
       <Filter>Engine\renderer\terrain</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\renderer\common\mesh.cpp">
+      <Filter>Engine\renderer\common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\win64\win64viewprovider.h">
@@ -236,6 +239,9 @@
     </ClInclude>
     <ClInclude Include="..\source\renderer\terrain\terrainrenderer.h">
       <Filter>Engine\renderer\terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\common\mesh.h">
+      <Filter>Engine\renderer\common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

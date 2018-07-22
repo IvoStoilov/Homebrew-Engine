@@ -63,7 +63,7 @@ bool ModelLoader::LoadBMPFile(const std::string& filepath, std::vector<VertexDat
         return false;
 
     uint32_t bytesPerPixel = (uint32_t)bitmapInfoHeader.biBitCount / 8;
-	uint32_t rawDataSize = bitmapInfoHeader.biSizeImage;
+    uint32_t rawDataSize = bitmapInfoHeader.biSizeImage;
     outBMPwidth  = bitmapInfoHeader.biWidth;
     outBMPheight = bitmapInfoHeader.biHeight;
 
@@ -98,6 +98,69 @@ bool ModelLoader::LoadBMPFile(const std::string& filepath, std::vector<VertexDat
 
     delete[] rawData;
     fclose(filePtr);
+
+    return true;
+}
+
+bool ModelLoader::LoadOBJFile(const std::string& filepath, RawGeometryData& outData)
+{
+    
+    outData.m_Positions.clear();
+    outData.m_Normals    .clear();
+    outData.m_UVs        .clear();
+    outData.m_PosIndexes.clear();
+    outData.m_NormIndexes.clear();
+    outData.m_UVIndexes  .clear();
+
+    FILE* file = fopen(filepath.c_str(), "r");
+    if (file == nullptr)
+        return false;
+
+    while (true)
+    {
+        char lineHeader[128];
+        int res = fscanf(file, "%s", lineHeader);
+        if (res == EOF)
+            break;
+
+        if (strcmp(lineHeader, "v") == 0)
+        {
+            vec4 vert;
+            fscanf(file, "%f %f %f\n", &vert.x, &vert.y, &vert.z);
+            outData.m_Positions.push_back(vert);
+        }
+        else if (strcmp(lineHeader, "vt") == 0)
+        {
+            vec2 uv;
+            fscanf(file, "%f %f\n", &uv.x, &uv.y);
+            outData.m_UVs.push_back(uv);
+        }
+        else if (strcmp(lineHeader, "vn") == 0)
+        {
+            vec4 norm;
+            fscanf(file, "%f %f %f\n", &norm.x, &norm.y, &norm.z);
+            outData.m_Normals.push_back(norm);
+        }
+        else if (strcmp(lineHeader, "f") == 0)
+        {
+            uint32_t vertexIndex[3], normalIndex[3];
+            uint32_t uvIndex[3] = { 1, 1, 1 };
+            outData.m_UVs.push_back(vec2::Zero);
+            //std::string v1, v2, v3;
+            int matches = fscanf(file, "%d//%d %d//%d %d//%d\n", &vertexIndex[0], /*&uvIndex[0],*/ &normalIndex[0], &vertexIndex[1], /*&uvIndex[1],*/ &normalIndex[1], &vertexIndex[2], /*&uvIndex[2],*/ &normalIndex[2]);
+            //int matches = fscanf(file, "%s %s %s\n", &v1, &v2, &v3);
+
+            outData.m_PosIndexes.push_back(vertexIndex[0] - 1);
+            outData.m_PosIndexes.push_back(vertexIndex[1] - 1);
+            outData.m_PosIndexes.push_back(vertexIndex[2] - 1);
+            outData.m_UVIndexes.push_back(uvIndex[0] - 1);
+            outData.m_UVIndexes.push_back(uvIndex[1] - 1);
+            outData.m_UVIndexes.push_back(uvIndex[2] - 1);
+            outData.m_NormIndexes.push_back(normalIndex[0] - 1);
+            outData.m_NormIndexes.push_back(normalIndex[1] - 1);
+            outData.m_NormIndexes.push_back(normalIndex[2] - 1);
+        }
+    }
 
     return true;
 }
