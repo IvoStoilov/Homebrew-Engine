@@ -25,6 +25,11 @@ public:
         Edge*     m_Next;
         Triangle* m_Face;
 
+        int32_t m_EndVertexIdx;
+        int32_t m_PairIdx;
+        int32_t m_NextIdx;
+        int32_t m_FaceIdx;
+
         Edge() :
             m_EndVertex(nullptr),
             m_Pair(nullptr),
@@ -40,11 +45,19 @@ public:
         vec2 m_UV;
 
         Edge* m_Edge;
+        int32_t m_EdgeIdx;
 
         Vertex(const vec4& pos, const vec4& normal, const vec2& uv) :
             m_Position(pos),
             m_Normal(normal),
             m_UV(uv),
+            m_Edge(nullptr)
+        {}
+
+        Vertex() :
+            m_Position(vec4::Zero),
+            m_Normal(vec4::Zero),
+            m_UV(vec2::Zero),
             m_Edge(nullptr)
         {}
     };
@@ -54,6 +67,7 @@ public:
         Edge* m_Edge;
         vec4 m_FaceNormal;
 
+        int32_t m_EdgeIdx;
         Triangle() :
             m_Edge(nullptr),
             m_FaceNormal(vec4::Zero)
@@ -65,6 +79,11 @@ public:
     
     bool InitializeMeshFromFile(const std::string& filepath);
     void Shutdown();
+
+    void PreSerialize();
+    void Serialize(const std::string& path);
+    void Deserialize(const std::string& path);
+    void PostDeserialize();
 
     //Probably bad, but will rely on external classes(like Model3D or Terrain.h) to upload the data into the GPU
     //Would be nice to optimize data transformations

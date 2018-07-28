@@ -26,6 +26,8 @@ const std::string TERRAIN_HEIGHT_MAP_PATH = "../../resource/terrain/terrainheigh
 const std::string TERRAIN_MESH_PATH = "../../resource/terrain/terrainplane256x256.obj";
 //const std::string TERRAIN_MESH_PATH = "../../resource/terrain/3x3plane.obj";
 
+const std::string TERRAIN_MESH_BIN = "../../resource/terrain/TerrainMesh.bin";
+
 Terrain::Terrain() :
     m_Mesh(nullptr),
     m_HeightMapUSize(0),
@@ -86,10 +88,15 @@ bool Terrain::LoadTerrainData()
 bool Terrain::InitializeTerrainMesh()
 {
     m_Mesh = new Mesh();
-    m_Mesh->InitializeMeshFromFile(TERRAIN_MESH_PATH);
-    InitializeTerrainHeight();
-    m_Mesh->ComputeFaceNormals();
-    InitializeTerrainNormals();
+    //{
+    //    m_Mesh->InitializeMeshFromFile(TERRAIN_MESH_PATH);
+    //    InitializeTerrainHeight();
+    //    m_Mesh->ComputeFaceNormals();
+    //    InitializeTerrainNormals();
+    //}
+    
+    m_Mesh->Deserialize(TERRAIN_MESH_BIN);
+
     return true;
 }
 
