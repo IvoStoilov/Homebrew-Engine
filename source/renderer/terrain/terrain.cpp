@@ -2,8 +2,6 @@
 #include "renderer/common/mesh.h"
 #include "system/error.h"
 
-#include <fstream>
-
 using namespace DirectX;
 
 //Hardcoded Constants - TODO : make them data-driven
@@ -26,6 +24,7 @@ const XMFLOAT4 GRAY_COLOR(0.5f, 0.5f, 0.5f, 1.f);
 
 const std::string TERRAIN_HEIGHT_MAP_PATH = "../../resource/terrain/terrainheightmap3.bmp";
 const std::string TERRAIN_MESH_PATH = "../../resource/terrain/terrainplane256x256.obj";
+//const std::string TERRAIN_MESH_PATH = "../../resource/terrain/3x3plane.obj";
 
 Terrain::Terrain() :
     m_Mesh(nullptr),
@@ -88,7 +87,20 @@ bool Terrain::InitializeTerrainMesh()
 {
     m_Mesh = new Mesh();
     m_Mesh->InitializeMeshFromFile(TERRAIN_MESH_PATH);
+    InitializeTerrainHeight();
+    m_Mesh->ComputeFaceNormals();
+    InitializeTerrainNormals();
     return true;
+}
+
+void Terrain::InitializeTerrainHeight()
+{
+    std::vector<Mesh::Vertex*>& meshVertices = m_Mesh->GetVertices();
+    for (uint32_t i = 0; i < meshVertices.size(); ++i)
+    {
+        float height = TestHeightInUV(meshVertices[i]->m_Position.x, meshVertices[i]->m_Position.z);
+        meshVertices[i]->m_Position.y = height;
+    }
 }
 
 void Terrain::NormalizeHeight()
@@ -107,6 +119,29 @@ XMFLOAT4 ColorSelector(float height)
 {
     return GRAY_COLOR;
     return height < 40 ? DEEP_COLOR : DEFAULT_COLOR;
+}
+
+void Terrain::InitializeTerrainNormals()
+{
+    std::vector<Mesh::Vertex*>& vertices = m_Mesh->GetVertices();
+
+    for (Mesh::Vertex* v : vertices)
+    {
+        std::vector<Mesh::Triangle*> adjFaces;
+        m_Mesh->GetAdjacentTriangles(v, adjFaces);
+        vec4 normal = vec4::Zero;
+        for (Mesh::Triangle* face : adjFaces)
+        {
+            normal += face->m_FaceNormal;
+        }
+
+        if (adjFaces.size() != 0)
+            normal /= adjFaces.size();
+        else
+            normal = vec4::BaseJ;
+
+        v->m_Normal = normal;
+    }
 }
 
 void Terrain::SetupBuffersForSolid(uint32_t*& indexes)
@@ -143,8 +178,8 @@ float Terrain::TestHeightInUV(float x, float y)
     float normX = (x / DEFAULT_TERRAIN_U_SIZE) + 0.5f;
     float normY = (y / DEFAULT_TERRAIN_V_SIZE) + 0.5f;
 
-    uint32_t heightMapX = (uint32_t)(normX * m_HeightMapUSize);
-    uint32_t heightMapY = (uint32_t)(normY * m_HeightMapVSize);
+    uint32_t heightMapX = (uint32_t)(normX * (m_HeightMapUSize -1));
+    uint32_t heightMapY = (uint32_t)(normY * (m_HeightMapVSize -1));
 
     return m_HeightMapData[heightMapX * m_HeightMapUSize + heightMapY].color[0];
 }
@@ -169,9 +204,10 @@ bool Terrain::InitializeBuffers(ID3D11Device* device)
     vertices = new VertexType[m_VertexCount];
     for (uint32_t i = 0; i < m_VertexCount; i++)
     {
-        float height = TestHeightInUV(meshVertices[i]->m_Position.x, meshVertices[i]->m_Position.z);
-        vertices[i].position = XMFLOAT4(meshVertices[i]->m_Position.x * scaleU, height, meshVertices[i]->m_Position.z * scaleV, 0.f);
-        vertices[i].color = ColorSelector(vertices[i].position.y);
+        vertices[i].position = XMFLOAT4(meshVertices[i]->m_Position.x * scaleU, meshVertices[i]->m_Position.y, meshVertices[i]->m_Position.z * scaleV, 0.f);
+        vertices[i].uv = XMFLOAT2(meshVertices[i]->m_UV.x, meshVertices[i]->m_UV.y);
+        vertices[i].normal = XMFLOAT3(meshVertices[i]->m_Normal.x, meshVertices[i]->m_Normal.y, meshVertices[i]->m_Normal.z);
+        //vertices[i].color = ColorSelector(vertices[i].position.y);
     }
 
     if (DRAW_WIREFRAME)

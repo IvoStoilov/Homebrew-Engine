@@ -13,7 +13,8 @@ private:
     struct VertexType
     {
         DirectX::XMFLOAT4 position;
-        DirectX::XMFLOAT4 color;
+        DirectX::XMFLOAT2 uv;
+        DirectX::XMFLOAT3 normal;
     };
 
 public:
@@ -28,7 +29,11 @@ public:
 
 private:
     bool InitializeBuffers(ID3D11Device* device);
+
     bool InitializeTerrainMesh();
+    void InitializeTerrainHeight();
+    void InitializeTerrainNormals();
+
     bool LoadTerrainData();
     void NormalizeHeight();
     void ShutdownBuffers();

@@ -2,9 +2,16 @@
 #include "renderer/terrain/terrain.h"
 
 #include "renderer/common/colorshader.h"
+#include "renderer/common/lightshader.h"
+
 #include "renderer/d3d11.h"
 
 #include "system/error.h"
+
+const bool DRAW_WIREFRAME = false;
+
+D3DXVECTOR4 _DIFFUSE_COLOR(1.f, 1.f, 1.f, 1.f);
+D3DXVECTOR4 _LIGHT_DIRECTION(-.3f, +.3f, 1.f, 0.f);
 
 bool TerrainRenderer::Render(D3D11* d3d)
 {
@@ -14,15 +21,21 @@ bool TerrainRenderer::Render(D3D11* d3d)
     d3d->GetProjectionMatrix(projectionMatrix);
 
     m_Terrain->Render(d3d->GetDeviceContext());
-    m_TerrainShader->Render(d3d->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, m_ViewMatrix.ToD3DXMATRIX(), projectionMatrix);
+    if (DRAW_WIREFRAME)
+        m_WireframeShader->Render(d3d->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, m_ViewMatrix.ToD3DXMATRIX(), projectionMatrix);
+    else
+        m_SolidShader->Render(d3d->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, m_ViewMatrix.ToD3DXMATRIX(), projectionMatrix, nullptr, _DIFFUSE_COLOR, _LIGHT_DIRECTION);
 
     return true;
 }
 
 bool TerrainRenderer::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
-    m_TerrainShader = new ColorShader();
-    popAssert(m_TerrainShader->Initialize(device), "Terrain shader failed initing");
+    m_WireframeShader = new ColorShader();
+    popAssert(m_WireframeShader->Initialize(device), "Terrain shader failed initing");
+
+    m_SolidShader = new LightShader();
+    popAssert(m_SolidShader->Initialize(device), "Solid Shader failed initing");
 
     m_Terrain = new Terrain();
     popAssert(m_Terrain->Initialize(device), "Terrain mesh failed initing");
@@ -38,10 +51,16 @@ void TerrainRenderer::Shutdown()
         delete m_Terrain;
     }
 
-    if (m_TerrainShader)
+    if (m_WireframeShader)
     {
-        m_TerrainShader->Shutdown();
-        delete m_TerrainShader;
+        m_WireframeShader->Shutdown();
+        delete m_WireframeShader;
+    }
+
+    if (m_SolidShader)
+    {
+        m_SolidShader->Shutdown();
+        delete m_SolidShader;
     }
 }
 
@@ -49,7 +68,8 @@ TerrainRenderer::TerrainRenderer() :
     ISubRenderer(),
     m_ViewMatrix(),
     m_Terrain(nullptr),
-    m_TerrainShader(nullptr)
+    m_WireframeShader(nullptr),
+    m_SolidShader(nullptr)
 {}
 
 void TerrainRenderer::UpdateViewMatrix(const mat4x4& viewMatrix)

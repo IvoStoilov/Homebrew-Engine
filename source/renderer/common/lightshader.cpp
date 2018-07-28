@@ -226,6 +226,7 @@ bool LightShader::SetShaderParameters(ID3D11DeviceContext* deviceContext,
     lightData = (LightBufferType*)mappedResource.pData;
     lightData->diffuseColor = diffuseColor;
     lightData->lightDirection = lightDirection;
+    lightData->hasTexture = texture ? D3DXVECTOR4(1, 0 ,0, 0) : D3DXVECTOR4(0, 0, 0, 0);
 
     deviceContext->Unmap(m_LightBuffer, 0);
 

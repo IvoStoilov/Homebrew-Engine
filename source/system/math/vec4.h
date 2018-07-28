@@ -46,7 +46,7 @@ public:
    void Print() const;
 
    static float Dot(const vec4& a, const vec4& b);
-   static void Cross(const vec4&a, const vec4& b);
+   static vec4 Cross(const vec4&a, const vec4& b);
 
 public:
     union

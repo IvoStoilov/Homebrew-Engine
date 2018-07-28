@@ -5,6 +5,7 @@ cbuffer LightBuffer
 {
     float4 diffuseColor;
     float4 lightDirection;
+    float4 hasTexture;
 };
 
 struct PixelInputType
@@ -21,7 +22,10 @@ float4 main(PixelInputType input) : SV_TARGET
     float lightIntensity;
     float4 color;
 
-    textureColor = shaderTexture.Sample(sampleType, input.tex);
+    if (hasTexture.x > 0)
+        textureColor = shaderTexture.Sample(sampleType, input.tex);
+    else
+        textureColor = (1.f, 1.f, 1.f, 1.f);
 
     //Invert for calculations
     lightDir = -lightDirection;

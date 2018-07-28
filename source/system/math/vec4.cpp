@@ -206,8 +206,10 @@ float vec4::Dot(const vec4& a, const vec4& b)
     return a.x * b.x + a.y * b.y + a.z * b.z + a.w + b.w;
 }
 
-void vec4::Cross(const vec4&a, const vec4& b)
+vec4 vec4::Cross(const vec4&a, const vec4& b)
 {
-   //TODO : someday;
-   //return Vec4::GetZero();
+    float x = a.y * b.z - a.z * b.y;
+    float y = a.z * b.x - a.x * b.z;
+    float z = a.x * b.y - a.y * b.x;
+    return vec4(x, y, z);
 }

@@ -24,6 +24,13 @@ public:
         Edge*     m_Pair;
         Edge*     m_Next;
         Triangle* m_Face;
+
+        Edge() :
+            m_EndVertex(nullptr),
+            m_Pair(nullptr),
+            m_Next(nullptr),
+            m_Face(nullptr)
+        {}
     };
 
     struct Vertex
@@ -37,14 +44,22 @@ public:
         Vertex(const vec4& pos, const vec4& normal, const vec2& uv) :
             m_Position(pos),
             m_Normal(normal),
-            m_UV(uv)
+            m_UV(uv),
+            m_Edge(nullptr)
         {}
     };
 
     struct Triangle
     {
         Edge* m_Edge;
+        vec4 m_FaceNormal;
+
+        Triangle() :
+            m_Edge(nullptr),
+            m_FaceNormal(vec4::Zero)
+        {}
     };
+
 public:
     Mesh();
     
@@ -56,9 +71,16 @@ public:
     inline std::vector<Vertex*>&  GetVertices() { return m_Vertices; }
     inline std::vector<uint32_t>& GetIndexes()  { return m_Indexes;  }
 
+    void GetAdjacentTriangles(const Vertex* v, std::vector<Triangle*>& outResult) const;
+    void ComputeFaceNormals();
+
 private:
     void InitializeVertexList(const std::string& filepath);
     void InitializeEdgeList();
+    
+    void BuildHullEdges();
+    vec4 ComputeFaceNormal(uint32_t i, uint32_t j, uint32_t k);
+    vec4 ComputeFaceNormal(Vertex* a, Vertex* b, Vertex* c);
 
 private:
     std::vector<Vertex*>   m_Vertices;

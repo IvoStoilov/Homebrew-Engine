@@ -7,6 +7,7 @@ struct ID3D11DeviceContext;
 class D3D11;
 class Terrain;
 class ColorShader;
+class LightShader;
 class TerrainRenderer : public ISubRenderer
 {
 public:
@@ -21,5 +22,6 @@ public:
 private:
     mat4x4 m_ViewMatrix;
     Terrain* m_Terrain;
-    ColorShader* m_TerrainShader;
+    ColorShader* m_WireframeShader;
+    LightShader* m_SolidShader;
 };
