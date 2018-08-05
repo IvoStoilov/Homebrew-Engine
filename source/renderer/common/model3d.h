@@ -16,8 +16,8 @@ private:
     struct VertexType
     {
         D3DXVECTOR4 m_Position;
-        D3DXVECTOR2 m_UV;
         D3DXVECTOR3 m_Normal;
+        D3DXVECTOR2 m_UV;
     };
 
 public:

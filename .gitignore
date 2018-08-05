@@ -17,6 +17,7 @@
 *.ilk
 *.VC.db
 .vs
-bin
+bin/Debug
+bin/Release
 temp
 extern/DirectXTK/Bin

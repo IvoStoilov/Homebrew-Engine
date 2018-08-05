@@ -1,39 +1,40 @@
 #include "renderer/terrain/terrain.h"
 #include "renderer/common/mesh.h"
 #include "system/error.h"
+#include "system/profiling/profilemanager.h"
+#include "system/commandline/commandlineoptions.h"
 
 using namespace DirectX;
 
 //Hardcoded Constants - TODO : make them data-driven
-const int32_t DEFAULT_TERRAIN_U_SIZE = 256;
-const int32_t DEFAULT_TERRAIN_V_SIZE = 256;
+const int32_t DEFAULT_TERRAIN_U_LENGTH = 256;
+const int32_t DEFAULT_TERRAIN_V_LENGTH = 256;
 
 //If true will use DEFAULT_TERRAIN_U_SIZE / DEFAULT_TERRAIN_V_SIZE instead of the height map size
 const bool USE_DEFAULT_UV_SIZE = true;
-const bool DRAW_WIREFRAME = false;
 
-const float TERRAIN_U_RATIO = 1.f;
-const float TERRAIN_V_RATIO = 1.f;
+const float SCALE_U = 1.f;
+const float SCALE_V = 1.f;
 
-const float MAX_TERRAIN_HEIGHT = 60.f;
+const float MAX_TERRAIN_HEIGHT = 80.f;
 
 const XMFLOAT4 DEFAULT_COLOR(1.f, 1.f, 1.f, 1.f);
 const XMFLOAT4 DEEP_COLOR(0.2f, 1.f, 0.2f, 1.f);
 const XMFLOAT4 GRAY_COLOR(0.5f, 0.5f, 0.5f, 1.f);
 
 
-const std::string TERRAIN_HEIGHT_MAP_PATH = "../../resource/terrain/terrainheightmap3.bmp";
-const std::string TERRAIN_MESH_PATH = "../../resource/terrain/terrainplane256x256.obj";
-//const std::string TERRAIN_MESH_PATH = "../../resource/terrain/3x3plane.obj";
+const std::string TERRAIN_HEIGHT_MAP_PATH = "../../resource/terrain/heightMaps/terrainheightmap3.bmp";
 
-const std::string TERRAIN_MESH_BIN = "../../resource/terrain/TerrainMesh.bin";
+//const std::string TERRAIN_MESH_BIN = "../../resource/terrain/bin/terrain257x257.bin";
+const std::string TERRAIN_MESH_BIN = "../../resource/terrain/bin/terrain513x513.bin";
+  
 
 Terrain::Terrain() :
     m_Mesh(nullptr),
     m_HeightMapUSize(0),
     m_HeightMapVSize(0),
-    m_TerrainUSize(DEFAULT_TERRAIN_U_SIZE),
-    m_TerrainVSize(DEFAULT_TERRAIN_V_SIZE),
+    m_TerrainUSize(DEFAULT_TERRAIN_U_LENGTH),
+    m_TerrainVSize(DEFAULT_TERRAIN_V_LENGTH),
     m_VertexBuffer(nullptr),
     m_IndexBuffer(nullptr),
     m_VertexCount(0),
@@ -41,11 +42,14 @@ Terrain::Terrain() :
 {}
 
 Terrain::~Terrain()
-{}
+{
+}
 
 bool Terrain::Initialize(ID3D11Device* device)
 {
-    if (!LoadTerrainData())
+    PROFILE_FUNCTION(Terrain::Initialize);
+
+    if (!LoadTerrainData(TERRAIN_HEIGHT_MAP_PATH))
         return false;
 
     if (!InitializeTerrainMesh())
@@ -60,6 +64,8 @@ bool Terrain::Initialize(ID3D11Device* device)
 void Terrain::Shutdown()
 {
     m_Mesh->Shutdown();
+    delete m_Mesh;
+
     ShutdownBuffers();
 }
 
@@ -70,9 +76,9 @@ bool Terrain::Render(ID3D11DeviceContext* deviceContext)
     return true;
 }
 
-bool Terrain::LoadTerrainData()
+bool Terrain::LoadTerrainData(const std::string& path, bool normalizeHeight /*=false*/)
 {
-    if (!ModelLoader::LoadBMPFile(TERRAIN_HEIGHT_MAP_PATH, m_HeightMapData, m_HeightMapUSize, m_HeightMapVSize))
+    if (!ModelLoader::LoadBMPFile(path, m_HeightMapData, m_HeightMapUSize, m_HeightMapVSize))
         return false;
 
     if (!USE_DEFAULT_UV_SIZE)
@@ -81,22 +87,16 @@ bool Terrain::LoadTerrainData()
         m_TerrainVSize = m_HeightMapVSize;
     }
     
-    NormalizeHeight();
+    if(normalizeHeight)
+        NormalizeHeight();
+
     return true;
 }
 
 bool Terrain::InitializeTerrainMesh()
 {
     m_Mesh = new Mesh();
-    //{
-    //    m_Mesh->InitializeMeshFromFile(TERRAIN_MESH_PATH);
-    //    InitializeTerrainHeight();
-    //    m_Mesh->ComputeFaceNormals();
-    //    InitializeTerrainNormals();
-    //}
-    
     m_Mesh->Deserialize(TERRAIN_MESH_BIN);
-
     return true;
 }
 
@@ -116,8 +116,6 @@ void Terrain::NormalizeHeight()
     for (uint32_t i = 0; i < m_HeightMapData.size(); ++i)
     {
         m_HeightMapData[i].color[0] = (m_HeightMapData[i].color[0] / 255.f) * MAX_TERRAIN_HEIGHT;
-        m_HeightMapData[i].uv[0] *= TERRAIN_U_RATIO;
-        m_HeightMapData[i].uv[1] *= TERRAIN_V_RATIO;
     }
 
 }
@@ -182,8 +180,8 @@ void Terrain::SetupBuffersForWireframe(uint32_t*& indexes)
 
 float Terrain::TestHeightInUV(float x, float y)
 {
-    float normX = (x / DEFAULT_TERRAIN_U_SIZE) + 0.5f;
-    float normY = (y / DEFAULT_TERRAIN_V_SIZE) + 0.5f;
+    float normX = (x / DEFAULT_TERRAIN_U_LENGTH) + 0.5f;
+    float normY = (y / DEFAULT_TERRAIN_V_LENGTH) + 0.5f;
 
     uint32_t heightMapX = (uint32_t)(normX * (m_HeightMapUSize -1));
     uint32_t heightMapY = (uint32_t)(normY * (m_HeightMapVSize -1));
@@ -193,12 +191,6 @@ float Terrain::TestHeightInUV(float x, float y)
 
 bool Terrain::InitializeBuffers(ID3D11Device* device)
 {
-    // istoilov : The ratio is used for making a normalized mapping of the height map to the real terrain vertexes
-    // as it will not be mandatory for the texture pixel size to exactly map the terrain grid
-    // BUT! it should be proportional ( investigate if this is a limiting constraint)
-    int32_t scaleV = m_HeightMapVSize / m_TerrainVSize;
-    int32_t scaleU = m_HeightMapUSize / m_TerrainUSize;
-
     std::vector<Mesh::Vertex*>& meshVertices = m_Mesh->GetVertices();
     std::vector<uint32_t>& meshIndexes = m_Mesh->GetIndexes();
 
@@ -211,13 +203,12 @@ bool Terrain::InitializeBuffers(ID3D11Device* device)
     vertices = new VertexType[m_VertexCount];
     for (uint32_t i = 0; i < m_VertexCount; i++)
     {
-        vertices[i].position = XMFLOAT4(meshVertices[i]->m_Position.x * scaleU, meshVertices[i]->m_Position.y, meshVertices[i]->m_Position.z * scaleV, 0.f);
-        vertices[i].uv = XMFLOAT2(meshVertices[i]->m_UV.x, meshVertices[i]->m_UV.y);
+        vertices[i].position = XMFLOAT4(meshVertices[i]->m_Position.x * SCALE_U , meshVertices[i]->m_Position.y, meshVertices[i]->m_Position.z * SCALE_V, 0.f);
         vertices[i].normal = XMFLOAT3(meshVertices[i]->m_Normal.x, meshVertices[i]->m_Normal.y, meshVertices[i]->m_Normal.z);
-        //vertices[i].color = ColorSelector(vertices[i].position.y);
+        vertices[i].uv = XMFLOAT2(meshVertices[i]->m_UV.x, meshVertices[i]->m_UV.y);
     }
 
-    if (DRAW_WIREFRAME)
+    if (g_CommandLineOptions->m_DrawWireframe)
         SetupBuffersForWireframe(indices);
     else
         SetupBuffersForSolid(indices);
@@ -280,6 +271,35 @@ void Terrain::RenderBuffers(ID3D11DeviceContext* deviceContext)
 
     deviceContext->IASetVertexBuffers(0, 1, &m_VertexBuffer, &stride, &offset);
     deviceContext->IASetIndexBuffer(m_IndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-    D3D_PRIMITIVE_TOPOLOGY drawTopology = DRAW_WIREFRAME ? D3D11_PRIMITIVE_TOPOLOGY_LINELIST : D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+    D3D_PRIMITIVE_TOPOLOGY drawTopology = g_CommandLineOptions->m_DrawWireframe ? D3D11_PRIMITIVE_TOPOLOGY_LINELIST : D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     deviceContext->IASetPrimitiveTopology(drawTopology);
+}
+
+bool Terrain::InitializeForBinarize(const std::string& meshOBJFilePath, const std::string& heighMapBMPFilePath)
+{
+    popAssert(LoadTerrainData(heighMapBMPFilePath, true), "Terrain::InitializeForBinarize::LoadTerrainData failed");
+    m_Mesh = new Mesh();
+    popAssert(m_Mesh->InitializeMeshFromFile(meshOBJFilePath), "Terrain::InitializeForBinarize::InitializeMeshFromFile failed");
+      
+    InitializeTerrainHeight();
+    m_Mesh->ComputeFaceNormals();
+    InitializeTerrainNormals();
+
+    return true;
+}
+
+void Terrain::Serialize(const std::string& path)
+{
+    m_Mesh->Serialize(path);
+}
+
+void Terrain::BinarizeTerrain(const std::string& meshOBJFilePath, const std::string& heighMapBMPFilePath, const std::string& outputPath)
+{
+    PROFILE_FUNCTION(Terrain::BinarizeTerrain)
+    Terrain* terrain = new Terrain();
+    if (terrain->InitializeForBinarize(meshOBJFilePath, heighMapBMPFilePath))
+        terrain->Serialize(outputPath);
+
+    terrain->Shutdown();
+    delete terrain;
 }

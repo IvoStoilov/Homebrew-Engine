@@ -1,6 +1,10 @@
 #include "win64/win64viewprovider.h"
 #include "system/error.h"
+#include "system/commandline/commandlineparser.h"
 #include <stdio.h>
+#include <string>
+
+const std::string INI_PATH = "../homebrew.ini";
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow)
 {
@@ -8,6 +12,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
     //freopen("CONIN$", "r", stdin);
     //freopen("CONOUT$", "w", stdout);
     //freopen("CONOUT$", "w", stderr);
+
+    CommandLineOptions::CreateInstance();
+    CommandLineParser parser;
+
+    parser.ParseCommandLineArgsFromIni(INI_PATH);
+    parser.ParseCommandLineArgs(pScmdline);
+    parser.CallCallbacks();
 
     // Create the system object.
     Win64_ViewProvider* viewProvider = new Win64_ViewProvider();

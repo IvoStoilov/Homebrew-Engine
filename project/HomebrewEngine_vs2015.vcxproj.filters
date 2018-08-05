@@ -35,6 +35,12 @@
     <Filter Include="Engine\renderer\common">
       <UniqueIdentifier>{694d5130-4de5-40e0-b6fb-43b46e95009f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\system\profiling">
+      <UniqueIdentifier>{29d0827e-aa2d-4b59-b458-1c24c693186a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\system\commandline">
+      <UniqueIdentifier>{5dddd095-cd2e-47c8-9ab7-06184c57a183}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\win64\win64viewprovider.cpp">
@@ -139,6 +145,15 @@
     <ClCompile Include="..\source\renderer\common\mesh.cpp">
       <Filter>Engine\renderer\common</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\system\profiling\profilemanager.cpp">
+      <Filter>Engine\system\profiling</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\system\commandline\commandlineoptions.cpp">
+      <Filter>Engine\system\commandline</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\system\commandline\commandlineparser.cpp">
+      <Filter>Engine\system\commandline</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\win64\win64viewprovider.h">
@@ -242,6 +257,15 @@
     </ClInclude>
     <ClInclude Include="..\source\renderer\common\mesh.h">
       <Filter>Engine\renderer\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\system\profiling\profilemanager.h">
+      <Filter>Engine\system\profiling</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\system\commandline\commandlineparser.h">
+      <Filter>Engine\system\commandline</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\system\commandline\commandlineoptions.h">
+      <Filter>Engine\system\commandline</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

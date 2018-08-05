@@ -1,6 +1,7 @@
 #include "renderer/common/mesh.h"
 #include "system/modelloader.h"
 #include "system/error.h"
+#include "system/profiling/profilemanager.h"
 
 #include <tuple>
 #include <map>
@@ -87,33 +88,69 @@ void Mesh::InitializeEdgeList()
         Pair vt = std::make_tuple(m_Indexes[i + 1], m_Indexes[i + 2]);
         Pair tu = std::make_tuple(m_Indexes[i + 2], m_Indexes[i]);
 
-        edgeMap[uv] = new Edge();
-        edgeMap[vt] = new Edge();
-        edgeMap[tu] = new Edge();
+        Edge* edgeUV = new Edge();
+        Edge* edgeVT = new Edge();
+        Edge* edgeTU = new Edge();
 
-        edgeMap[uv]->m_EndVertex = m_Vertices[std::get<1>(uv)];
+        edgeMap[uv] = edgeUV;
+        edgeMap[vt] = edgeVT;
+        edgeMap[tu] = edgeTU;
+
+        edgeUV->m_SelfIndex = m_Edges.size();
+        m_Edges.push_back(edgeUV);
+        edgeVT->m_SelfIndex = m_Edges.size();
+        m_Edges.push_back(edgeVT);
+        edgeTU->m_SelfIndex = m_Edges.size();
+        m_Edges.push_back(edgeTU);
+
+        edgeUV->m_EndVertex    = m_Vertices[std::get<1>(uv)];
+        edgeUV->m_EndVertexIdx = std::get<1>(uv);
         if (m_Vertices[std::get<0>(uv)]->m_Edge == nullptr)
-            m_Vertices[std::get<0>(uv)]->m_Edge = edgeMap[uv];
+        {
+            m_Vertices[std::get<0>(uv)]->m_Edge    = edgeUV;
+            m_Vertices[std::get<0>(uv)]->m_EdgeIdx = edgeUV->m_SelfIndex;
+        }
 
-        edgeMap[vt]->m_EndVertex = m_Vertices[std::get<1>(vt)];
+        edgeVT->m_EndVertex    = m_Vertices[std::get<1>(vt)];
+        edgeVT->m_EndVertexIdx = std::get<1>(vt);
         if (m_Vertices[std::get<0>(vt)]->m_Edge == nullptr)
-            m_Vertices[std::get<0>(vt)]->m_Edge = edgeMap[vt];
+        {
+            m_Vertices[std::get<0>(vt)]->m_Edge    = edgeVT;
+            m_Vertices[std::get<0>(vt)]->m_EdgeIdx = edgeVT->m_SelfIndex;
+        }
 
-        edgeMap[tu]->m_EndVertex = m_Vertices[std::get<1>(tu)];
+        edgeTU->m_EndVertex    = m_Vertices[std::get<1>(tu)];
+        edgeTU->m_EndVertexIdx = std::get<1>(tu);
         if (m_Vertices[std::get<0>(tu)]->m_Edge == nullptr)
-            m_Vertices[std::get<0>(tu)]->m_Edge = edgeMap[tu];
+        {
+            m_Vertices[std::get<0>(tu)]->m_Edge = edgeTU;
+            m_Vertices[std::get<0>(tu)]->m_EdgeIdx = edgeTU->m_SelfIndex;
+        }
 
-        edgeMap[uv]->m_Next = edgeMap[vt];
-        edgeMap[vt]->m_Next = edgeMap[tu];
-        edgeMap[tu]->m_Next = edgeMap[uv];
+        edgeUV->m_Next    = edgeVT;
+        edgeUV->m_NextIdx = edgeVT->m_SelfIndex;
+
+        edgeVT->m_Next    = edgeTU;
+        edgeVT->m_NextIdx = edgeTU->m_SelfIndex;
+
+        edgeTU->m_Next    = edgeUV;
+        edgeTU->m_NextIdx = edgeUV->m_SelfIndex;
 
         Triangle* triangle = new Triangle();
-        triangle->m_Edge = edgeMap[uv];
+        uint32_t triangleIdx = m_Triangles.size();
+        m_Triangles.push_back(triangle);
+        triangle->m_Edge    = edgeUV;
+        triangle->m_EdgeIdx = edgeUV->m_SelfIndex;
         triangle->m_FaceNormal = ComputeFaceNormal(m_Indexes[i], m_Indexes[i + 1], m_Indexes[i + 2]);
 
-        edgeMap[uv]->m_Face = triangle;
-        edgeMap[vt]->m_Face = triangle;
-        edgeMap[tu]->m_Face = triangle;
+        edgeUV->m_Face = triangle;
+        edgeUV->m_FaceIdx = triangleIdx;
+
+        edgeVT->m_Face = triangle;
+        edgeVT->m_FaceIdx = triangleIdx;
+
+        edgeTU->m_Face = triangle;
+        edgeTU->m_FaceIdx = triangleIdx;
 
         Pair vu = std::make_tuple(m_Indexes[i + 1], m_Indexes[i]);
         Pair tv = std::make_tuple(m_Indexes[i + 2], m_Indexes[i + 1]);
@@ -121,26 +158,30 @@ void Mesh::InitializeEdgeList()
 
         if (edgeMap.find(vu) != edgeMap.end())
         {
-            edgeMap[uv]->m_Pair = edgeMap[vu];
-            edgeMap[vu]->m_Pair = edgeMap[uv];
+            edgeUV->m_Pair = edgeMap[vu];
+            edgeUV->m_PairIdx = edgeMap[vu]->m_SelfIndex;
+
+            edgeMap[vu]->m_Pair = edgeUV;
+            edgeMap[vu]->m_PairIdx = edgeUV->m_SelfIndex;
         }
         
         if (edgeMap.find(tv) != edgeMap.end())
         {
-            edgeMap[vt]->m_Pair = edgeMap[tv];
-            edgeMap[tv]->m_Pair = edgeMap[vt];
+            edgeVT->m_Pair = edgeMap[tv];
+            edgeVT->m_PairIdx = edgeMap[tv]->m_SelfIndex;
+
+            edgeMap[tv]->m_Pair = edgeVT;
+            edgeMap[tv]->m_PairIdx = edgeVT->m_SelfIndex;
         }
 
         if (edgeMap.find(ut) != edgeMap.end())
         {
-            edgeMap[tu]->m_Pair = edgeMap[ut];
-            edgeMap[ut]->m_Pair = edgeMap[tu];
-        }
+            edgeTU->m_Pair = edgeMap[ut];
+            edgeTU->m_PairIdx = edgeMap[ut]->m_SelfIndex;
 
-        m_Edges.push_back(edgeMap[uv]);
-        m_Edges.push_back(edgeMap[vt]);
-        m_Edges.push_back(edgeMap[tu]);
-        m_Triangles.push_back(triangle);
+            edgeMap[ut]->m_Pair = edgeTU;
+            edgeMap[ut]->m_PairIdx = edgeTU->m_SelfIndex;
+        }
     }
 }
 
@@ -163,10 +204,11 @@ vec4 Mesh::ComputeFaceNormal(uint32_t a, uint32_t b, uint32_t c)
 
 vec4 Mesh::ComputeFaceNormal(Vertex* a, Vertex* b, Vertex* c)
 {
+    //Using right-hand coordinate system and clockwise face orientation
     vec4 AB = b->m_Position - a->m_Position;
     vec4 AC = c->m_Position - a->m_Position;
 
-    vec4 result = vec4::Cross(AB, AC);
+    vec4 result = vec4::Cross(AC, AB);
     result.Normalize();
     return result;
 }
@@ -205,11 +247,28 @@ void Mesh::BuildHullEdges()
     while (currentEdge == nullptr)
     {
         currentEdge = new Edge();
-        currentEdge->m_EndVertex = hullEdge->m_Next->m_Next->m_EndVertex;
-        currentEdge->m_Next = previousEdge;
-        currentEdge->m_Pair = hullEdge;
-        hullEdge->m_Pair = currentEdge;
+        currentEdge->m_SelfIndex = m_Edges.size();
         m_Edges.push_back(currentEdge);
+
+        currentEdge->m_EndVertex = hullEdge->m_Next->m_Next->m_EndVertex;
+        for (uint32_t i = 0; i < m_Vertices.size(); ++i)
+        {
+            if (currentEdge->m_EndVertex == m_Vertices[i])
+            {
+                currentEdge->m_EndVertexIdx = i;
+                break;
+            }
+        }
+        
+
+        currentEdge->m_Next = previousEdge;
+        currentEdge->m_NextIdx = (previousEdge) ? previousEdge->m_SelfIndex : -1;
+
+        currentEdge->m_Pair = hullEdge;
+        currentEdge->m_PairIdx = hullEdge->m_SelfIndex;
+
+        hullEdge->m_Pair = currentEdge;
+        hullEdge->m_PairIdx = currentEdge->m_SelfIndex;
         
         previousEdge = currentEdge;
         
@@ -235,6 +294,7 @@ void Mesh::BuildHullEdges()
         } while (searchEdge != v->m_Edge && currentEdge != nullptr);
     }
     startEdge->m_Pair->m_Next = previousEdge;
+    startEdge->m_Pair->m_NextIdx = previousEdge->m_SelfIndex;
 }
 
 void Mesh::ComputeFaceNormals()
@@ -251,73 +311,13 @@ void Mesh::ComputeFaceNormals()
 
 void Mesh::PreSerialize()
 {
-    for (Edge* edge : m_Edges)
-    {
-        edge->m_EndVertexIdx = -1;
-        for (uint32_t i = 0; i < m_Vertices.size(); ++i)
-        {
-            if (edge->m_EndVertex = m_Vertices[i])
-            {
-                edge->m_EndVertexIdx = i;
-                break;
-            }
-        }
-
-        edge->m_PairIdx = -1;
-        edge->m_NextIdx = -1;
-        for (uint32_t i = 0; i < m_Edges.size(); ++i)
-        {
-            if (edge->m_Pair == m_Edges[i])
-            {
-                edge->m_PairIdx = i;
-            }
-            if (edge->m_Next == m_Edges[i])
-            {
-                edge->m_NextIdx = i;
-            }
-
-        }
-
-        edge->m_FaceIdx = -1;
-        for (uint32_t i = 0; i < m_Triangles.size(); ++i)
-        {
-            if (edge->m_Face == m_Triangles[i])
-            {
-                edge->m_FaceIdx = i;
-                break;
-            }
-        }
-    }
-
-    for (Vertex* vertex : m_Vertices)
-    {
-        vertex->m_EdgeIdx = -1;
-        for (uint32_t i = 0; i < m_Edges.size(); ++i)
-        {
-            if (vertex->m_Edge == m_Edges[i])
-            {
-                vertex->m_EdgeIdx = i;
-                break;
-            }
-        }
-    }
-
-    for (Triangle* face : m_Triangles)
-    {
-        face->m_EdgeIdx = -1;
-        for (uint32_t i = 0; i < m_Edges.size(); ++i)
-        {
-            if (face->m_Edge == m_Edges[i])
-            {
-                face->m_EdgeIdx = i;
-                break;
-            }
-        }
-    }
+    PROFILE_FUNCTION(Mesh::PreSerialize);
 }
 
 void Mesh::Serialize(const std::string& path)
 {
+    PROFILE_FUNCTION(Mesh::Serialize);
+
     PreSerialize();
 
     std::ofstream writer;
@@ -362,6 +362,8 @@ void Mesh::Serialize(const std::string& path)
 
 void Mesh::Deserialize(const std::string& path)
 {
+    PROFILE_FUNCTION(Mesh::Deserialize);
+
     std::ifstream reader;
     reader.open(path, std::ifstream::binary);
 
@@ -433,3 +435,37 @@ void Mesh::PostDeserialize()
         face->m_Edge = m_Edges[face->m_EdgeIdx];
     }
 }
+
+Mesh::Edge::Edge() :
+    m_EndVertex(nullptr),
+    m_Pair(nullptr),
+    m_Next(nullptr),
+    m_Face(nullptr),
+    m_SelfIndex(-1),
+    m_EndVertexIdx(-1),
+    m_PairIdx(-1),
+    m_NextIdx(-1),
+    m_FaceIdx(-1)
+{}
+
+Mesh::Vertex::Vertex(const vec4& pos, const vec4& normal, const vec2& uv) :
+    m_Position(pos),
+    m_Normal(normal),
+    m_UV(uv),
+    m_Edge(nullptr),
+    m_EdgeIdx(-1)
+{}
+
+Mesh::Vertex::Vertex() :
+    m_Position(vec4::Zero),
+    m_Normal(vec4::Zero),
+    m_UV(vec2::Zero),
+    m_Edge(nullptr),
+    m_EdgeIdx(-1)
+{}
+
+Mesh::Triangle::Triangle() :
+    m_Edge(nullptr),
+    m_FaceNormal(vec4::Zero),
+    m_EdgeIdx(-1)
+{}

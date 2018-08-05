@@ -13,8 +13,8 @@ private:
     struct VertexType
     {
         DirectX::XMFLOAT4 position;
-        DirectX::XMFLOAT2 uv;
         DirectX::XMFLOAT3 normal;
+        DirectX::XMFLOAT2 uv;
     };
 
 public:
@@ -22,10 +22,17 @@ public:
     ~Terrain();
 
     bool Initialize(ID3D11Device* device);
+    bool InitializeForBinarize(const std::string& meshOBJFilePath, const std::string& heighMapBMPFilePath);
+
+    void Serialize(const std::string& path);
+
     void Shutdown();
     bool Render(ID3D11DeviceContext* deviceContext);
 
     inline const uint32_t GetIndexCount() const { return m_IndexCount; }
+    
+
+    static void BinarizeTerrain(const std::string& meshOBJFilePath, const std::string& heighMapBMPFilePath, const std::string& outputPath);
 
 private:
     bool InitializeBuffers(ID3D11Device* device);
@@ -34,7 +41,7 @@ private:
     void InitializeTerrainHeight();
     void InitializeTerrainNormals();
 
-    bool LoadTerrainData();
+    bool LoadTerrainData(const std::string& heightMapPath, bool normalizeHeight = false);
     void NormalizeHeight();
     void ShutdownBuffers();
     void RenderBuffers(ID3D11DeviceContext* deviceContext);

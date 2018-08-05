@@ -2,26 +2,36 @@
 #include "camera.h"
 
 #include "system/inputmanager.h"
+#include "system/profiling/profilemanager.h"
+#include "system/commandline/commandlineoptions.h"
+
 #include "system/error.h"
 #include "renderer/d3d11renderer.h"
 #include "entitymodel/components/visualcomponent.h"
 
+//Temp Hack
+#include "renderer/terrain/terrain.h"
+
 #include <thread>
 #include <chrono>
-/*
-Texture
-"../../resource/ubisoft-logo.png"
-"../../resource/ink-splatter-texture.png"
-"../../resource/metal_texture.jpg"
-
-Model
-"../../resource/geometry/cube.bgd"
-*/
 
 Engine* Engine::s_Instance = nullptr;
 
 bool Engine::Initialize(HINSTANCE hInstance, HWND hwnd, uint32_t width, uint32_t height, int32_t windowPosX, int32_t windowPosY)
 {
+    ProfileManager::CreateInstance();
+
+    //This needs a flow refactor - bootstrap load?
+    if (g_CommandLineOptions->m_Binarize)
+    {
+        Terrain::BinarizeTerrain(g_CommandLineOptions->m_BinarizeInputFiles[0],
+            g_CommandLineOptions->m_BinarizeInputFiles[1],
+            g_CommandLineOptions->m_BinarizeOutputFile);
+
+        if (g_CommandLineOptions->m_QuitAfterInit)
+            return true;
+    }
+
     InputManager::CreateInstance(hInstance, hwnd, width, height, windowPosX, windowPosY);
 
     D3D11Renderer::CreateInstance(hwnd, width, height);
@@ -63,7 +73,7 @@ void Engine::Update()
     g_InputManager->Update();
 
     // Check if the user pressed escape and wants to exit the application.
-    m_HasRequestedQuit = g_InputManager->IsEscapePressed();
+    m_HasRequestedQuit = m_HasRequestedQuit || g_InputManager->IsEscapePressed();
     
     m_FPSCounter.Update();
     m_CPUInfo.Update();
@@ -95,6 +105,9 @@ void Engine::Shutdown()
     InputManager::CleanInstance();
 
     D3D11Renderer::CleanInstance();
+
+    g_ProfileManager.DumpInfoToFile();
+    ProfileManager::CreateInstance();
 
     if (m_Camera)
     {

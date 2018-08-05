@@ -7,11 +7,10 @@
 #include "renderer/d3d11.h"
 
 #include "system/error.h"
-
-const bool DRAW_WIREFRAME = false;
+#include "system/commandline/commandlineoptions.h"
 
 D3DXVECTOR4 _DIFFUSE_COLOR(1.f, 1.f, 1.f, 1.f);
-D3DXVECTOR4 _LIGHT_DIRECTION(-.3f, +.3f, 1.f, 0.f);
+D3DXVECTOR4 _LIGHT_DIRECTION(0.577f, -0.577f, 0.577f, 0.f);
 
 bool TerrainRenderer::Render(D3D11* d3d)
 {
@@ -21,7 +20,7 @@ bool TerrainRenderer::Render(D3D11* d3d)
     d3d->GetProjectionMatrix(projectionMatrix);
 
     m_Terrain->Render(d3d->GetDeviceContext());
-    if (DRAW_WIREFRAME)
+    if (g_CommandLineOptions->m_DrawWireframe)
         m_WireframeShader->Render(d3d->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, m_ViewMatrix.ToD3DXMATRIX(), projectionMatrix);
     else
         m_SolidShader->Render(d3d->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, m_ViewMatrix.ToD3DXMATRIX(), projectionMatrix, nullptr, _DIFFUSE_COLOR, _LIGHT_DIRECTION);

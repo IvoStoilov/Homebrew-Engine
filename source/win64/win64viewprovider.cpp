@@ -1,14 +1,12 @@
 #include "win64/win64viewprovider.h"
 #include "system/inputmanager.h"
+#include "system/commandline/commandlineoptions.h"
 #include "engine.h"
-
-bool SHOW_CURSOR = false;
 
 const uint32_t WINDOWED_SCREEN_WIDTH = 1024;
 const uint32_t WINDOWED_SCREEN_HEIGHT = 720;
 
-Win64_ViewProvider::Win64_ViewProvider() :
-    m_Fullscreen(false)
+Win64_ViewProvider::Win64_ViewProvider()
 {
 }
 
@@ -42,6 +40,9 @@ void Win64_ViewProvider::Run()
 {
     MSG msg;
     ZeroMemory(&msg, sizeof(MSG));
+
+    if (g_CommandLineOptions->m_QuitAfterInit)
+        return;
 
     while (true)
     {
@@ -96,7 +97,7 @@ void Win64_ViewProvider::InitializeWindows(int& screenWidth, int& screenHeight)
     screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
     // Setup the screen settings depending on whether it is running in full screen or in windowed mode.
-    if (m_Fullscreen)
+    if (g_CommandLineOptions->m_Fullscreen)
     {
         // If full screen set the screen to maximum size of the users desktop and 32bit.
         memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
@@ -134,7 +135,7 @@ void Win64_ViewProvider::InitializeWindows(int& screenWidth, int& screenHeight)
     SetFocus(m_HWND);
 
     // Hide the mouse cursor.
-    ShowCursor(SHOW_CURSOR);
+    ShowCursor(g_CommandLineOptions->m_ShowCursor);
 }
 
 void Win64_ViewProvider::ShutdownWindows()
@@ -143,7 +144,7 @@ void Win64_ViewProvider::ShutdownWindows()
     ShowCursor(true);
 
     // Fix the display settings if leaving full screen mode.
-    if (m_Fullscreen)
+    if (g_CommandLineOptions->m_Fullscreen)
     {
         ChangeDisplaySettings(NULL, 0);
     }

@@ -12,9 +12,6 @@ public:
     void Shutdown();
     void Run();
 
-    inline void SetFullscreen(const bool value) { m_Fullscreen = value; }
-    inline bool GetIsFullscreen() const { return m_Fullscreen; }
-
 private:
     void InitializeWindows(int& screenWidth, int& screenHeight);
     void ShutdownWindows();
@@ -23,8 +20,6 @@ private:
     LPCSTR m_ApplicationName;
     HINSTANCE m_hInstance;
     HWND m_HWND;
-
-    bool m_Fullscreen;
 
     int32_t m_WindowPosX;
     int32_t m_WindowPosY;

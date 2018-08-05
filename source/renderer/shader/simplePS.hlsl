@@ -6,5 +6,6 @@ struct PixelInputType
 
 float4 main(PixelInputType input) : SV_TARGET
 {
-    return input.color;
+    float4 result = abs(input.color);
+    return result;
 }
