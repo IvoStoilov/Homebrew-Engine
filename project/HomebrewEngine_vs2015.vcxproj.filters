@@ -41,6 +41,12 @@
     <Filter Include="Engine\system\commandline">
       <UniqueIdentifier>{5dddd095-cd2e-47c8-9ab7-06184c57a183}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\renderer\debugdisplay">
+      <UniqueIdentifier>{2c5081d3-f54c-4705-9fa7-ad39607c15ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\renderer\common\resourcemanager">
+      <UniqueIdentifier>{eae3f49f-453f-42e2-8aa8-0135dc400c55}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\win64\win64viewprovider.cpp">
@@ -154,6 +160,9 @@
     <ClCompile Include="..\source\system\commandline\commandlineparser.cpp">
       <Filter>Engine\system\commandline</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\renderer\debugdisplay\debugdisplayrenderer.cpp">
+      <Filter>Engine\renderer\debugdisplay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\win64\win64viewprovider.h">
@@ -266,6 +275,12 @@
     </ClInclude>
     <ClInclude Include="..\source\system\commandline\commandlineoptions.h">
       <Filter>Engine\system\commandline</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\debugdisplay\debugdisplayrenderer.h">
+      <Filter>Engine\renderer\debugdisplay</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\common\resourcemanager\texturemanager.h">
+      <Filter>Engine\renderer\common\resourcemanager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

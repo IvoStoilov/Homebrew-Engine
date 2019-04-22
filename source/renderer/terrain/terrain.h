@@ -35,13 +35,15 @@ public:
     static void BinarizeTerrain(const std::string& meshOBJFilePath, const std::string& heighMapBMPFilePath, const std::string& outputPath);
 
 private:
-    bool InitializeBuffers(ID3D11Device* device);
+    bool InitializeVertexBuffer(ID3D11Device* device);
+    bool InitializeIndexBuffer(ID3D11Device* device);
 
+    bool InitializeTerrainParams();
     bool InitializeTerrainMesh();
     void InitializeTerrainHeight();
     void InitializeTerrainNormals();
 
-    bool LoadTerrainData(const std::string& heightMapPath, bool normalizeHeight = false);
+    bool LoadHeightMap(const std::string& heightMapPath);
     void NormalizeHeight();
     void ShutdownBuffers();
     void RenderBuffers(ID3D11DeviceContext* deviceContext);
@@ -61,6 +63,12 @@ private:
 
     int32_t m_TerrainUSize;
     int32_t m_TerrainVSize;
+
+    float m_ScaleU;
+    float m_ScaleV;
+    float m_MaxTerrainHeight;
+    std::string m_TerrainHeightMapPath;
+    std::string m_TerrainOBJPath;
 
     ID3D11Buffer* m_VertexBuffer;
     ID3D11Buffer* m_IndexBuffer;

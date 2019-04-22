@@ -15,6 +15,8 @@
 #include "renderer/isubrenderer.h"
 #include "renderer/terrain/terrainrenderer.h"
 
+#include "renderer/debugdisplay/DebugDisplayRenderer.h"
+
 #include "camera.h"
 #include "engine.h"
 
@@ -28,12 +30,15 @@ bool D3D11Renderer::Initialize(HWND hwnd, uint32_t screenWidth, uint32_t screenH
     popAssert(m_D3D != nullptr, "Memory Alloc Failed");
     popAssert(m_D3D->Initialize(screenWidth, screenHeight, hwnd, VSYNC_ENABLED, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR), "D3D Init Failed");
 
-    ISubRenderer* textRenderer = new TextRenderer(screenWidth, screenHeight);
-    m_SubRenderers.push_back(textRenderer);
-
+    m_DebugDisplayRendererCache = new DebugDisplayRenderer();
+    
     ISubRenderer* terrainRenderer = new TerrainRenderer();
     m_SubRenderers.push_back(terrainRenderer);
 
+    ISubRenderer* textRenderer = new TextRenderer(screenWidth, screenHeight);
+    m_SubRenderers.push_back(textRenderer);
+
+    //m_SubRenderers.push_back(m_DebugDisplayRendererCache);
     for (ISubRenderer* subRenderer : m_SubRenderers)
     {
         popAssert(subRenderer->Initialize(m_D3D->GetDevice(), m_D3D->GetDeviceContext()), "subRenderer failed init");

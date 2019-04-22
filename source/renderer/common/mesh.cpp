@@ -10,6 +10,8 @@
 typedef std::tuple<int, int> Pair;
 typedef std::map< Pair, Mesh::Edge* > EdgeMap;
 
+constexpr bool REBUILD_HALFEDGELIST_ENABLED = false;
+
 Mesh::Mesh()
 {
 }
@@ -416,23 +418,26 @@ void Mesh::Deserialize(const std::string& path)
 
 void Mesh::PostDeserialize()
 {
-    for (Vertex* vertex : m_Vertices)
+    if (REBUILD_HALFEDGELIST_ENABLED)
     {
-        vertex->m_Edge = m_Edges[vertex->m_EdgeIdx];
-    }
+        for (Vertex* vertex : m_Vertices)
+        {
+            vertex->m_Edge = m_Edges[vertex->m_EdgeIdx];
+        }
 
-    for (Edge* edge : m_Edges)
-    {
-        edge->m_EndVertex = m_Vertices[edge->m_EndVertexIdx];
-        edge->m_Pair = m_Edges[edge->m_PairIdx];
-        edge->m_Next = m_Edges[edge->m_NextIdx];
-        if(edge->m_FaceIdx > 0)
-            edge->m_Face = m_Triangles[edge->m_FaceIdx];
-    }
+        for (Edge* edge : m_Edges)
+        {
+            edge->m_EndVertex = m_Vertices[edge->m_EndVertexIdx];
+            edge->m_Pair = m_Edges[edge->m_PairIdx];
+            edge->m_Next = m_Edges[edge->m_NextIdx];
+            if (edge->m_FaceIdx > 0)
+                edge->m_Face = m_Triangles[edge->m_FaceIdx];
+        }
 
-    for (Triangle* face : m_Triangles)
-    {
-        face->m_Edge = m_Edges[face->m_EdgeIdx];
+        for (Triangle* face : m_Triangles)
+        {
+            face->m_Edge = m_Edges[face->m_EdgeIdx];
+        }
     }
 }
 

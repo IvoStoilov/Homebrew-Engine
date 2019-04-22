@@ -1,4 +1,5 @@
 #include "system/commandline/commandlineparser.h"
+#include "system/commandline/commandlineoptions.h"
 #include <fstream>
 
 #define POP_REGISTER_ARGUMENT(arg, descrption, callback)                                                 \
@@ -39,7 +40,10 @@ void CommandLineParser::CallCallbacks()
 void CommandLineParser::ParseCommandLineArgsFromIni(const std::string& iniPath)
 {
     std::ifstream reader;
-    reader.open(iniPath);
+    reader.open(iniPath, std::ifstream::in);
+    if (!reader.is_open())
+        return;
+
     std::vector<char> readBuffer;
 
     while (!reader.eof())
@@ -56,7 +60,7 @@ void CommandLineParser::ParseCommandLineArgsFromIni(const std::string& iniPath)
 
     reader.close();
 
-    uint32_t bufferSize = readBuffer.size();
+    uint32_t bufferSize = (uint32_t)readBuffer.size();
     char* charBuffer = new char[bufferSize + 1];
     for (uint32_t i = 0; i < bufferSize; ++i)
         charBuffer[i] = readBuffer[i];

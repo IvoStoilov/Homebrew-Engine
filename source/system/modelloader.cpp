@@ -63,10 +63,21 @@ bool ModelLoader::LoadBMPFile(const std::string& filepath, std::vector<VertexDat
         return false;
 
     uint32_t bytesPerPixel = (uint32_t)bitmapInfoHeader.biBitCount / 8;
-    uint32_t rawDataSize = bitmapInfoHeader.biSizeImage;
-    outBMPwidth  = bitmapInfoHeader.biWidth;
+    //uint32_t rawDataSize = bitmapInfoHeader.biSizeImage;
+    outBMPwidth = bitmapInfoHeader.biWidth;
     outBMPheight = bitmapInfoHeader.biHeight;
 
+    uint8_t widthLinePadding = 0;
+    uint32_t rawDataSize = 0;
+    if ((outBMPwidth * bytesPerPixel) % 4 != 0)
+    {
+        widthLinePadding = 4 - (outBMPwidth * bytesPerPixel) % 4;
+    }
+
+    rawDataSize = bytesPerPixel * outBMPwidth * outBMPheight;
+    rawDataSize += widthLinePadding * outBMPheight;
+    
+    
     unsigned char* rawData = new unsigned char[rawDataSize];
 
     fseek(filePtr, bitmapFileHeader.bfOffBits, SEEK_SET);
@@ -76,24 +87,24 @@ bool ModelLoader::LoadBMPFile(const std::string& filepath, std::vector<VertexDat
         return false;
 
     uint32_t index = 0;
-    for (uint32_t i = 0; i < bitmapInfoHeader.biHeight; ++i)
+    for (uint32_t i = 0; i < bitmapInfoHeader.biWidth; ++i)
     {
-        for (uint32_t j = 0; j < bitmapInfoHeader.biWidth; ++j)
+        for (uint32_t j = 0; j < bitmapInfoHeader.biHeight; ++j)
         {
             VertexData vertex;
             vertex.uv[0] = (float)i;
             vertex.uv[1] = (float)j;
+
+            //This will not work if the bytesPerPixel != 3 :/
             for (uint32_t k = 0; k < bytesPerPixel; ++k)
             {
-                if (rawData[index] == '\0')
-                index++;
-
                 vertex.color[k] = rawData[index];
                 index++;
             }
                 
             outData.push_back(vertex);
         }
+        index += widthLinePadding;
     }
 
     delete[] rawData;

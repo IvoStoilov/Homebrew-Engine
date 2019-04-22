@@ -33,6 +33,7 @@
     <ClCompile Include="..\source\renderer\common\textureshader.cpp" />
     <ClCompile Include="..\source\renderer\d3d11.cpp" />
     <ClCompile Include="..\source\renderer\d3d11renderer.cpp" />
+    <ClCompile Include="..\source\renderer\debugdisplay\debugdisplayrenderer.cpp" />
     <ClCompile Include="..\source\renderer\graphicsnode.cpp" />
     <ClCompile Include="..\source\renderer\terrain\terrain.cpp" />
     <ClCompile Include="..\source\renderer\terrain\terrainrenderer.cpp" />
@@ -68,10 +69,12 @@
     <ClInclude Include="..\source\renderer\common\mesh.h" />
     <ClInclude Include="..\source\renderer\common\model2d.h" />
     <ClInclude Include="..\source\renderer\common\model3d.h" />
+    <ClInclude Include="..\source\renderer\common\resourcemanager\texturemanager.h" />
     <ClInclude Include="..\source\renderer\common\texture.h" />
     <ClInclude Include="..\source\renderer\common\textureshader.h" />
     <ClInclude Include="..\source\renderer\d3d11.h" />
     <ClInclude Include="..\source\renderer\d3d11renderer.h" />
+    <ClInclude Include="..\source\renderer\debugdisplay\debugdisplayrenderer.h" />
     <ClInclude Include="..\source\renderer\graphicsnode.h" />
     <ClInclude Include="..\source\renderer\isubrenderer.h" />
     <ClInclude Include="..\source\renderer\terrain\terrain.h" />
@@ -265,7 +268,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;POP_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>DirectXTK.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -281,7 +284,7 @@
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <MinimalRebuild>false</MinimalRebuild>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;POP_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>$(SolutionDir)bin\$(Configuration)\DirectXTK.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -296,7 +299,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)source;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;POP_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -313,7 +316,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)source;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;POP_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

@@ -8,6 +8,7 @@ class D3D11;
 class Terrain;
 class ColorShader;
 class LightShader;
+class Texture;
 class TerrainRenderer : public ISubRenderer
 {
 public:
@@ -24,4 +25,5 @@ private:
     Terrain* m_Terrain;
     ColorShader* m_WireframeShader;
     LightShader* m_SolidShader;
+    Texture* m_DiffuseTexture;
 };

@@ -223,7 +223,12 @@ bool D3D11::InitDeviceAndSwapchain(uint32_t screenWidth, uint32_t screenHeight, 
     featureLevel = D3D_FEATURE_LEVEL_11_0;
 
     // Create the swap chain, Direct3D device, and Direct3D device context.
-    HRESULT result = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, D3D11_CREATE_DEVICE_DEBUG, &featureLevel, 1,
+#ifdef POP_DEBUG
+    constexpr uint32_t enableDebugFlag = D3D11_CREATE_DEVICE_DEBUG;
+#elif POP_RELEASE
+    constexpr uint32_t enableDebugFlag = 0;
+#endif
+    HRESULT result = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, enableDebugFlag, &featureLevel, 1,
         D3D11_SDK_VERSION, &swapChainDesc, &m_SwapChain, &m_Device, NULL, &m_DeviceContext);
     if (FAILED(result))
     {
