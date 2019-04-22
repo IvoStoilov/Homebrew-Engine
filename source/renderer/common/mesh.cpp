@@ -418,6 +418,8 @@ void Mesh::Deserialize(const std::string& path)
 
 void Mesh::PostDeserialize()
 {
+    PROFILE_FUNCTION(Mesh::PostDeserialize);
+
     if (REBUILD_HALFEDGELIST_ENABLED)
     {
         for (Vertex* vertex : m_Vertices)

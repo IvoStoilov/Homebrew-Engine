@@ -1,5 +1,5 @@
-#include "engine.h"
-#include "camera.h"
+#include "core/engine.h"
+#include "core/camera.h"
 
 #include "system/inputmanager.h"
 #include "system/profiling/profilemanager.h"
@@ -49,7 +49,7 @@ bool Engine::Initialize(HINSTANCE hInstance, HWND hwnd, uint32_t width, uint32_t
         m_Entities[0]->AddComponent(visComp);
 
         m_Entities.push_back(new Entity());
-        m_Entities[1]->SetGlobalPosition(vec4(2.f, 2.f, 2.f, 1.f));
+        m_Entities[1]->SetGlobalPosition(vec4(2.f, 0.f, 2.f, 1.f));
         visComp = new VisualComponent();
         visComp->SetModelPath(std::string("../../resource/geometry/cube.bgd"));
         visComp->SetTexturePath(std::string("../../resource/ink-splatter-texture.png"));
@@ -68,13 +68,15 @@ bool Engine::Initialize(HINSTANCE hInstance, HWND hwnd, uint32_t width, uint32_t
 void Engine::Update()
 {
     m_WorldClock.Update();
-    float dt = GetFrameTime();
+    float dt = GetFrameTimeInS();
 
     g_InputManager->Update();
 
     // Check if the user pressed escape and wants to exit the application.
     m_HasRequestedQuit = m_HasRequestedQuit || g_InputManager->IsEscapePressed();
-    
+
+    m_InputHandler.Update();
+
     m_FPSCounter.Update();
     m_CPUInfo.Update();
 
@@ -83,7 +85,7 @@ void Engine::Update()
         entity->Update(dt);
     }
 
-    m_Camera->Update();
+    m_Camera->Update(dt);
 
     
     g_RenderEngine->PreFrame();

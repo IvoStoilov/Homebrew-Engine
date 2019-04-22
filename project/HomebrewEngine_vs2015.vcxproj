@@ -19,8 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\source\camera.cpp" />
-    <ClCompile Include="..\source\engine.cpp" />
+    <ClCompile Include="..\source\core\camera.cpp" />
+    <ClCompile Include="..\source\core\engine.cpp" />
     <ClCompile Include="..\source\entitymodel\components\component.cpp" />
     <ClCompile Include="..\source\entitymodel\components\visualcomponent.cpp" />
     <ClCompile Include="..\source\entitymodel\entity.cpp" />
@@ -57,10 +57,12 @@
     <ClCompile Include="..\source\win64\win64input.cpp" />
     <ClCompile Include="..\source\win64\win64viewprovider.cpp" />
     <ClCompile Include="..\source\win64\win64main.cpp" />
+    <ClCompile Include="inputhandler.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\source\camera.h" />
-    <ClInclude Include="..\source\engine.h" />
+    <ClInclude Include="..\source\core\camera.h" />
+    <ClInclude Include="..\source\core\engine.h" />
+    <ClInclude Include="..\source\core\input\inputhandler.h" />
     <ClInclude Include="..\source\entitymodel\components\component.h" />
     <ClInclude Include="..\source\entitymodel\components\visualcomponent.h" />
     <ClInclude Include="..\source\entitymodel\entity.h" />

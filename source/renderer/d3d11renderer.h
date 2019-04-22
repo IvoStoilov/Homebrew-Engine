@@ -15,8 +15,15 @@ class DebugDisplayRenderer;
 class D3D11Renderer
 {
 private:
-    //temporary - should make debug display singleton
-    DebugDisplayRenderer* m_DebugDisplayRendererCache;
+    enum SubRendererOrder
+    {
+        Terrain = 0,
+        Text = 1,
+        DebugDisplay = 2,
+
+        COUNT,
+        Invalid
+    };
 
     static D3D11Renderer* s_Instance;
     D3D11Renderer();
@@ -26,13 +33,16 @@ private:
     void Shutdown();
 
 public:
-    DebugDisplayRenderer* GetDebugDisplayRenderer() { return m_DebugDisplayRendererCache; }
+    DebugDisplayRenderer* GetDebugDisplayRenderer() const;
 
     static D3D11Renderer* GetInstance();
     static void CreateInstance(HWND hwnd, uint32_t screenWidth, uint32_t screenHeight);
     static void CleanInstance();
 
 public:
+    bool IsEnabledDebugDisplay() const;
+    void EnableDebugDisplay(bool shouldEnable);
+
     void RegisterDrawable(VisualComponent* visComponent);
     void UnregisterDrawable(VisualComponent* visComponent);
     

@@ -21,3 +21,4 @@ bin/Debug
 bin/Release
 temp
 extern/DirectXTK/Bin
+ipch

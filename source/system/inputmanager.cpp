@@ -1,5 +1,5 @@
-#include "system\inputmanager.h"
-#include "system\error.h"
+#include "system/inputmanager.h"
+#include "system/error.h"
 
 InputManager* InputManager::s_Instance = nullptr;
 
@@ -131,6 +131,7 @@ bool InputManager::ReadKeyboard()
     HRESULT result;
 
     // Read the keyboard device.
+    memcpy(m_KeyBoardStatePrevFrame, m_KeyboardState, sizeof(m_KeyboardState));
     result = m_Keyboard->GetDeviceState(sizeof(m_KeyboardState), (LPVOID)&m_KeyboardState);
     if (FAILED(result))
     {
@@ -200,6 +201,30 @@ bool InputManager::IsKeyPressed(InputManager::Key key)
         case Key::D : return (m_KeyboardState[DIK_D] & 0x80); break;
         case Key::Q : return (m_KeyboardState[DIK_Q] & 0x80); break;
         case Key::E : return (m_KeyboardState[DIK_E] & 0x80); break;
+        case Key::F1: return (m_KeyboardState[DIK_F1] & 0x80); break;
+
+        default:
+            popAssert(false, "InputManager::IsKeyPressed does not support key");
+    }
+
+    return false;
+}
+
+bool InputManager::IsKeyJustPressed(InputManager::Key key)
+{
+    switch (key)
+    {
+        //istoilov: According to documentation the high bit of the BYTE represents the state
+        case Key::W:  return (m_KeyboardState[DIK_W]  & 0x80) && (!static_cast<bool>(m_KeyBoardStatePrevFrame[DIK_W]  & 0x80));
+        case Key::A:  return (m_KeyboardState[DIK_A]  & 0x80) && (!static_cast<bool>(m_KeyBoardStatePrevFrame[DIK_A]  & 0x80));
+        case Key::S:  return (m_KeyboardState[DIK_S]  & 0x80) && (!static_cast<bool>(m_KeyBoardStatePrevFrame[DIK_S]  & 0x80));
+        case Key::D:  return (m_KeyboardState[DIK_D]  & 0x80) && (!static_cast<bool>(m_KeyBoardStatePrevFrame[DIK_D]  & 0x80));
+        case Key::Q:  return (m_KeyboardState[DIK_Q]  & 0x80) && (!static_cast<bool>(m_KeyBoardStatePrevFrame[DIK_Q]  & 0x80));
+        case Key::E:  return (m_KeyboardState[DIK_E]  & 0x80) && (!static_cast<bool>(m_KeyBoardStatePrevFrame[DIK_E]  & 0x80));
+        case Key::F1: return (m_KeyboardState[DIK_F1] & 0x80) && (!static_cast<bool>(m_KeyBoardStatePrevFrame[DIK_F1] & 0x80));
+
+        default:
+        popAssert(false, "InputManager::IsKeyJustPressed does not support key");
     }
 
     return false;

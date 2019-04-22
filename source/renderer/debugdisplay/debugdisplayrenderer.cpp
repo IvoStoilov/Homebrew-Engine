@@ -1,4 +1,4 @@
-#include "renderer/debugdisplay/DebugDisplayRenderer.h"
+#include "renderer/debugdisplay/debugdisplayrenderer.h"
 
 #include "renderer/common/colorshader.h"
 #include "renderer/d3d11.h"

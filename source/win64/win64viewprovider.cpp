@@ -1,7 +1,7 @@
 #include "win64/win64viewprovider.h"
 #include "system/inputmanager.h"
 #include "system/commandline/commandlineoptions.h"
-#include "engine.h"
+#include "core/engine.h"
 
 const uint32_t WINDOWED_SCREEN_WIDTH = 1024;
 const uint32_t WINDOWED_SCREEN_HEIGHT = 720;

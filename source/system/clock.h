@@ -11,7 +11,8 @@ public:
     bool Initialize();
     void Update();
 
-    inline float GetFrameTime() const { return m_FrameTime; }
+    inline float GetFrameTimeInMs() const { return m_FrameTime; }
+    inline float GetFrameTimeInS () const { return m_FrameTime / 1000.f; }
     inline int64_t GetFrameStartTime() const { return m_StartTime; }
     float GetDeltaTime() const;
 

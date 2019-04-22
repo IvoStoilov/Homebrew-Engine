@@ -2,8 +2,8 @@
 #include "renderer/common/texture.h"
 
 #include "system/error.h"
-#include "engine.h"
-#include "camera.h"
+#include "core/engine.h"
+#include "core/camera.h"
 
 Model2D::Model2D() :
     m_VertexBuffer(nullptr),

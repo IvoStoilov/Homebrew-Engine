@@ -15,10 +15,10 @@
 #include "renderer/isubrenderer.h"
 #include "renderer/terrain/terrainrenderer.h"
 
-#include "renderer/debugdisplay/DebugDisplayRenderer.h"
+#include "renderer/debugdisplay/debugdisplayrenderer.h"
 
-#include "camera.h"
-#include "engine.h"
+#include "core/camera.h"
+#include "core/engine.h"
 
 std::string path = "../../resource/ink-splatter-texture.png";
 
@@ -30,15 +30,18 @@ bool D3D11Renderer::Initialize(HWND hwnd, uint32_t screenWidth, uint32_t screenH
     popAssert(m_D3D != nullptr, "Memory Alloc Failed");
     popAssert(m_D3D->Initialize(screenWidth, screenHeight, hwnd, VSYNC_ENABLED, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR), "D3D Init Failed");
 
-    m_DebugDisplayRendererCache = new DebugDisplayRenderer();
-    
+    m_SubRenderers.resize(SubRendererOrder::COUNT);
+
     ISubRenderer* terrainRenderer = new TerrainRenderer();
-    m_SubRenderers.push_back(terrainRenderer);
+    m_SubRenderers[SubRendererOrder::Terrain] = terrainRenderer;
 
     ISubRenderer* textRenderer = new TextRenderer(screenWidth, screenHeight);
-    m_SubRenderers.push_back(textRenderer);
+    m_SubRenderers[SubRendererOrder::Text] = textRenderer;
 
-    //m_SubRenderers.push_back(m_DebugDisplayRendererCache);
+    ISubRenderer* debugDisplayRenderer = new DebugDisplayRenderer();
+    m_SubRenderers[SubRendererOrder::DebugDisplay] = debugDisplayRenderer;
+    debugDisplayRenderer->SetIsEnabled(false);
+
     for (ISubRenderer* subRenderer : m_SubRenderers)
     {
         popAssert(subRenderer->Initialize(m_D3D->GetDevice(), m_D3D->GetDeviceContext()), "subRenderer failed init");
@@ -119,7 +122,12 @@ bool D3D11Renderer::Render()
     }
     
     for (ISubRenderer* subRenderer : m_SubRenderers)
-        subRenderer->Render(m_D3D);
+    {
+        if (subRenderer->IsEnabled())
+        {
+            subRenderer->Render(m_D3D);
+        }
+    }
 
     // Present the rendered scene to the screen.
     m_D3D->EndScene();
@@ -158,4 +166,19 @@ void D3D11Renderer::CreateInstance(HWND hwnd, uint32_t screenWidth, uint32_t scr
         s_Instance = new D3D11Renderer();
         s_Instance->Initialize(hwnd, screenWidth, screenHeight);
     }
+}
+
+void D3D11Renderer::EnableDebugDisplay(bool shouldEnable)
+{ 
+    GetDebugDisplayRenderer()->SetIsEnabled(shouldEnable);
+}
+
+bool D3D11Renderer::IsEnabledDebugDisplay() const
+{
+    return GetDebugDisplayRenderer()->IsEnabled();
+}
+
+DebugDisplayRenderer* D3D11Renderer::GetDebugDisplayRenderer() const
+{
+    return static_cast<DebugDisplayRenderer*>(m_SubRenderers[SubRendererOrder::DebugDisplay]); 
 }

@@ -1,16 +1,13 @@
 #include "renderer/textrendering/textrenderer.h"
 #include "renderer/d3d11.h"
 
-#include "engine.h"
-#include "camera.h"
+#include "core/engine.h"
+#include "core/camera.h"
 #include "system/error.h"
 #include "system/math/vec4.h"
 
 bool TextRenderer::Render(D3D11* d3d)
 {
-    if (!m_Active)
-        return false;
-
     d3d->TurnDepthTestOff();
 
     char fpsText[40];
@@ -20,7 +17,7 @@ bool TextRenderer::Render(D3D11* d3d)
     char cameraMovespeed[40];
     std::sprintf(fpsText, "FPS : %d", g_Engine->GetFPS());
     std::sprintf(cpuText, "CPU: %d%%", g_Engine->GetCPUUsage());
-    std::sprintf(frameTimeText, "Engine: %.1f ms", g_Engine->GetFrameTime());
+    std::sprintf(frameTimeText, "Engine: %.1f ms", g_Engine->GetFrameTimeInMS());
     vec4 cameraPos = g_Engine->GetCamera()->GetPosition();
     std::sprintf(cameraPosText, "Cam pos: %.1f, %.1f, %.1f", cameraPos.x, cameraPos.y, cameraPos.z);
     std::sprintf(cameraMovespeed, "Cam mov speed %.1f m/s", g_Engine->GetCamera()->GetMoveSpeed());

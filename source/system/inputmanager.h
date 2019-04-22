@@ -16,7 +16,7 @@ class InputManager
 public:
     enum class Key
     {
-        W, A, S, D, Q, E
+        W, A, S, D, Q, E, F1
     };
 
     enum class MouseButton
@@ -42,6 +42,7 @@ public:
 
     bool IsEscapePressed();
     bool IsKeyPressed(InputManager::Key key);
+    bool IsKeyJustPressed(InputManager::Key key);
     bool IsMouseButtonPressed(InputManager::MouseButton button);
 
     void GetMouseLocation(int32_t& outX, int32_t& outY);
@@ -59,6 +60,8 @@ private:
     IDirectInputDevice8* m_Mouse;
 
     char m_KeyboardState[256];
+    char m_KeyBoardStatePrevFrame[256];
+
     DIMOUSESTATE m_MouseState;
 
     uint32_t m_Height;

@@ -68,16 +68,16 @@ void Camera::UpdateMovement()
     }
 }
 
-void Camera::Update()
+void Camera::Update(float dt)
 {
     UpdateMovement();
 
-    if (g_InputManager->IsKeyPressed(InputManager::Key::Q))
+    if (g_InputManager->IsKeyJustPressed(InputManager::Key::Q))
     {
         m_MoveSpeed += .5f;
     }
 
-    if (g_InputManager->IsKeyPressed(InputManager::Key::E) && (m_MoveSpeed - .5f) > 0)
+    if (g_InputManager->IsKeyJustPressed(InputManager::Key::E) && (m_MoveSpeed - .5f) > 0)
     {
         m_MoveSpeed -= .5f;
     }
@@ -117,19 +117,19 @@ void Camera::Update()
 
     if (g_InputManager->IsKeyPressed(InputManager::Key::W))
     {
-        moveZ += dirZ * m_MoveSpeed;
+        moveZ += dirZ * m_MoveSpeed * dt;
     }
     if (g_InputManager->IsKeyPressed(InputManager::Key::A))
     {
-        moveX -= dirX * m_MoveSpeed;
+        moveX -= dirX * m_MoveSpeed * dt;
     }
     if (g_InputManager->IsKeyPressed(InputManager::Key::S))
     {
-        moveZ -= dirZ * m_MoveSpeed;
+        moveZ -= dirZ * m_MoveSpeed * dt;
     }
     if (g_InputManager->IsKeyPressed(InputManager::Key::D))
     {
-        moveX += dirX * m_MoveSpeed;
+        moveX += dirX * m_MoveSpeed * dt;
     }
 
     // Setup the position of the camera in the world.

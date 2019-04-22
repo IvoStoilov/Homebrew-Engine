@@ -18,7 +18,7 @@ public:
 
     vec4 GetUpAxis() const;
 
-    void Update();
+    void Update(float dt);
     void UpdateMovement();
 
     void GetViewMatrix(mat4x4& outViewMatrix);
