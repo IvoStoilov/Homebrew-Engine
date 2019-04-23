@@ -1,5 +1,8 @@
+#include "precompile.h"
 #include "renderer/skydome/skydomerenderer.h"
+
 #include "renderer/skydome/skydomeshader.h"
+
 #include "renderer/d3d11.h"
 #include "renderer/common/colorshader.h"
 #include "renderer/common/mesh.h"
@@ -35,17 +38,23 @@ bool SkydomeRenderer::Render(D3D11* d3d)
 {
     d3d->TurnDepthTestOff();
 
-    D3DXMATRIX worldMatrix;
-    D3DXMatrixIdentity(&worldMatrix);
     const Camera* camera = g_Engine->GetCamera();
     vec4 cameraPos = camera->GetPosition();
-
-    D3DXMatrixTranslation(&worldMatrix, cameraPos.x, cameraPos.y, cameraPos.z);
+    
     D3DXMATRIX projectionMatrix;
     d3d->GetProjectionMatrix(projectionMatrix);
 
     m_SkydomeMesh->Render(d3d->GetDeviceContext());
-    m_SkydomeShader->Render(d3d->GetDeviceContext(), m_SkydomeMesh->GetIndexCount(), worldMatrix, m_ViewMatrix.ToD3DXMATRIX(), projectionMatrix, APEX_COLOR, CENTER_COLOR);
+
+    SkydomeShaderParams skydomeShaderParams;
+    skydomeShaderParams.world = DirectX::XMMatrixTranslation(cameraPos.x, cameraPos.y, cameraPos.z);
+    skydomeShaderParams.view = m_ViewMatrix.ToXMMATRIX();
+    //todo istoilov: store the projection matrix in XMMATRIX
+    skydomeShaderParams.projection = *reinterpret_cast<DirectX::XMMATRIX*>(&projectionMatrix);
+    skydomeShaderParams.apexColor = APEX_COLOR;
+    skydomeShaderParams.centerColor = CENTER_COLOR;
+    
+    m_SkydomeShader->Render(d3d->GetDeviceContext(), m_SkydomeMesh->GetIndexCount(), skydomeShaderParams);
 
     d3d->TurnDepthTestOn();
 

@@ -24,6 +24,7 @@
     <ClCompile Include="..\source\entitymodel\components\component.cpp" />
     <ClCompile Include="..\source\entitymodel\components\visualcomponent.cpp" />
     <ClCompile Include="..\source\entitymodel\entity.cpp" />
+    <ClCompile Include="..\source\renderer\common\baseshader.cpp" />
     <ClCompile Include="..\source\renderer\common\colorshader.cpp" />
     <ClCompile Include="..\source\renderer\common\lightshader.cpp" />
     <ClCompile Include="..\source\renderer\common\mesh.cpp" />
@@ -68,6 +69,8 @@
     <ClInclude Include="..\source\entitymodel\components\component.h" />
     <ClInclude Include="..\source\entitymodel\components\visualcomponent.h" />
     <ClInclude Include="..\source\entitymodel\entity.h" />
+    <ClInclude Include="..\source\precompile.h" />
+    <ClInclude Include="..\source\renderer\common\baseshader.h" />
     <ClInclude Include="..\source\renderer\common\colorshader.h" />
     <ClInclude Include="..\source\renderer\common\lightshader.h" />
     <ClInclude Include="..\source\renderer\common\mesh.h" />
@@ -293,7 +296,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4005;4530;4577;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;POP_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -307,7 +310,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)source;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4005;4530;4577;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <MinimalRebuild>false</MinimalRebuild>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;POP_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -326,6 +329,8 @@
       <AdditionalIncludeDirectories>$(SolutionDir)source;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;POP_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4005;4530;4577;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -343,6 +348,8 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)source;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;POP_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4005;4530;4577;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

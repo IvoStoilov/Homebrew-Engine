@@ -115,14 +115,7 @@ bool D3D11Renderer::Render()
     // Clear the buffers to begin the scene.
     m_D3D->BeginScene(0.f, 0.f, 0.f, 0.f);
 
-    //TODO istoilov : Move code to a dedicated solid object sub renderer.
-    m_D3D->GetProjectionMatrix(m_ProjectionMatrix);
-    for (GraphicsNode* node : m_Nodes)
-    {
-        node->SetProjectionMatrix(mat4x4(m_ProjectionMatrix));
-        node->SetViewMatrix(m_ViewMatrix);
-        node->Render(m_D3D->GetDeviceContext());
-    }
+  
     
     for (ISubRenderer* subRenderer : m_SubRenderers)
     {
@@ -130,6 +123,15 @@ bool D3D11Renderer::Render()
         {
             subRenderer->Render(m_D3D);
         }
+    }
+
+    //TODO istoilov : Move code to a dedicated solid object sub renderer.
+    m_D3D->GetProjectionMatrix(m_ProjectionMatrix);
+    for (GraphicsNode* node : m_Nodes)
+    {
+        node->SetProjectionMatrix(mat4x4(m_ProjectionMatrix));
+        node->SetViewMatrix(m_ViewMatrix);
+        node->Render(m_D3D->GetDeviceContext());
     }
 
     // Present the rendered scene to the screen.

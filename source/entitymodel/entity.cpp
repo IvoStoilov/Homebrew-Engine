@@ -2,7 +2,7 @@
 #include "entitymodel/components/component.h"
 
 Entity::Entity() :
-    m_Angle(0)
+    m_Angle(0.f)
 {}
 
 Entity::~Entity()
@@ -11,7 +11,7 @@ Entity::~Entity()
 void Entity::Update(float dt)
 {
     Rotate(m_Angle);
-    m_Angle += 0.2f * dt;
+    m_Angle += 6.f * dt;
     if (m_Angle > 360.f)
         m_Angle = 0.f;
 }

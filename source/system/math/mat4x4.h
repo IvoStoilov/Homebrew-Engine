@@ -2,7 +2,10 @@
 #include "system/math/vec4.h"
 #include "system/math/mathutil.h"
 #include <d3d11.h>
+//todo remove d3dx10math
 #include <d3dx10math.h>
+
+#include <directxmath.h>
 
 __declspec(align(16)) class mat4x4
 {
@@ -44,10 +47,16 @@ public:
     
     mat4x4 operator*(const vec4& rhs);
 
+    //Deprecate
     D3DXMATRIX ToD3DXMATRIX() { return D3DXMATRIX(_data[0][0], _data[0][1], _data[0][2], _data[0][3], 
                                                   _data[1][0], _data[1][1], _data[1][2], _data[1][3], 
                                                   _data[2][0], _data[2][1], _data[2][2], _data[2][3], 
                                                   _data[3][0], _data[3][1], _data[3][2], _data[3][3]); }
+
+    DirectX::XMMATRIX ToXMMATRIX() { return DirectX::XMMATRIX(_data[0][0], _data[0][1], _data[0][2], _data[0][3],
+                                                              _data[1][0], _data[1][1], _data[1][2], _data[1][3],
+                                                              _data[2][0], _data[2][1], _data[2][2], _data[2][3],
+                                                              _data[3][0], _data[3][1], _data[3][2], _data[3][3]); }
 
     static inline mat4x4 GetRotateXAxisMatrix(float rads)
     {

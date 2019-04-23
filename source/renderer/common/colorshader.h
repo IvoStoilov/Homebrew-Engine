@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <string>
 
-
 class ColorShader
 {
 private:

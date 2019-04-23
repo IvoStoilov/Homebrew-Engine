@@ -181,6 +181,9 @@
     <ClCompile Include="..\source\renderer\skydome\skydomeshader.cpp">
       <Filter>Engine\renderer\skydome</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\renderer\common\baseshader.cpp">
+      <Filter>Engine\renderer\common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\win64\win64viewprovider.h">
@@ -308,6 +311,12 @@
     </ClInclude>
     <ClInclude Include="..\source\renderer\skydome\skydomeshader.h">
       <Filter>Engine\renderer\skydome</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\common\baseshader.h">
+      <Filter>Engine\renderer\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\precompile.h">
+      <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
