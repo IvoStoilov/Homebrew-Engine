@@ -2,10 +2,13 @@
 #include "system/modelloader.h"
 #include "system/error.h"
 #include "system/profiling/profilemanager.h"
+#include "system/commandline/commandlineoptions.h"
 
 #include <tuple>
 #include <map>
 #include <fstream>
+#include <d3d11.h>
+#include <directxmath.h>
 
 typedef std::tuple<int, int> Pair;
 typedef std::map< Pair, Mesh::Edge* > EdgeMap;
@@ -16,11 +19,14 @@ Mesh::Mesh()
 {
 }
 
-bool Mesh::InitializeMeshFromFile(const std::string& filepath)
+bool Mesh::InitializeMeshFromObjFile(const std::string& filepath, bool buildHalfEdgeList/*=true*/)
 {
     InitializeVertexList(filepath);
-    InitializeEdgeList();
-    BuildHullEdges();
+    if (buildHalfEdgeList)
+    {
+        InitializeEdgeList();
+        BuildHullEdges();
+    }
 
     return true;
 }
@@ -189,6 +195,12 @@ void Mesh::InitializeEdgeList()
 
 void Mesh::Shutdown()
 {
+    if (m_VertexBuffer)
+        m_VertexBuffer->Release();
+
+    if (m_IndexBuffer)
+        m_IndexBuffer->Release();
+
     for (Vertex* vertex : m_Vertices)
         delete vertex;
 
@@ -441,6 +453,122 @@ void Mesh::PostDeserialize()
             face->m_Edge = m_Edges[face->m_EdgeIdx];
         }
     }
+}
+
+struct VertexType
+{
+    DirectX::XMFLOAT4 position;
+    DirectX::XMFLOAT3 normal;
+    DirectX::XMFLOAT2 uv;
+};
+
+bool Mesh::InitializeVertexBuffer(ID3D11Device* device)
+{
+    VertexType* vertices = new VertexType[m_Vertices.size()];
+    for (uint32_t i = 0; i < m_Vertices.size(); i++)
+    {
+        float x = m_Vertices[i]->m_Position.x;
+        float y = m_Vertices[i]->m_Position.y;
+        float z = m_Vertices[i]->m_Position.z;
+
+        vertices[i].position = DirectX::XMFLOAT4(x, y, z, 0.f);
+        vertices[i].normal = DirectX::XMFLOAT3(m_Vertices[i]->m_Normal.x, m_Vertices[i]->m_Normal.y, m_Vertices[i]->m_Normal.z);
+        vertices[i].uv = DirectX::XMFLOAT2(m_Vertices[i]->m_UV.x, m_Vertices[i]->m_UV.y);
+    }
+
+    D3D11_BUFFER_DESC vertexBufferDesc;
+    vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+    vertexBufferDesc.ByteWidth = sizeof(VertexType) * m_Vertices.size();
+    vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vertexBufferDesc.CPUAccessFlags = 0;
+    vertexBufferDesc.MiscFlags = 0;
+    vertexBufferDesc.StructureByteStride = 0;
+
+    D3D11_SUBRESOURCE_DATA vertexData;
+    vertexData.pSysMem = vertices;
+    vertexData.SysMemPitch = 0;
+    vertexData.SysMemSlicePitch = 0;
+
+    HRESULT result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &m_VertexBuffer);
+    popAssert(!FAILED(result), "Terrain Vertex Buffer creation failed");
+
+    delete[] vertices;
+    return !FAILED(result);
+}
+
+bool Mesh::InitializeIndexBuffer(ID3D11Device* device)
+{
+    uint32_t* indices = nullptr;
+    uint32_t indexCount = 0;
+
+    if (g_CommandLineOptions->m_DrawWireframe)
+        SetupBuffersForWireframe(indices, indexCount);
+    else
+        SetupBuffersForSolid(indices, indexCount);
+
+    D3D11_BUFFER_DESC indexBufferDesc;
+    indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+    indexBufferDesc.ByteWidth = sizeof(uint32_t) * indexCount;
+    indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    indexBufferDesc.CPUAccessFlags = 0;
+    indexBufferDesc.MiscFlags = 0;
+    indexBufferDesc.StructureByteStride = 0;
+
+    D3D11_SUBRESOURCE_DATA indexData;
+    indexData.pSysMem = indices;
+    indexData.SysMemPitch = 0;
+    indexData.SysMemSlicePitch = 0;
+
+    HRESULT result = device->CreateBuffer(&indexBufferDesc, &indexData, &m_IndexBuffer);
+    popAssert(!FAILED(result), "Terrain Vertex Buffer creation failed");
+
+    delete[] indices;
+    return !FAILED(result);
+}
+
+void Mesh::SetupBuffersForWireframe(uint32_t*& indexes, uint32_t& outArrSize)
+{
+    outArrSize = m_Indexes.size() * 2;
+    indexes = new uint32_t[outArrSize];
+    uint32_t j = 0;
+    for (uint32_t i = 0; i < m_Indexes.size(); i += 3)
+    {
+        indexes[j++] = m_Indexes[i];
+        indexes[j++] = m_Indexes[i + 1];
+        indexes[j++] = m_Indexes[i + 1];
+        indexes[j++] = m_Indexes[i + 2];
+        indexes[j++] = m_Indexes[i + 2];
+        indexes[j++] = m_Indexes[i];
+    }
+}
+
+void Mesh::SetupBuffersForSolid(uint32_t*& indexes, uint32_t& outArrSize)
+{
+    outArrSize = m_Indexes.size();
+    indexes = new uint32_t[outArrSize];
+
+    for (uint32_t i = 0; i < outArrSize; i++)
+    {
+        indexes[i] = m_Indexes[i];
+    }
+}
+
+bool Mesh::InitializeBuffers(ID3D11Device* device)
+{
+    popAssert(InitializeVertexBuffer(device), "");
+    popAssert(InitializeIndexBuffer(device), "");
+    return true;
+}
+
+void Mesh::Render(ID3D11DeviceContext* deviceContext)
+{
+    uint32_t stride = sizeof(VertexType);
+    uint32_t offset = 0;
+
+    deviceContext->IASetVertexBuffers(0, 1, &m_VertexBuffer, &stride, &offset);
+    deviceContext->IASetIndexBuffer(m_IndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+    D3D_PRIMITIVE_TOPOLOGY drawTopology = g_CommandLineOptions->m_DrawWireframe ? D3D11_PRIMITIVE_TOPOLOGY_LINELIST : D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+    deviceContext->IASetPrimitiveTopology(drawTopology);
 }
 
 Mesh::Edge::Edge() :

@@ -13,6 +13,9 @@
 #include <vector>
 #include <string.h>
 
+class ID3D11Buffer;
+class ID3D11Device;
+class ID3D11DeviceContext;
 class Mesh
 {
 public:
@@ -59,7 +62,7 @@ public:
 public:
     Mesh();
     
-    bool InitializeMeshFromFile(const std::string& filepath);
+    bool InitializeMeshFromObjFile(const std::string& filepath, bool buildHalfEdgeLis = true);
     void Shutdown();
 
     void PreSerialize();
@@ -69,12 +72,16 @@ public:
 
     //Probably bad, but will rely on external classes(like Model3D or Terrain.h) to upload the data into the GPU
     //Would be nice to optimize data transformations
+    //DEPRECATED! SHOULD NOT BE USED.
     inline std::vector<Vertex*>&  GetVertices() { return m_Vertices; }
     inline std::vector<uint32_t>& GetIndexes()  { return m_Indexes;  }
 
     void GetAdjacentTriangles(const Vertex* v, std::vector<Triangle*>& outResult) const;
     void ComputeFaceNormals();
 
+    bool InitializeBuffers(ID3D11Device* device);
+    void Render(ID3D11DeviceContext* deviceContext);
+    uint32_t GetIndexCount() const { return m_Indexes.size(); }
 private:
     void InitializeVertexList(const std::string& filepath);
     void InitializeEdgeList();
@@ -83,9 +90,16 @@ private:
     vec4 ComputeFaceNormal(uint32_t i, uint32_t j, uint32_t k);
     vec4 ComputeFaceNormal(Vertex* a, Vertex* b, Vertex* c);
 
+    bool InitializeVertexBuffer(ID3D11Device* device);
+    bool InitializeIndexBuffer(ID3D11Device* device);
+    void SetupBuffersForWireframe(uint32_t*& outIndexes, uint32_t& outArrSize);
+    void SetupBuffersForSolid(uint32_t*& outIndexes, uint32_t& outArrSize);
 private:
     std::vector<Vertex*>   m_Vertices;
     std::vector<Edge*>     m_Edges;
     std::vector<Triangle*> m_Triangles;
     std::vector<uint32_t> m_Indexes;
+
+    ID3D11Buffer* m_VertexBuffer;
+    ID3D11Buffer* m_IndexBuffer;
 };

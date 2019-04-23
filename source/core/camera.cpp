@@ -15,7 +15,7 @@ Camera::Camera()
     m_rotationY = 0.0f;
     m_rotationZ = 0.0f;
 
-    m_MoveSpeed = .5f;
+    m_MoveSpeed = 15.f;
 }
 
 Camera::~Camera()

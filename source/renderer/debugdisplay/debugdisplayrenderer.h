@@ -25,8 +25,7 @@ public:
     virtual bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext) override;
     virtual bool Render(D3D11* d3d) override;
     virtual void Shutdown() override;
-    virtual void UpdateViewMatrix(const mat4x4& viewMatrix) override;
-
+    
     void AddLine(const vec4& start, const vec4& end, const vec4 color);
 
 protected:

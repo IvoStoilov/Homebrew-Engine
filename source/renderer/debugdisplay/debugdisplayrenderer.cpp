@@ -30,6 +30,9 @@ bool DebugDisplayRenderer::Initialize(ID3D11Device* device, ID3D11DeviceContext*
 
 void DebugDisplayRenderer::InitializeBuffers(ID3D11Device* device)
 {
+    if (m_Elements.empty())
+        return;
+
     uint32_t vertexDataSize = m_Elements.size() * 2;
     VertexType* vertexData = new VertexType[vertexDataSize];
     uint32_t*   indices = new uint32_t[vertexDataSize];
@@ -113,9 +116,4 @@ void DebugDisplayRenderer::AddLine(const vec4& start, const vec4& end, const vec
     element.m_End = end;
     element.m_Color = color;
     m_Elements.push_back(element);
-}
-
-void DebugDisplayRenderer::UpdateViewMatrix(const mat4x4& viewMatrix)
-{
-    m_ViewMatrix = viewMatrix;
 }

@@ -70,13 +70,7 @@ void TerrainRenderer::Shutdown()
 
 TerrainRenderer::TerrainRenderer() :
     ISubRenderer(),
-    m_ViewMatrix(),
     m_Terrain(nullptr),
     m_WireframeShader(nullptr),
     m_SolidShader(nullptr)
 {}
-
-void TerrainRenderer::UpdateViewMatrix(const mat4x4& viewMatrix)
-{
-    m_ViewMatrix = viewMatrix;
-}

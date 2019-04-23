@@ -53,6 +53,9 @@
     <Filter Include="Engine\core\input">
       <UniqueIdentifier>{7272734f-7964-4c2f-bc03-38f6c0471622}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\renderer\skydome">
+      <UniqueIdentifier>{31145d39-1235-4795-a94e-b5086e54eb23}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\win64\win64viewprovider.cpp">
@@ -171,6 +174,12 @@
     </ClCompile>
     <ClCompile Include="..\source\core\engine.cpp">
       <Filter>Engine\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\skydome\skydomerenderer.cpp">
+      <Filter>Engine\renderer\skydome</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\skydome\skydomeshader.cpp">
+      <Filter>Engine\renderer\skydome</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -294,6 +303,12 @@
     <ClInclude Include="..\source\core\engine.h">
       <Filter>Engine\core</Filter>
     </ClInclude>
+    <ClInclude Include="..\source\renderer\skydome\skydomerenderer.h">
+      <Filter>Engine\renderer\skydome</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\skydome\skydomeshader.h">
+      <Filter>Engine\renderer\skydome</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\source\renderer\shader\simplePS.hlsl">
@@ -318,6 +333,12 @@
       <Filter>Engine\renderer\shaders</Filter>
     </FxCompile>
     <FxCompile Include="..\source\renderer\shader\fontVS.hlsl">
+      <Filter>Engine\renderer\shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\source\renderer\shader\skydomePS.hlsl">
+      <Filter>Engine\renderer\shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\source\renderer\shader\skydomeVS.hlsl">
       <Filter>Engine\renderer\shaders</Filter>
     </FxCompile>
   </ItemGroup>

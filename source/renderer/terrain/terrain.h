@@ -9,14 +9,6 @@
 class Mesh;
 class Terrain
 {
-private:
-    struct VertexType
-    {
-        DirectX::XMFLOAT4 position;
-        DirectX::XMFLOAT3 normal;
-        DirectX::XMFLOAT2 uv;
-    };
-
 public:
     Terrain();
     ~Terrain();
@@ -29,28 +21,16 @@ public:
     void Shutdown();
     bool Render(ID3D11DeviceContext* deviceContext);
 
-    inline const uint32_t GetIndexCount() const { return m_IndexCount; }
+    const uint32_t GetIndexCount() const;
     
-
     static void BinarizeTerrain(const std::string& meshOBJFilePath, const std::string& heighMapBMPFilePath, const std::string& outputPath);
 
 private:
-    bool InitializeVertexBuffer(ID3D11Device* device);
-    bool InitializeIndexBuffer(ID3D11Device* device);
-
-    bool InitializeTerrainParams();
     bool InitializeTerrainMesh();
     void InitializeTerrainHeight();
     void InitializeTerrainNormals();
 
     bool LoadHeightMap(const std::string& heightMapPath);
-    void NormalizeHeight();
-    void ShutdownBuffers();
-    void RenderBuffers(ID3D11DeviceContext* deviceContext);
-
-
-    void SetupBuffersForWireframe(uint32_t*& indexes);
-    void SetupBuffersForSolid    (uint32_t*& indexes);
     float TestHeightInUV(float x, float y);
 
 private:
@@ -69,9 +49,4 @@ private:
     float m_MaxTerrainHeight;
     std::string m_TerrainHeightMapPath;
     std::string m_TerrainOBJPath;
-
-    ID3D11Buffer* m_VertexBuffer;
-    ID3D11Buffer* m_IndexBuffer;
-    uint32_t m_VertexCount;
-    uint32_t m_IndexCount;
 };

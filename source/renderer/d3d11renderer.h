@@ -17,9 +17,10 @@ class D3D11Renderer
 private:
     enum SubRendererOrder
     {
-        Terrain = 0,
-        Text = 1,
-        DebugDisplay = 2,
+        Skydome = 0,
+        Terrain = 1,
+        Text = 2,
+        DebugDisplay = 3,
 
         COUNT,
         Invalid

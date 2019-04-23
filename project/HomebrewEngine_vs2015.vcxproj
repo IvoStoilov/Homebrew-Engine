@@ -35,6 +35,8 @@
     <ClCompile Include="..\source\renderer\d3d11renderer.cpp" />
     <ClCompile Include="..\source\renderer\debugdisplay\debugdisplayrenderer.cpp" />
     <ClCompile Include="..\source\renderer\graphicsnode.cpp" />
+    <ClCompile Include="..\source\renderer\skydome\skydomerenderer.cpp" />
+    <ClCompile Include="..\source\renderer\skydome\skydomeshader.cpp" />
     <ClCompile Include="..\source\renderer\terrain\terrain.cpp" />
     <ClCompile Include="..\source\renderer\terrain\terrainrenderer.cpp" />
     <ClCompile Include="..\source\renderer\textrendering\font.cpp" />
@@ -79,6 +81,8 @@
     <ClInclude Include="..\source\renderer\debugdisplay\debugdisplayrenderer.h" />
     <ClInclude Include="..\source\renderer\graphicsnode.h" />
     <ClInclude Include="..\source\renderer\isubrenderer.h" />
+    <ClInclude Include="..\source\renderer\skydome\skydomerenderer.h" />
+    <ClInclude Include="..\source\renderer\skydome\skydomeshader.h" />
     <ClInclude Include="..\source\renderer\terrain\terrain.h" />
     <ClInclude Include="..\source\renderer\terrain\terrainrenderer.h" />
     <ClInclude Include="..\source\renderer\textrendering\font.h" />
@@ -160,6 +164,26 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">main</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">main</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">main</EntryPointName>
+    </FxCompile>
+    <FxCompile Include="..\source\renderer\shader\skydomePS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="..\source\renderer\shader\skydomeVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="..\source\renderer\shader\texturePS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
