@@ -1,3 +1,4 @@
+#include "precompile.h"
 #include "renderer/terrain/terrain.h"
 #include "renderer/d3d11renderer.h"
 #include "renderer/common/mesh.h"
@@ -12,7 +13,7 @@ using namespace DirectX;
 //Temp Hack for the Half size. Need to figure out how to store meta data for the mesh or probrably for the terrain
 constexpr float TERRAIN_HALF_SIZE = 128.f; 
 
-const std::string TERRAIN_MESH_BIN = "../../resource/terrain/bin/terrain513x513.bin";
+const std::string TERRAIN_MESH_BIN = "../../resource/terrain/bin/terrain513x513newFormattest1.bin";
   
 
 Terrain::Terrain() :
@@ -23,9 +24,7 @@ Terrain::Terrain() :
     m_TerrainVSize(0),
     m_ScaleU(1.f),
     m_ScaleV(1.f),
-    m_MaxTerrainHeight(25.f),
-    m_TerrainHeightMapPath(""),
-    m_TerrainOBJPath("")
+    m_MaxTerrainHeight(25.f)
 {}
 
 Terrain::~Terrain()
@@ -95,11 +94,11 @@ bool Terrain::InitializeForBinarize(const std::string& meshOBJFilePath, const st
     result = LoadHeightMap(heighMapBMPFilePath);
     popAssert(result, "Terrain::InitializeForBinarize::LoadTerrainData failed");
 
-    result = m_Mesh->InitializeMeshFromObjFile(meshOBJFilePath);
+    result = m_Mesh->InitializeMeshFromObjFile(meshOBJFilePath, false);
     popAssert(result, "Terrain::InitializeForBinarize::InitializeMeshFromObjFile failed");
 
     InitializeTerrainHeight();
-
+    
     m_Mesh->ComputeFaceNormals();
     InitializeTerrainNormals();
 
@@ -119,19 +118,19 @@ bool Terrain::LoadHeightMap(const std::string& path)
 
 void Terrain::InitializeTerrainHeight()
 {
-    std::vector<Mesh::Vertex*>& meshVertices = m_Mesh->GetVertices();
+    std::vector<Mesh::Vertex>& meshVertices = m_Mesh->GetVertices();
     for (uint32_t i = 0; i < meshVertices.size(); ++i)
     {
-        float height = TestHeightInUV(meshVertices[i]->m_Position.x, meshVertices[i]->m_Position.z);
-        meshVertices[i]->m_Position.y = height;
+        float height = TestHeightInUV(meshVertices[i].m_Position.x, meshVertices[i].m_Position.z);
+        meshVertices[i].m_Position.y = height;
     }
 }
 
 void Terrain::InitializeTerrainNormals()
 {
-    std::vector<Mesh::Vertex*>& vertices = m_Mesh->GetVertices();
+    std::vector<Mesh::Vertex>& vertices = m_Mesh->GetVertices();
 
-    for (Mesh::Vertex* v : vertices)
+    for (Mesh::Vertex& v : vertices)
     {
         std::vector<Mesh::Triangle*> adjFaces;
         m_Mesh->GetAdjacentTriangles(v, adjFaces);
@@ -146,7 +145,7 @@ void Terrain::InitializeTerrainNormals()
         else
             normal = vec4::BaseJ;
 
-        v->m_Normal = normal;
+        v.m_Normal = normal;
     }
 }
 
@@ -155,6 +154,9 @@ float Terrain::TestHeightInUV(float x, float y)
     uint32_t heightMapX = (uint32_t)(x + TERRAIN_HALF_SIZE);
     uint32_t heightMapY = (uint32_t)(y + TERRAIN_HALF_SIZE);
 
-    return m_HeightMapData[heightMapX * m_HeightMapUSize + heightMapY].color[0];
+    heightMapX *= 2;
+    heightMapY *= 2;
+
+    return m_HeightMapData[heightMapX * m_HeightMapUSize + heightMapY].color[0] / 3.25f;
 }
 #pragma endregion

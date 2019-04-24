@@ -1,3 +1,5 @@
+#include "precompile.h"
+
 #include "renderer/common/mesh.h"
 #include "system/modelloader.h"
 #include "system/error.h"
@@ -11,7 +13,7 @@
 #include <directxmath.h>
 
 typedef std::tuple<int, int> Pair;
-typedef std::map< Pair, Mesh::Edge* > EdgeMap;
+typedef std::map< Pair, Mesh::Edge*> EdgeMap;
 
 constexpr bool REBUILD_HALFEDGELIST_ENABLED = false;
 
@@ -24,7 +26,7 @@ bool Mesh::InitializeMeshFromObjFile(const std::string& filepath, bool buildHalf
     InitializeVertexList(filepath);
     if (buildHalfEdgeList)
     {
-        InitializeEdgeList();
+        InitializeEdgeListIndexes();
         BuildHullEdges();
     }
 
@@ -33,12 +35,13 @@ bool Mesh::InitializeMeshFromObjFile(const std::string& filepath, bool buildHalf
 
 void Mesh::InitializeVertexList(const std::string& filepath)
 {
+    PROFILE_FUNCTION(Mesh::InitializeVertexList);
     m_Vertices.clear();
     m_Triangles.clear();
     m_Indexes.clear();
 
     typedef std::tuple<uint32_t, uint32_t, uint32_t> Key;
-    typedef std::tuple<Mesh::Vertex*, std::vector<uint32_t> >Value;
+    typedef std::tuple<Mesh::Vertex, std::vector<uint32_t> >Value;
     typedef std::map<Key, Value> VertexMap;
     VertexMap vertexMap;
 
@@ -57,9 +60,9 @@ void Mesh::InitializeVertexList(const std::string& filepath)
             }
             else
             {
-                Mesh::Vertex* vertex = new Vertex(vec4(rawData.m_Positions[rawData.m_PosIndexes[i]]),
-                                                  vec4(rawData.m_Normals[rawData.m_NormIndexes[i]]),
-                                                  vec2(rawData.m_UVs[rawData.m_UVIndexes[i]]));
+                Mesh::Vertex vertex (vec4(rawData.m_Positions[rawData.m_PosIndexes[i]]),
+                                     vec4(rawData.m_Normals[rawData.m_NormIndexes[i]]),
+                                     vec2(rawData.m_UVs[rawData.m_UVIndexes[i]]));
                 
                 std::vector<uint32_t> indexList;
                 indexList.push_back(i);
@@ -69,6 +72,7 @@ void Mesh::InitializeVertexList(const std::string& filepath)
         }
 
         m_Indexes.resize(indexListSize);
+        m_Vertices.reserve(rawData.m_Positions.size());
         for (VertexMap::iterator it = vertexMap.begin(); it != vertexMap.end(); ++it)
         {
             Value& v = it->second;
@@ -83,12 +87,14 @@ void Mesh::InitializeVertexList(const std::string& filepath)
     }
 }
 
-void Mesh::InitializeEdgeList()
+void Mesh::InitializeEdgeListIndexes()
 {
     m_Edges.clear();
     EdgeMap edgeMap;
-    
+    m_Edges.reserve(m_Indexes.size() + m_Vertices.size());
+    m_Triangles.reserve(m_Indexes.size() / 3);
     popAssert(m_Indexes.size() != 0, "Index size is 0, Probably not read from file.");
+
 
     for (uint32_t i = 0; i < m_Indexes.size() - 2; i += 3)
     {
@@ -96,57 +102,60 @@ void Mesh::InitializeEdgeList()
         Pair vt = std::make_tuple(m_Indexes[i + 1], m_Indexes[i + 2]);
         Pair tu = std::make_tuple(m_Indexes[i + 2], m_Indexes[i]);
 
-        Edge* edgeUV = new Edge();
-        Edge* edgeVT = new Edge();
-        Edge* edgeTU = new Edge();
+        m_Edges.push_back(Edge());
+        Edge* edgeUV = &m_Edges.back();
+        edgeUV->m_SelfIndex = m_Edges.size() - 1;
+
+        m_Edges.push_back(Edge());
+        Edge* edgeVT = &m_Edges.back();
+        edgeVT->m_SelfIndex = m_Edges.size() - 1;
+
+        m_Edges.push_back(Edge());
+        Edge* edgeTU = &m_Edges.back();
+        edgeTU->m_SelfIndex = m_Edges.size() - 1;
+        
+        
 
         edgeMap[uv] = edgeUV;
         edgeMap[vt] = edgeVT;
         edgeMap[tu] = edgeTU;
 
-        edgeUV->m_SelfIndex = m_Edges.size();
-        m_Edges.push_back(edgeUV);
-        edgeVT->m_SelfIndex = m_Edges.size();
-        m_Edges.push_back(edgeVT);
-        edgeTU->m_SelfIndex = m_Edges.size();
-        m_Edges.push_back(edgeTU);
-
-        edgeUV->m_EndVertex    = m_Vertices[std::get<1>(uv)];
+        edgeUV->m_EndVertex    = &m_Vertices[std::get<1>(uv)];
         edgeUV->m_EndVertexIdx = std::get<1>(uv);
-        if (m_Vertices[std::get<0>(uv)]->m_Edge == nullptr)
+        if (m_Vertices[std::get<0>(uv)].m_EdgeIdx < 0)
         {
-            m_Vertices[std::get<0>(uv)]->m_Edge    = edgeUV;
-            m_Vertices[std::get<0>(uv)]->m_EdgeIdx = edgeUV->m_SelfIndex;
+            m_Vertices[std::get<0>(uv)].m_Edge    = edgeUV;
+            m_Vertices[std::get<0>(uv)].m_EdgeIdx = edgeUV->m_SelfIndex;
         }
 
-        edgeVT->m_EndVertex    = m_Vertices[std::get<1>(vt)];
+        edgeVT->m_EndVertex    = &m_Vertices[std::get<1>(vt)];
         edgeVT->m_EndVertexIdx = std::get<1>(vt);
-        if (m_Vertices[std::get<0>(vt)]->m_Edge == nullptr)
+        if (m_Vertices[std::get<0>(vt)].m_EdgeIdx < 0)
         {
-            m_Vertices[std::get<0>(vt)]->m_Edge    = edgeVT;
-            m_Vertices[std::get<0>(vt)]->m_EdgeIdx = edgeVT->m_SelfIndex;
+            m_Vertices[std::get<0>(vt)].m_Edge    = edgeVT;
+            m_Vertices[std::get<0>(vt)].m_EdgeIdx = edgeVT->m_SelfIndex;
         }
 
-        edgeTU->m_EndVertex    = m_Vertices[std::get<1>(tu)];
+        edgeTU->m_EndVertex    = &m_Vertices[std::get<1>(tu)];
         edgeTU->m_EndVertexIdx = std::get<1>(tu);
-        if (m_Vertices[std::get<0>(tu)]->m_Edge == nullptr)
+        if (m_Vertices[std::get<0>(tu)].m_EdgeIdx < 0)
         {
-            m_Vertices[std::get<0>(tu)]->m_Edge = edgeTU;
-            m_Vertices[std::get<0>(tu)]->m_EdgeIdx = edgeTU->m_SelfIndex;
+            m_Vertices[std::get<0>(tu)].m_Edge    = edgeTU;
+            m_Vertices[std::get<0>(tu)].m_EdgeIdx = edgeTU->m_SelfIndex;
         }
 
         edgeUV->m_Next    = edgeVT;
         edgeUV->m_NextIdx = edgeVT->m_SelfIndex;
-
         edgeVT->m_Next    = edgeTU;
         edgeVT->m_NextIdx = edgeTU->m_SelfIndex;
-
         edgeTU->m_Next    = edgeUV;
         edgeTU->m_NextIdx = edgeUV->m_SelfIndex;
 
-        Triangle* triangle = new Triangle();
-        uint32_t triangleIdx = m_Triangles.size();
-        m_Triangles.push_back(triangle);
+        
+        s32 triangleIdx = m_Triangles.size();
+        m_Triangles.push_back(Triangle());
+        Triangle* triangle = &m_Triangles.back();
+
         triangle->m_Edge    = edgeUV;
         triangle->m_EdgeIdx = edgeUV->m_SelfIndex;
         triangle->m_FaceNormal = ComputeFaceNormal(m_Indexes[i], m_Indexes[i + 1], m_Indexes[i + 2]);
@@ -201,14 +210,9 @@ void Mesh::Shutdown()
     if (m_IndexBuffer)
         m_IndexBuffer->Release();
 
-    for (Vertex* vertex : m_Vertices)
-        delete vertex;
-
-    for (Edge* edge : m_Edges)
-        delete edge;
-
-    for (Triangle* face : m_Triangles)
-        delete face;
+    m_Vertices.clear();
+    m_Edges.clear();
+    m_Triangles.clear();
 }
 
 vec4 Mesh::ComputeFaceNormal(uint32_t a, uint32_t b, uint32_t c)
@@ -216,20 +220,20 @@ vec4 Mesh::ComputeFaceNormal(uint32_t a, uint32_t b, uint32_t c)
     return ComputeFaceNormal(m_Vertices[a], m_Vertices[b], m_Vertices[c]);
 }
 
-vec4 Mesh::ComputeFaceNormal(Vertex* a, Vertex* b, Vertex* c)
+vec4 Mesh::ComputeFaceNormal(const Vertex& a, const Vertex b, const Vertex& c)
 {
     //Using right-hand coordinate system and clockwise face orientation
-    vec4 AB = b->m_Position - a->m_Position;
-    vec4 AC = c->m_Position - a->m_Position;
+    vec4 AB = b.m_Position - a.m_Position;
+    vec4 AC = c.m_Position - a.m_Position;
 
     vec4 result = vec4::Cross(AC, AB);
     result.Normalize();
     return result;
 }
 
-void Mesh::GetAdjacentTriangles(const Vertex* v, std::vector<Triangle*>& outResult) const
+void Mesh::GetAdjacentTriangles(const Vertex& v, std::vector<Triangle*>& outResult) const
 {
-    Edge* current = v->m_Edge;
+    Edge* current = v.m_Edge;
     do
     {
         current = current->m_Pair->m_Next;
@@ -237,17 +241,17 @@ void Mesh::GetAdjacentTriangles(const Vertex* v, std::vector<Triangle*>& outResu
         {
             outResult.push_back(current->m_Face);
         }
-    } while (current != v->m_Edge);
+    } while (current != v.m_Edge);
 }
 
 void Mesh::BuildHullEdges()
 {
     Edge* hullEdge = nullptr;
-    for(Edge* edge : m_Edges)
+    for(Edge& edge : m_Edges)
     {
-        if (edge->m_Pair == nullptr)
+        if (edge.m_Pair == nullptr)
         {
-            hullEdge = edge;
+            hullEdge = &edge;
             break;
         }
     }
@@ -260,14 +264,14 @@ void Mesh::BuildHullEdges()
     Edge* startEdge = hullEdge;
     while (currentEdge == nullptr)
     {
-        currentEdge = new Edge();
-        currentEdge->m_SelfIndex = m_Edges.size();
-        m_Edges.push_back(currentEdge);
-
+        m_Edges.push_back(Edge());
+        currentEdge = &m_Edges[m_Edges.size() - 1];
+        currentEdge->m_SelfIndex = m_Edges.size() - 1;
+        
         currentEdge->m_EndVertex = hullEdge->m_Next->m_Next->m_EndVertex;
-        for (uint32_t i = 0; i < m_Vertices.size(); ++i)
+        for (u32 i = 0; i < m_Vertices.size(); ++i)
         {
-            if (currentEdge->m_EndVertex == m_Vertices[i])
+            if (currentEdge->m_EndVertex == &m_Vertices[i])
             {
                 currentEdge->m_EndVertexIdx = i;
                 break;
@@ -313,13 +317,13 @@ void Mesh::BuildHullEdges()
 
 void Mesh::ComputeFaceNormals()
 {
-    for (Triangle* face : m_Triangles)
+    for (Triangle& face : m_Triangles)
     {
-        Edge* faceEdge = face->m_Edge;
+        Edge* faceEdge = face.m_Edge;
         Vertex* a = faceEdge->m_EndVertex;
         Vertex* b = faceEdge->m_Next->m_EndVertex;
         Vertex* c = faceEdge->m_Next->m_Next->m_EndVertex;
-        face->m_FaceNormal = ComputeFaceNormal(a, b, c);
+        face.m_FaceNormal = ComputeFaceNormal(*a, *b, *c);
     }
 }
 
@@ -331,99 +335,82 @@ void Mesh::PreSerialize()
 void Mesh::Serialize(const std::string& path)
 {
     PROFILE_FUNCTION(Mesh::Serialize);
-
+    
     PreSerialize();
 
-    std::ofstream writer;
-    writer.open(path, std::ofstream::binary);
-    
-    uint32_t vertSize = m_Vertices.size();
-    writer << vertSize << "\n";
+    auto fileToWrite = std::fstream(path, std::ios::out | std::ios::binary);
 
-    for (Vertex* vertex : m_Vertices)
-    {
-        writer << vertex->m_Position.x << " " <<vertex->m_Position.y << " " << vertex->m_Position.z << " ";
-        writer << vertex->m_Normal.x   << " " <<vertex->m_Normal.y   << " " << vertex->m_Normal.z   << " ";
-        writer << vertex->m_UV.x       << " " <<vertex->m_UV.y << " ";
+    //TODO istoilov : make Serialization helper for PODs
+    u32 verticesSize = m_Vertices.size();
+    fileToWrite.write(reinterpret_cast<char*>(&verticesSize), sizeof(u32));
+    fileToWrite.write(reinterpret_cast<char*>(&m_Vertices[0]), verticesSize * sizeof(Vertex));
 
-        writer << vertex->m_EdgeIdx << "\n";
-    }
+    u32 edgesSize = m_Edges.size();
+    fileToWrite.write(reinterpret_cast<char*>(&edgesSize), sizeof(u32));
+    fileToWrite.write(reinterpret_cast<char*>(&m_Edges[0]), edgesSize * sizeof(Edge));
 
-    uint32_t edgeSize = m_Edges.size();
-    writer << edgeSize << "\n";
-    for (Edge* edge : m_Edges)
-    {
-        writer << edge->m_EndVertexIdx << " " <<  edge->m_PairIdx << " " << edge->m_NextIdx << " " << edge->m_FaceIdx << " ";
-    }
+    u32 trianglesSize = m_Triangles.size();
+    fileToWrite.write(reinterpret_cast<char*>(&trianglesSize), sizeof(u32));
+    fileToWrite.write(reinterpret_cast<char*>(&m_Triangles[0]), trianglesSize * sizeof(Triangle));
 
-    uint32_t faceSize = m_Triangles.size();
-    writer << faceSize << "\n";
-    for (Triangle* face : m_Triangles)
-    {
-        writer << face->m_FaceNormal.x << " " << face->m_FaceNormal.y << " " << face->m_FaceNormal.z << " ";
-        writer << face->m_EdgeIdx << "\n";
-    }
+    u32 indexSize = m_Indexes.size();
+    fileToWrite.write(reinterpret_cast<char*>(&indexSize), sizeof(u32));
+    fileToWrite.write(reinterpret_cast<char*>(&m_Indexes[0]), indexSize * sizeof(u32));
 
-    uint32_t idxSize = m_Indexes.size();
-    writer << idxSize << "\n";
-    for (uint32_t idx : m_Indexes)
-    {
-        writer << idx << " ";
-    }
-
-    writer.close();
+    fileToWrite.close();
 }
 
 void Mesh::Deserialize(const std::string& path)
 {
     PROFILE_FUNCTION(Mesh::Deserialize);
-
-    std::ifstream reader;
-    reader.open(path, std::ifstream::binary);
-
-    uint32_t vertSize = 0;
-    reader >> vertSize;
+    auto fileToRead = std::fstream(path, std::ios::in | std::ios::binary);
     
-    for (uint32_t i = 0; i < vertSize; ++i)
+    //TODO istoilov : make Serialization helper for PODs
     {
-        Vertex* vertex = new Vertex();
-        reader >> vertex->m_Position.x >> vertex->m_Position.y >> vertex->m_Position.z;
-        reader >> vertex->m_Normal.x >> vertex->m_Normal.y >> vertex->m_Normal.z;
-        reader >> vertex->m_UV.x >> vertex->m_UV.y;
-        
-        reader >> vertex->m_EdgeIdx;
-        m_Vertices.push_back(vertex);
+        char u32Buffer[4];
+        fileToRead.read(u32Buffer, sizeof(u32Buffer));
+        u32 vertexSize = *reinterpret_cast<u32*>(u32Buffer);
+
+        char* streamBuffer = new char[vertexSize * sizeof(Vertex)];
+        fileToRead.read(streamBuffer, vertexSize * sizeof(Vertex));
+        m_Vertices.resize(vertexSize);
+        memcpy(reinterpret_cast<char*>(&m_Vertices[0]), streamBuffer, vertexSize * sizeof(Vertex));
     }
 
-    uint32_t edgeSize = 0;
-    reader >> edgeSize;
-    for (uint32_t i = 0; i < edgeSize; ++i)
     {
-        Edge* edge = new Edge();
-        reader >> edge->m_EndVertexIdx >> edge->m_PairIdx >> edge->m_NextIdx >> edge->m_FaceIdx;
-        m_Edges.push_back(edge);
+        char u32Buffer[4];
+        fileToRead.read(u32Buffer, sizeof(u32Buffer));
+        u32 vertexSize = *reinterpret_cast<u32*>(u32Buffer);
+
+        char* streamBuffer = new char[vertexSize * sizeof(Edge)];
+        fileToRead.read(streamBuffer, vertexSize * sizeof(Edge));
+        m_Edges.resize(vertexSize);
+        memcpy(reinterpret_cast<char*>(&m_Edges[0]), streamBuffer, vertexSize * sizeof(Edge));
     }
 
-    uint32_t faceSize = 0;
-    reader >> faceSize;
-    for (uint32_t i = 0; i < faceSize; ++i)
     {
-        Triangle* face = new Triangle();
-        reader >> face->m_FaceNormal.x >> face->m_FaceNormal.y >> face->m_FaceNormal.z;
-        reader >> face->m_EdgeIdx;
-        m_Triangles.push_back(face);
+        char u32Buffer[4];
+        fileToRead.read(u32Buffer, sizeof(u32Buffer));
+        u32 vertexSize = *reinterpret_cast<u32*>(u32Buffer);
+
+        char* streamBuffer = new char[vertexSize * sizeof(Triangle)];
+        fileToRead.read(streamBuffer, vertexSize * sizeof(Triangle));
+        m_Triangles.resize(vertexSize);
+        memcpy(reinterpret_cast<char*>(&m_Triangles[0]), streamBuffer, vertexSize * sizeof(Triangle));
     }
 
-    uint32_t idxSize = 0;
-    reader >> idxSize;
-    for (uint32_t i = 0; i < idxSize; i++)
     {
-        uint32_t idx;
-        reader >> idx;
-        m_Indexes.push_back(idx);
+        char u32Buffer[4];
+        fileToRead.read(u32Buffer, sizeof(u32Buffer));
+        u32 indexSize = *reinterpret_cast<u32*>(u32Buffer);
+
+        char* streamBuffer = new char[indexSize * sizeof(u32)];
+        fileToRead.read(streamBuffer, indexSize * sizeof(u32));
+        m_Indexes.resize(indexSize);
+        memcpy(reinterpret_cast<char*>(&m_Indexes[0]), streamBuffer, indexSize * sizeof(u32));
     }
 
-    reader.close();
+    fileToRead.close();
 
     PostDeserialize();
 }
@@ -434,23 +421,23 @@ void Mesh::PostDeserialize()
 
     if (REBUILD_HALFEDGELIST_ENABLED)
     {
-        for (Vertex* vertex : m_Vertices)
+        for (Vertex& vertex : m_Vertices)
         {
-            vertex->m_Edge = m_Edges[vertex->m_EdgeIdx];
+            vertex.m_Edge = &m_Edges[vertex.m_EdgeIdx];
         }
 
-        for (Edge* edge : m_Edges)
+        for (Edge& edge : m_Edges)
         {
-            edge->m_EndVertex = m_Vertices[edge->m_EndVertexIdx];
-            edge->m_Pair = m_Edges[edge->m_PairIdx];
-            edge->m_Next = m_Edges[edge->m_NextIdx];
-            if (edge->m_FaceIdx > 0)
-                edge->m_Face = m_Triangles[edge->m_FaceIdx];
+            edge.m_EndVertex = &m_Vertices[edge.m_EndVertexIdx];
+            edge.m_Pair      = &m_Edges[edge.m_PairIdx];
+            edge.m_Next      = &m_Edges[edge.m_NextIdx];
+            if (edge.m_FaceIdx > 0)
+                edge.m_Face  = &m_Triangles[edge.m_FaceIdx];
         }
 
-        for (Triangle* face : m_Triangles)
+        for (Triangle& face : m_Triangles)
         {
-            face->m_Edge = m_Edges[face->m_EdgeIdx];
+            face.m_Edge = &m_Edges[face.m_EdgeIdx];
         }
     }
 }
@@ -467,13 +454,13 @@ bool Mesh::InitializeVertexBuffer(ID3D11Device* device)
     VertexType* vertices = new VertexType[m_Vertices.size()];
     for (uint32_t i = 0; i < m_Vertices.size(); i++)
     {
-        float x = m_Vertices[i]->m_Position.x;
-        float y = m_Vertices[i]->m_Position.y;
-        float z = m_Vertices[i]->m_Position.z;
+        float x = m_Vertices[i].m_Position.x;
+        float y = m_Vertices[i].m_Position.y;
+        float z = m_Vertices[i].m_Position.z;
 
         vertices[i].position = DirectX::XMFLOAT4(x, y, z, 0.f);
-        vertices[i].normal = DirectX::XMFLOAT3(m_Vertices[i]->m_Normal.x, m_Vertices[i]->m_Normal.y, m_Vertices[i]->m_Normal.z);
-        vertices[i].uv = DirectX::XMFLOAT2(m_Vertices[i]->m_UV.x, m_Vertices[i]->m_UV.y);
+        vertices[i].normal = DirectX::XMFLOAT3(m_Vertices[i].m_Normal.x, m_Vertices[i].m_Normal.y, m_Vertices[i].m_Normal.z);
+        vertices[i].uv = DirectX::XMFLOAT2(m_Vertices[i].m_UV.x, m_Vertices[i].m_UV.y);
     }
 
     D3D11_BUFFER_DESC vertexBufferDesc;

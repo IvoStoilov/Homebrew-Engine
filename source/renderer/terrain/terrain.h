@@ -47,6 +47,4 @@ private:
     float m_ScaleU;
     float m_ScaleV;
     float m_MaxTerrainHeight;
-    std::string m_TerrainHeightMapPath;
-    std::string m_TerrainOBJPath;
 };
