@@ -9,9 +9,11 @@
 bool BaseShader::Initialize(ID3D11Device* device)
 {
     VS_PS_Blobs shaderBlobs = CompileShaders(device, GetVSPath(), GetPSPath());
+
+    InitializeLayout(device, shaderBlobs.first, shaderBlobs.second);
     InitializeMatrixBuffer(device);
 
-    bool result = InitializeInternal(device, shaderBlobs.first, shaderBlobs.second);
+    bool result = InitializeInternal(device);
 
     shaderBlobs.first.get()->Release();
     shaderBlobs.first.release();
@@ -27,7 +29,15 @@ BaseShader::VS_PS_Blobs BaseShader::CompileShaders(ID3D11Device* device, const S
     ID3D10Blob* errorMessage = nullptr;
    
     ID3D10Blob* vertexShaderBuffer = nullptr;
-    result = D3DX11CompileFromFile(vsPath.c_str(), NULL, NULL, "main", "vs_5_0", (D3D10_SHADER_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG), 0, NULL,
+
+    
+#ifdef POP_DEBUG
+    u32 shaderCompileFlags = (D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3D10_SHADER_ENABLE_STRICTNESS);
+#elif POP_RELEASE
+    u32 shaderCompileFlags = (D3D10_SHADER_ENABLE_STRICTNESS | D3DCOMPILE_OPTIMIZATION_LEVEL3);
+#endif
+
+    result = D3DX11CompileFromFile(vsPath.c_str(), NULL, NULL, "main", "vs_5_0", shaderCompileFlags, 0, NULL,
         &vertexShaderBuffer, &errorMessage, NULL);
     popAssert(!FAILED(result), "SkydomeShaderVS Compilation Failed.");
 
@@ -35,7 +45,7 @@ BaseShader::VS_PS_Blobs BaseShader::CompileShaders(ID3D11Device* device, const S
     popAssert(!FAILED(result), "SkydomeShader::InitializeShader::CreateVertexShader failed");
 
     ID3D10Blob* pixelShaderBuffer = nullptr;
-    result = D3DX11CompileFromFile(psPath.c_str(), NULL, NULL, "main", "ps_5_0", (D3D10_SHADER_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG), 0, NULL,
+    result = D3DX11CompileFromFile(psPath.c_str(), NULL, NULL, "main", "ps_5_0", shaderCompileFlags, 0, NULL,
         &pixelShaderBuffer, &errorMessage, NULL);
     popAssert(!FAILED(result), "Pixel Shader Compilation Failed.");
 
@@ -59,6 +69,16 @@ void BaseShader::InitializeMatrixBuffer(ID3D11Device* device)
     popAssert(!FAILED(result), "ColorShader::InitializeShader::CreateBuffer failed");
 }
 
+void BaseShader::InitializeLayout(ID3D11Device* device, const UniquePtr<ID3D10Blob>& vsBlob, const UniquePtr<ID3D10Blob>& psBlob)
+{
+    Array<D3D11_INPUT_ELEMENT_DESC> polygonLayouts;
+    AddPolygonLayout(polygonLayouts);
+    HRESULT result = device->CreateInputLayout(&polygonLayouts[0], polygonLayouts.size(), vsBlob.get()->GetBufferPointer(),
+        vsBlob.get()->GetBufferSize(), &m_Layout);
+
+    popAssert(!FAILED(result), "BaseShader::InitializeLayout::CreateInputLayout failed");
+}
+
 void BaseShader::Render(ID3D11DeviceContext* deviceContext, uint32_t indexCount, const ShaderParamsBase& shaderParams)
 {
     SetShaderParameters(deviceContext, shaderParams);
@@ -78,9 +98,9 @@ void BaseShader::SetMatrixBuffer(ID3D11DeviceContext* deviceContext, const Shade
     popAssert(!FAILED(result), "BaseShader failed to set matrix buffer");
     
     MatrixBufferType* dataPtr = reinterpret_cast<MatrixBufferType*>(mappedResource.pData);
-    dataPtr->world      = XMMatrixTranspose(shaderParams.world);
-    dataPtr->view       = XMMatrixTranspose(shaderParams.view);
-    dataPtr->projection = XMMatrixTranspose(shaderParams.projection);
+    dataPtr->world      = XMMatrixTranspose(shaderParams.m_World);
+    dataPtr->view       = XMMatrixTranspose(shaderParams.m_View);
+    dataPtr->projection = XMMatrixTranspose(shaderParams.m_Projection);
 
     deviceContext->Unmap(m_MatrixBuffer, 0);
 

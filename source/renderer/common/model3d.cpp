@@ -1,3 +1,4 @@
+#include "precompile.h"
 #include "renderer/common/model3d.h"
 #include "renderer/common/texture.h"
 
@@ -29,7 +30,6 @@ bool Model3D::Initialize(ID3D11Device* device, std::string& modelPath, std::stri
 
 void Model3D::Shutdown()
 {
-    ReleaseTexture();
     ShutdownBuffers();
 }
 
@@ -134,22 +134,13 @@ bool Model3D::LoadTexture(ID3D11Device* device, std::string& texturePath)
 {
     bool result = false;
 
-    m_Texture = new Texture();
+    m_Texture = std::make_shared<Texture>();
     if (!m_Texture)
         return false;
 
     return m_Texture->Initialize(device, texturePath);
 }
 
-void Model3D::ReleaseTexture()
-{
-    if (m_Texture)
-    {
-        m_Texture->Shutdown();
-        delete m_Texture;
-        m_Texture = nullptr;
-    }
-}
 
 void Model3D::RenderBuffers(ID3D11DeviceContext* deviceContext)
 {
@@ -169,9 +160,4 @@ void Model3D::RenderBuffers(ID3D11DeviceContext* deviceContext)
 
     // Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
     deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-}
-
-ID3D11ShaderResourceView* Model3D::GetTexture()
-{ 
-    return m_Texture->GetTexture(); 
 }

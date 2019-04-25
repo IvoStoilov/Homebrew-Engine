@@ -3,7 +3,8 @@
 #include <d3dcommon.h>
 #include <d3d11.h>
 #include <d3dx10math.h>
-#include <stdint.h>
+
+#include <directxmath.h>
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")
@@ -31,9 +32,12 @@ public:
     inline ID3D11Device* GetDevice() { return m_Device; }
     inline ID3D11DeviceContext* GetDeviceContext() { return m_DeviceContext; }
 
-    inline void GetProjectionMatrix(D3DXMATRIX& mat) { mat = m_ProjectionMatrix; }
+    inline void GetProjectionMatrix(D3DXMATRIX& mat) { mat = m_ProjectionMatrix_DEPRECATED; }
+    inline DirectX::XMMATRIX GetProjectionMatrix() const { return m_ProjectionMatrix; }
     inline void GetWorldMatrix(D3DXMATRIX& mat) { mat = m_WorldMatrix; }
-    inline void GetOrthoMatrix(D3DXMATRIX& mat) { mat = m_OrthoMatrix; }
+    inline void GetOrthoMatrix(D3DXMATRIX& mat) { mat = m_OrthoMatrix_DEPRECATED; }
+    inline DirectX::XMMATRIX GetOrthoMatrix() const { return m_OrthoMatrix; }
+
 
     void GetVideoCardInfo(char* outCardName, int& outMemorySize);
 
@@ -63,7 +67,10 @@ private:
     ID3D11RasterizerState* m_RasterState;
     ID3D11BlendState* m_AlphaBlendingStateEnable;
     ID3D11BlendState* m_AlphaBlendingStateDisable;
-    D3DXMATRIX m_ProjectionMatrix;
+    //clean this
+    D3DXMATRIX m_ProjectionMatrix_DEPRECATED;
+    DirectX::XMMATRIX m_ProjectionMatrix;
     D3DXMATRIX m_WorldMatrix;
-    D3DXMATRIX m_OrthoMatrix;
+    D3DXMATRIX m_OrthoMatrix_DEPRECATED;
+    DirectX::XMMATRIX m_OrthoMatrix;
 };

@@ -3,25 +3,10 @@
 
 #include "system/error.h"
 
-bool SkydomeShader::InitializeInternal(ID3D11Device* device, const UniquePtr<ID3D10Blob>& vsBlob, const UniquePtr<ID3D10Blob>& psBlob)
+bool SkydomeShader::InitializeInternal(ID3D11Device* device)
 {
     HRESULT result;
     
-    D3D11_INPUT_ELEMENT_DESC polygonLayout[1];
-    polygonLayout[0].SemanticName = "POSITION";
-    polygonLayout[0].SemanticIndex = 0;
-    polygonLayout[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    polygonLayout[0].InputSlot = 0;
-    polygonLayout[0].AlignedByteOffset = 0;
-    polygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-    polygonLayout[0].InstanceDataStepRate = 0;
-
-    u32 numElements; numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
-
-    result = device->CreateInputLayout(polygonLayout, numElements, vsBlob.get()->GetBufferPointer(),
-        vsBlob.get()->GetBufferSize(), &m_Layout);
-    popAssert(!FAILED(result), "SkydomeShader::InitializeShader::CreateInputLayout failed");
-  
     D3D11_BUFFER_DESC colorBufferDesc;
     colorBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
     colorBufferDesc.ByteWidth = sizeof(ColorBufferType);
@@ -34,6 +19,20 @@ bool SkydomeShader::InitializeInternal(ID3D11Device* device, const UniquePtr<ID3
     popAssert(!FAILED(result), "SkydomeShader::InitializeShader::CreateBuffer failed");
 
     return true;
+}
+
+void SkydomeShader::AddPolygonLayout(Array<D3D11_INPUT_ELEMENT_DESC>& polygonLayoutsToAdd)
+{
+    polygonLayoutsToAdd.emplace_back(D3D11_INPUT_ELEMENT_DESC());
+    D3D11_INPUT_ELEMENT_DESC& polygonLayout = polygonLayoutsToAdd.back();
+
+    polygonLayout.SemanticName = "POSITION";
+    polygonLayout.SemanticIndex = 0;
+    polygonLayout.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    polygonLayout.InputSlot = 0;
+    polygonLayout.AlignedByteOffset = 0;
+    polygonLayout.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+    polygonLayout.InstanceDataStepRate = 0;
 }
 
 void SkydomeShader::ShutdownInternal()
@@ -62,8 +61,8 @@ bool SkydomeShader::SetShaderParametersInternal(ID3D11DeviceContext* deviceConte
     }
 
     ColorBufferType* colorDataPtr = (ColorBufferType*)mappedResource.pData;
-    colorDataPtr->apexColor = skydomeShaderParams->apexColor;
-    colorDataPtr->centerColor = skydomeShaderParams->centerColor;
+    colorDataPtr->apexColor = skydomeShaderParams->m_ApexColor;
+    colorDataPtr->centerColor = skydomeShaderParams->m_CenterColor;
     deviceContext->Unmap(m_ColorBuffer, 0);
     
     u32 bufferNumber = 0;

@@ -1,39 +1,34 @@
 #pragma once
-#include <d3d11.h>
-#include <d3dx10math.h>
-#include <stdint.h>
-#include <string>
+#include "renderer/common/baseshader.h"
+#include "renderer/common/texture.h"
 
-class TextureShader
+struct TextureShaderParams : public ShaderParamsBase
 {
-private:
-    struct MatrixBufferType
+    Array<SharedPtr<Texture>> m_Textures;
+
+    Array<ID3D11ShaderResourceView*> GetShaderResourceViewArray() const
     {
-        D3DXMATRIX world;
-        D3DXMATRIX view;
-        D3DXMATRIX projection;
-    };
+        Array<ID3D11ShaderResourceView*> result;
+        for (const SharedPtr<Texture>& texture : m_Textures)
+        {
+            result.push_back(texture.get()->GetTexture());
+        }
+        return result;
+    }
+};
 
-public:
-    TextureShader();
-    ~TextureShader();
+class TextureShader : public BaseShader
+{
+protected:
+    virtual const String GetVSPath() const override { return "../../source/renderer/shader/textureVS.hlsl"; }
+    virtual const String GetPSPath() const override { return "../../source/renderer/shader/texturePS.hlsl"; }
 
-    bool Initialize(ID3D11Device* device);
-    void Shutdown();
-    bool Render(ID3D11DeviceContext* deviceContext, uint32_t indexCount, D3DXMATRIX& worldMatrix, D3DXMATRIX& viewMatrix, D3DXMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture);
+    virtual bool InitializeInternal(ID3D11Device* device) override;
+    virtual bool SetShaderParametersInternal(ID3D11DeviceContext* deviceContext, const ShaderParamsBase& shaderParams) override;
 
-private:
-    bool InitializeShader(ID3D11Device* device, const std::string& vsPath, const std::string& psPath);
-    void ShutdownShader();
+    virtual void AddPolygonLayout(Array<D3D11_INPUT_ELEMENT_DESC>& polygonLayoutsToAdd) override;
+    virtual void ShutdownInternal() override;
 
-    bool SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX& worldMatrix, D3DXMATRIX& viewMatrix, D3DXMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture);
-    void RenderShader(ID3D11DeviceContext*, int);
-
-private:
-    ID3D11VertexShader* m_VertexShader;
-    ID3D11PixelShader* m_PixelShader;
-    ID3D11InputLayout* m_Layout;
-    ID3D11Buffer* m_MatrixBuffer;
-
+protected:
     ID3D11SamplerState* m_SampleState;
 };

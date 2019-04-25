@@ -1,3 +1,4 @@
+#include "precompile.h"
 #include "renderer/graphicsnode.h"
 #include "renderer/common/model3d.h"
 #include "renderer/common/lightshader.h"
@@ -5,15 +6,12 @@
 #include "entitymodel/entity.h"
 #include "entitymodel/components/visualcomponent.h"
 
-#include "system/math/mat4x4.h"
 #include "system/error.h"
 
-//should be cleaned
-#include <d3d11.h>
-#include <d3dx10math.h>
-
-D3DXVECTOR4 DIFFUSE_COLOR(1.f, 1.f, 1.f, 1.f);
-D3DXVECTOR4 LIGHT_DIRECTION(-.3f, +.3f, 1.f, 0.f);
+//Adding _ to the names because they are global vars and are conflicting during compilation.
+//TODO istoilov: make a Light Source object to store such data
+DirectX::XMFLOAT4 _DIFFUSE_COLOR(1.f, 1.f, 1.f, 1.f);
+DirectX::XMFLOAT4 _LIGHT_DIRECTION(-.3f, +.3f, 1.f, 0.f);
 
 void GraphicsNode::Initialize(ID3D11Device* device)
 {
@@ -45,15 +43,17 @@ void GraphicsNode::Shutdown()
 void GraphicsNode::Render(ID3D11DeviceContext* deviceContext)
 {
     Transform globalMatrix = m_Owner->GetOwner()->GetGlobalMatrix();
-    D3DXMATRIX worldMatrix = globalMatrix.ToD3DXMATRIX(); // Should make a copy or it will get fucked up in Render ( we transpose inside)
-
-    // Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+    
     m_Model->Render(deviceContext);
 
-    // Render the model using the color shader.
-    //m_Shader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
-    //m_TextureShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture());
-    m_LightShader->Render(deviceContext, m_Model->GetIndexCount(), worldMatrix, m_ViewMatrix.ToD3DXMATRIX(), m_ProjectionMatrix.ToD3DXMATRIX(), m_Model->GetTexture(), DIFFUSE_COLOR, LIGHT_DIRECTION);
+    LightShaderParams params;
+    params.m_World = globalMatrix.ToXMMATRIX();
+    params.m_View = m_ViewMatrix.ToXMMATRIX();
+    params.m_Projection = m_ProjectionMatrix.ToXMMATRIX();
+    params.m_Textures.push_back(m_Model->GetTexture());
+    params.m_DiffuseColor = _DIFFUSE_COLOR;
+    params.m_LightDirection = _LIGHT_DIRECTION;
+    m_LightShader->Render(deviceContext, m_Model->GetIndexCount(), params);
 }
 
 GraphicsNode::GraphicsNode(VisualComponent* visComponent) :

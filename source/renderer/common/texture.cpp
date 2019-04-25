@@ -7,7 +7,9 @@ Texture::Texture() :
 }
 
 Texture::~Texture()
-{}
+{
+    Shutdown();
+}
 
 bool Texture::Initialize(ID3D11Device* device, const std::string& texturePath)
 {

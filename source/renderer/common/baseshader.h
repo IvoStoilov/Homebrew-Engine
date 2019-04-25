@@ -11,9 +11,9 @@ struct MatrixBufferType
 
 struct ShaderParamsBase
 {
-    DirectX::XMMATRIX world;
-    DirectX::XMMATRIX view;
-    DirectX::XMMATRIX projection;
+    DirectX::XMMATRIX m_World;
+    DirectX::XMMATRIX m_View;
+    DirectX::XMMATRIX m_Projection;
 
     
     template<class T>
@@ -35,14 +35,17 @@ protected:
     virtual const String GetVSPath() const = 0;
     virtual const String GetPSPath() const = 0;
 
-    virtual bool InitializeInternal(ID3D11Device* device, const UniquePtr<ID3D10Blob>& vsBlob, const UniquePtr<ID3D10Blob>& psBlob) { return true; }
+    virtual bool InitializeInternal(ID3D11Device* device) { return true; }
     virtual bool SetShaderParametersInternal(ID3D11DeviceContext* deviceContext, const ShaderParamsBase& shaderParams) { return true; }
     virtual void ShutdownInternal() {}
+
+    virtual void AddPolygonLayout(Array<D3D11_INPUT_ELEMENT_DESC>& polygonLayoutsToAdd) {}
     
 private:
     using VS_PS_Blobs = std::pair< UniquePtr<ID3D10Blob>, UniquePtr<ID3D10Blob> >;
     VS_PS_Blobs CompileShaders(ID3D11Device* device, const String&& vsPath, const String&& psPath);
     void InitializeMatrixBuffer(ID3D11Device* device);
+    void InitializeLayout(ID3D11Device* device, const UniquePtr<ID3D10Blob>& vsBlob, const UniquePtr<ID3D10Blob>& psBlob);
 
     void SetShaderParameters(ID3D11DeviceContext* deviceContext, const ShaderParamsBase& shaderParams);
     void SetMatrixBuffer(ID3D11DeviceContext* deviceContext, const ShaderParamsBase& shaderParams);

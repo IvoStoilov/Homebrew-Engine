@@ -4,8 +4,8 @@
 
 struct SkydomeShaderParams : public ShaderParamsBase
 {
-    DirectX::XMFLOAT4 apexColor;
-    DirectX::XMFLOAT4 centerColor;
+    DirectX::XMFLOAT4 m_ApexColor;
+    DirectX::XMFLOAT4 m_CenterColor;
 };
 
 class SkydomeShader : public BaseShader
@@ -21,10 +21,12 @@ protected:
     virtual const String GetVSPath() const override { return "../../source/renderer/shader/skydomeVS.hlsl"; }
     virtual const String GetPSPath() const override { return "../../source/renderer/shader/skydomePS.hlsl"; }
 
-    virtual bool InitializeInternal(ID3D11Device* device, const UniquePtr<ID3D10Blob>& vsBlob, const UniquePtr<ID3D10Blob>& psBlob) override;
+    virtual bool InitializeInternal(ID3D11Device* device) override;
     virtual bool SetShaderParametersInternal(ID3D11DeviceContext* deviceContext, const ShaderParamsBase& shaderParams) override;
+
+    virtual void AddPolygonLayout(Array<D3D11_INPUT_ELEMENT_DESC>& polygonLayoutsToAdd) override;
     virtual void ShutdownInternal() override;
 
-private:
+protected:
     ID3D11Buffer* m_ColorBuffer = nullptr;
 };

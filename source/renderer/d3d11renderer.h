@@ -61,7 +61,6 @@ private:
   
     D3DXMATRIX m_ViewMatrix;
     D3DXMATRIX m_ProjectionMatrix;
-    D3DXMATRIX m_WorldMatrix;
 };
 
 #define g_DebugDisplay D3D11Renderer::GetInstance()->GetDebugDisplayRenderer()

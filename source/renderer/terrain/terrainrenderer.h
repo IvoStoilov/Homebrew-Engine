@@ -1,5 +1,6 @@
 #pragma once
 #include "renderer/isubrenderer.h"
+#include "renderer/common/texture.h"
 
 struct ID3D11Device;
 struct ID3D11DeviceContext;
@@ -7,7 +8,6 @@ class D3D11;
 class Terrain;
 class ColorShader;
 class LightShader;
-class Texture;
 class TerrainRenderer : public ISubRenderer
 {
 public:
@@ -22,5 +22,5 @@ private:
     Terrain* m_Terrain;
     ColorShader* m_WireframeShader;
     LightShader* m_SolidShader;
-    Texture* m_DiffuseTexture;
+    SharedPtr<Texture> m_DiffuseTexture;
 };

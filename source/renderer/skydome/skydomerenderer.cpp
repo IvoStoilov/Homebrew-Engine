@@ -1,6 +1,5 @@
 #include "precompile.h"
 #include "renderer/skydome/skydomerenderer.h"
-
 #include "renderer/skydome/skydomeshader.h"
 
 #include "renderer/d3d11.h"
@@ -41,18 +40,14 @@ bool SkydomeRenderer::Render(D3D11* d3d)
     const Camera* camera = g_Engine->GetCamera();
     vec4 cameraPos = camera->GetPosition();
     
-    D3DXMATRIX projectionMatrix;
-    d3d->GetProjectionMatrix(projectionMatrix);
-
     m_SkydomeMesh->Render(d3d->GetDeviceContext());
 
     SkydomeShaderParams skydomeShaderParams;
-    skydomeShaderParams.world = DirectX::XMMatrixTranslation(cameraPos.x, cameraPos.y, cameraPos.z);
-    skydomeShaderParams.view = m_ViewMatrix.ToXMMATRIX();
-    //todo istoilov: store the projection matrix in XMMATRIX
-    skydomeShaderParams.projection = *reinterpret_cast<DirectX::XMMATRIX*>(&projectionMatrix);
-    skydomeShaderParams.apexColor = APEX_COLOR;
-    skydomeShaderParams.centerColor = CENTER_COLOR;
+    skydomeShaderParams.m_World = DirectX::XMMatrixTranslation(cameraPos.x, cameraPos.y, cameraPos.z);
+    skydomeShaderParams.m_View = m_ViewMatrix.ToXMMATRIX();
+    skydomeShaderParams.m_Projection = d3d->GetProjectionMatrix();
+    skydomeShaderParams.m_ApexColor = APEX_COLOR;
+    skydomeShaderParams.m_CenterColor = CENTER_COLOR;
     
     m_SkydomeShader->Render(d3d->GetDeviceContext(), m_SkydomeMesh->GetIndexCount(), skydomeShaderParams);
 

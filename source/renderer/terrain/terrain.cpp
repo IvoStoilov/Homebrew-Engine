@@ -48,6 +48,7 @@ bool Terrain::InitializeTerrainMesh()
 {
     m_Mesh = new Mesh();
     m_Mesh->Deserialize(TERRAIN_MESH_BIN);
+    m_Mesh->SetDrawNormals(true);
     return true;
 }
 
@@ -94,7 +95,7 @@ bool Terrain::InitializeForBinarize(const std::string& meshOBJFilePath, const st
     result = LoadHeightMap(heighMapBMPFilePath);
     popAssert(result, "Terrain::InitializeForBinarize::LoadTerrainData failed");
 
-    result = m_Mesh->InitializeMeshFromObjFile(meshOBJFilePath, false);
+    result = m_Mesh->InitializeMeshFromObjFile(meshOBJFilePath);
     popAssert(result, "Terrain::InitializeForBinarize::InitializeMeshFromObjFile failed");
 
     InitializeTerrainHeight();

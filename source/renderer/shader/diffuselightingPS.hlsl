@@ -5,15 +5,14 @@ cbuffer LightBuffer
 {
     float4 diffuseColor;
     float4 lightDirection;
-    float4 hasTexture;
 };
 
 struct PixelInputType
 {
-    float4 position : SV_POSITION;
-    float4 globalPosition : POSITION0;
-    float2 tex : TEXCOORD0;
-    float3 normal : NORMAL;
+    float4 m_Position       : SV_POSITION;
+    float4 m_GlobalPosition : POSITION0;
+    float2 m_UV             : TEXCOORD0;
+    float3 m_Normal         : NORMAL;
 };
 
 float4 GetTriPlanarBlend(float3 worldPos, float3 worldNormal)
@@ -40,30 +39,21 @@ float4 GetTriPlanarBlend(float3 worldPos, float3 worldNormal)
 }
 
 float4 main(PixelInputType input) : SV_TARGET
-{
+{    
     float4 textureColor;
     float4 lightDir;
     float lightIntensity;
     float4 color;
 
-    float3 terrainNormal = normalize(input.normal);
-
-    if (hasTexture.x > 0)
-    {
-        textureColor = GetTriPlanarBlend(input.globalPosition.xyz, input.normal.xyz);
-        //textureColor = shaderTexture.Sample(sampleType, input.globalPosition.xz);
-    }
-    else
-        textureColor = (1.f, 1.f, 1.f, 1.f);
-
-    //Invert for calculations
+    float3 terrainNormal = normalize(input.m_Normal);
+    textureColor = GetTriPlanarBlend(input.m_GlobalPosition.xyz, input.m_Normal.xyz);
+    
     lightDir = -lightDirection;
     lightDir = normalize(lightDir);
     lightIntensity = saturate(dot(terrainNormal, lightDir.xyz));
 
     color = saturate(diffuseColor * lightIntensity);
     color = color * textureColor;
-    //color = textureColor;
-
+    
     return color;
 }

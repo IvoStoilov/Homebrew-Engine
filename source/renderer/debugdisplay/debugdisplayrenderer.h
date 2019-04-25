@@ -39,5 +39,4 @@ private:
     ID3D11Buffer* m_IndexBuffer;
 
     ColorShader* m_Shader;
-    mat4x4 m_ViewMatrix;
 };

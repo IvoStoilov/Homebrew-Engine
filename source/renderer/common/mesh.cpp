@@ -1,6 +1,7 @@
 #include "precompile.h"
 
 #include "renderer/common/mesh.h"
+
 #include "system/modelloader.h"
 #include "system/error.h"
 #include "system/profiling/profilemanager.h"
@@ -11,6 +12,10 @@
 #include <fstream>
 #include <d3d11.h>
 #include <directxmath.h>
+
+
+#include "renderer/d3d11renderer.h"
+#include "renderer/debugdisplay/debugdisplayrenderer.h"
 
 typedef std::tuple<int, int> Pair;
 typedef std::map< Pair, Mesh::Edge*> EdgeMap;
@@ -445,8 +450,8 @@ void Mesh::PostDeserialize()
 struct VertexType
 {
     DirectX::XMFLOAT4 position;
-    DirectX::XMFLOAT3 normal;
     DirectX::XMFLOAT2 uv;
+    DirectX::XMFLOAT3 normal;
 };
 
 bool Mesh::InitializeVertexBuffer(ID3D11Device* device)
@@ -459,8 +464,11 @@ bool Mesh::InitializeVertexBuffer(ID3D11Device* device)
         float z = m_Vertices[i].m_Position.z;
 
         vertices[i].position = DirectX::XMFLOAT4(x, y, z, 0.f);
-        vertices[i].normal = DirectX::XMFLOAT3(m_Vertices[i].m_Normal.x, m_Vertices[i].m_Normal.y, m_Vertices[i].m_Normal.z);
         vertices[i].uv = DirectX::XMFLOAT2(m_Vertices[i].m_UV.x, m_Vertices[i].m_UV.y);
+        vertices[i].normal = DirectX::XMFLOAT3(m_Vertices[i].m_Normal.x, m_Vertices[i].m_Normal.y, m_Vertices[i].m_Normal.z);
+
+        if(m_DrawNormals)
+            g_DebugDisplay->AddLine(m_Vertices[i].m_Position, m_Vertices[i].m_Position + m_Vertices[i].m_Normal, vec4(0.f, 1.f, 0.f, 1.f));
     }
 
     D3D11_BUFFER_DESC vertexBufferDesc;

@@ -1,24 +1,27 @@
-#include <windows.h>
-
-#include "system/error.h"
-
-#include "entitymodel/entity.h"
-#include "entitymodel/components/visualcomponent.h"
+#include "precompile.h"
+//TODO istoilov: remove the include of #include <d3dx10math.h> in d3d11renderer
+#include "renderer/d3d11.h"
+#include "renderer/d3d11renderer.h"
 
 #include "renderer/graphicsnode.h"
-#include "renderer/d3d11renderer.h"
-#include "renderer/d3d11.h"
-
-#include "renderer/textrendering/textrenderer.h"
-#include "renderer/textrendering/text.h"
 
 #include "renderer/isubrenderer.h"
 #include "renderer/terrain/terrainrenderer.h"
 #include "renderer/debugdisplay/debugdisplayrenderer.h"
 #include "renderer/skydome/skydomerenderer.h"
+#include "renderer/textrendering/textrenderer.h"
+
+#include "renderer/textrendering/text.h"
+
+#include "entitymodel/entity.h"
+#include "entitymodel/components/visualcomponent.h"
 
 #include "core/camera.h"
 #include "core/engine.h"
+
+#include "system/error.h"
+
+#include <windows.h>
 
 std::string path = "../../resource/ink-splatter-texture.png";
 
@@ -34,7 +37,7 @@ bool D3D11Renderer::Initialize(HWND hwnd, uint32_t screenWidth, uint32_t screenH
 
     ISubRenderer* skydomeRenderer = new SkydomeRenderer();
     m_SubRenderers[SubRendererOrder::Skydome] = skydomeRenderer;
-
+    
     ISubRenderer* terrainRenderer = new TerrainRenderer();
     m_SubRenderers[SubRendererOrder::Terrain] = terrainRenderer;
 
@@ -115,8 +118,6 @@ bool D3D11Renderer::Render()
     // Clear the buffers to begin the scene.
     m_D3D->BeginScene(0.f, 0.f, 0.f, 0.f);
 
-  
-    
     for (ISubRenderer* subRenderer : m_SubRenderers)
     {
         if (subRenderer->IsEnabled())

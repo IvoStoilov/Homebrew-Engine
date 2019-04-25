@@ -29,7 +29,7 @@ public:
     void Render(ID3D11DeviceContext* device);
     
     inline int GetIndexCount() { return m_IndexCount; }
-    ID3D11ShaderResourceView* GetTexture();
+    SharedPtr<Texture> GetTexture() const { return m_Texture; }
 
 private:
     bool InitializeBuffers(ID3D11Device* device);
@@ -37,8 +37,7 @@ private:
     void RenderBuffers(ID3D11DeviceContext* device);
 
     bool LoadTexture(ID3D11Device* device, std::string& texturePath);
-    void ReleaseTexture();
-
+    
 private:
     ID3D11Buffer* m_VertexBuffer;
     ID3D11Buffer* m_IndexBuffer;
@@ -48,5 +47,5 @@ private:
     uint32_t m_IndexCount;
     uint32_t m_VertexCount;
 
-    Texture* m_Texture;
+    SharedPtr<Texture> m_Texture;
 };

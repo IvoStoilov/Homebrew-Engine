@@ -1,31 +1,42 @@
+#include "precompile.h"
 #include "renderer/terrain/terrainrenderer.h"
 #include "renderer/terrain/terrain.h"
 
 #include "renderer/common/colorshader.h"
 #include "renderer/common/lightshader.h"
-#include "renderer/common/texture.h"
 
 #include "renderer/d3d11.h"
 
 #include "system/error.h"
 #include "system/commandline/commandlineoptions.h"
 
-D3DXVECTOR4 _DIFFUSE_COLOR(1.f, 1.f, 1.f, 1.f);
-D3DXVECTOR4 _LIGHT_DIRECTION(0.577f, -0.577f, 0.577f, 0.f);
+DirectX::XMFLOAT4 DIFFUSE_COLOR(1.f, 1.f, 1.f, 1.f);
+DirectX::XMFLOAT4 LIGHT_DIRECTION(0.577f, -0.577f, 0.577f, 0.f);
 std::string DIFFUSE_TEXTURE_PATH = "../../resource/terrain/rock.jpg";
 
 bool TerrainRenderer::Render(D3D11* d3d)
 {
-    D3DXMATRIX worldMatrix;
-    D3DXMatrixIdentity(&worldMatrix);
-    D3DXMATRIX projectionMatrix;
-    d3d->GetProjectionMatrix(projectionMatrix);
-
     m_Terrain->Render(d3d->GetDeviceContext());
+
     if (g_CommandLineOptions->m_DrawWireframe)
+    {
+        D3DXMATRIX worldMatrix;
+        D3DXMatrixIdentity(&worldMatrix);
+        D3DXMATRIX projectionMatrix;
+        d3d->GetProjectionMatrix(projectionMatrix);
         m_WireframeShader->Render(d3d->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, m_ViewMatrix.ToD3DXMATRIX(), projectionMatrix);
+    }
     else
-        m_SolidShader->Render(d3d->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, m_ViewMatrix.ToD3DXMATRIX(), projectionMatrix, m_DiffuseTexture->GetTexture(), _DIFFUSE_COLOR, _LIGHT_DIRECTION);
+    {
+        LightShaderParams params;
+        params.m_World = DirectX::XMMatrixIdentity();
+        params.m_View = m_ViewMatrix.ToXMMATRIX();
+        params.m_Projection = d3d->GetProjectionMatrix();
+        params.m_Textures.push_back(m_DiffuseTexture);
+        params.m_DiffuseColor = DIFFUSE_COLOR;
+        params.m_LightDirection = LIGHT_DIRECTION;
+        m_SolidShader->Render(d3d->GetDeviceContext(), m_Terrain->GetIndexCount(), params);
+    }
 
     return true;
 }
@@ -41,7 +52,7 @@ bool TerrainRenderer::Initialize(ID3D11Device* device, ID3D11DeviceContext* devi
     m_Terrain = new Terrain();
     popAssert(m_Terrain->Initialize(device), "Terrain mesh failed initing");
 
-    m_DiffuseTexture = new Texture();
+    m_DiffuseTexture = std::make_shared<Texture>();
     popAssert(m_DiffuseTexture->Initialize(device, DIFFUSE_TEXTURE_PATH), "Terrain Diffuse Texture failed initing");
 
     return true;
@@ -70,7 +81,6 @@ void TerrainRenderer::Shutdown()
 
 TerrainRenderer::TerrainRenderer() :
     ISubRenderer(),
-    m_Terrain(nullptr),
     m_WireframeShader(nullptr),
     m_SolidShader(nullptr)
 {}

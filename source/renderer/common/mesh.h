@@ -86,6 +86,8 @@ public:
     bool InitializeBuffers(ID3D11Device* device);
     void Render(ID3D11DeviceContext* deviceContext);
     uint32_t GetIndexCount() const { return m_Indexes.size(); }
+
+    inline void SetDrawNormals(bool value) { m_DrawNormals = value; }
 private:
     void InitializeVertexList(const std::string& filepath);
     void InitializeEdgeListIndexes();
@@ -99,6 +101,7 @@ private:
     void SetupBuffersForWireframe(uint32_t*& outIndexes, uint32_t& outArrSize);
     void SetupBuffersForSolid(uint32_t*& outIndexes, uint32_t& outArrSize);
 private:
+    bool m_DrawNormals = false;
     std::vector<Vertex>   m_Vertices;
     std::vector<Edge>     m_Edges;
     std::vector<Triangle> m_Triangles;
