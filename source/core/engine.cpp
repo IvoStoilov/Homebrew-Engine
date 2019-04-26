@@ -1,3 +1,4 @@
+#include "precompile.h"
 #include "core/engine.h"
 #include "core/camera.h"
 
@@ -24,9 +25,9 @@ bool Engine::Initialize(HINSTANCE hInstance, HWND hwnd, uint32_t width, uint32_t
     //This needs a flow refactor - bootstrap load?
     if (g_CommandLineOptions->m_Binarize)
     {
-        Terrain::BinarizeTerrain(g_CommandLineOptions->m_BinarizeInputFiles[0],
-            g_CommandLineOptions->m_BinarizeInputFiles[1],
-            g_CommandLineOptions->m_BinarizeOutputFile);
+        Terrain::BinarizeTerrain(g_CommandLineOptions->GetBinarizeInputFile(0),
+                                 g_CommandLineOptions->GetBinarizeInputFile(1),
+                                 g_CommandLineOptions->m_BinarizeOutputFile);
 
         if (g_CommandLineOptions->m_QuitAfterInit)
             return true;

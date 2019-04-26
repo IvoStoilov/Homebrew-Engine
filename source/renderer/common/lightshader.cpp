@@ -75,3 +75,15 @@ bool LightShader::SetShaderParametersInternal(ID3D11DeviceContext* deviceContext
     
     return true;
 }
+
+LightShader::LightShader(const String& vsPath, const String& psPath) :
+    super(),
+    m_VSPath(vsPath),
+    m_PSPath(psPath)
+{}
+
+LightShader::LightShader() :
+    super(),
+    m_VSPath("../../source/renderer/shader/diffuselightingVS.hlsl"),
+    m_PSPath("../../source/renderer/shader/diffuselightingPS.hlsl")
+{}

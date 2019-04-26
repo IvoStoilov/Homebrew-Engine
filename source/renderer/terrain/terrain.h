@@ -11,8 +11,7 @@ class Terrain
 {
 public:
     Terrain();
-    ~Terrain();
-
+    
     bool Initialize(ID3D11Device* device);
     bool InitializeForBinarize(const std::string& meshOBJFilePath, const std::string& heighMapBMPFilePath);
 

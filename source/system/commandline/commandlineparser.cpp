@@ -1,3 +1,5 @@
+#include "precompile.h"
+
 #include "system/commandline/commandlineparser.h"
 #include "system/commandline/commandlineoptions.h"
 #include <fstream>
@@ -81,6 +83,7 @@ bool CommandLineParser::IsALegalChar(char l) const
             (l == '.') ||
             (l == '/') ||
             (l == '\\') ||
+            (l == '\"') ||
             (l == '\"'));
 }
 

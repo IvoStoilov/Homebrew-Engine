@@ -1,6 +1,4 @@
 #pragma once
-#include <string>
-#include <vector>
 
 #define g_CommandLineOptions CommandLineOptions::GetInstance()
 
@@ -14,8 +12,11 @@ public:
     bool m_QuitAfterInit;
     bool m_DrawWireframe;
 
-    std::string m_BinarizeOutputFile;
-    std::vector<std::string> m_BinarizeInputFiles;
+    String m_BinarizeOutputFile;
+    Array<String> m_BinarizeInputFiles;
+
+    inline String GetBinarizeInputFile(u32 idx) { return (idx < m_BinarizeInputFiles.size()) ? m_BinarizeInputFiles[idx] : ""; }
+
 
 public:
     static void Binarize_Callback      (const CommandLineArg& arg);

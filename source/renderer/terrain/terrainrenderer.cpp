@@ -9,10 +9,17 @@
 
 #include "system/error.h"
 #include "system/commandline/commandlineoptions.h"
+#include "system/math/mathutil.h"
 
 DirectX::XMFLOAT4 DIFFUSE_COLOR(1.f, 1.f, 1.f, 1.f);
-DirectX::XMFLOAT4 LIGHT_DIRECTION(0.577f, -0.577f, 0.577f, 0.f);
-std::string DIFFUSE_TEXTURE_PATH = "../../resource/terrain/rock.jpg";
+DirectX::XMFLOAT4 LIGHT_DIRECTION(.5f, -1.f, .5f, 0.f);
+
+const String DIFFUSE_TEXTURE_PATH = "../../resource/terrain/rock.jpg";
+const String HEIGHT_TEXTURE_PATH = "../../resource/terrain/heightMaps/islands2HM.png";
+const String NORMAL_TEXTURE_PATH = "../../resource/terrain/islands2/islands2NRML.png";
+
+const String TERRAIN_VS_PATH = "../../source/renderer/shader/terrainVS.hlsl";
+const String TERRAIN_PS_PATH = "../../source/renderer/shader/terrainPS.hlsl";
 
 bool TerrainRenderer::Render(D3D11* d3d)
 {
@@ -29,10 +36,13 @@ bool TerrainRenderer::Render(D3D11* d3d)
     else
     {
         LightShaderParams params;
-        params.m_World = DirectX::XMMatrixIdentity();
+        params.m_World = mat4x4::GetRotateXAxisMatrix(MathUtil::ToRads(90)).ToXMMATRIX();
+        //params.m_World = DirectX::XMMatrixIdentity();
         params.m_View = m_ViewMatrix.ToXMMATRIX();
         params.m_Projection = d3d->GetProjectionMatrix();
-        params.m_Textures.push_back(m_DiffuseTexture);
+        //params.m_VSTextures.push_back(m_HeightMapTexture);
+        params.m_VSTextures.push_back(m_NormalMapTexture);
+        params.m_PSTextures.push_back(m_DiffuseTexture);
         params.m_DiffuseColor = DIFFUSE_COLOR;
         params.m_LightDirection = LIGHT_DIRECTION;
         m_SolidShader->Render(d3d->GetDeviceContext(), m_Terrain->GetIndexCount(), params);
@@ -46,7 +56,7 @@ bool TerrainRenderer::Initialize(ID3D11Device* device, ID3D11DeviceContext* devi
     m_WireframeShader = new ColorShader();
     popAssert(m_WireframeShader->Initialize(device), "Terrain shader failed initing");
 
-    m_SolidShader = new LightShader();
+    m_SolidShader = new LightShader(TERRAIN_VS_PATH, TERRAIN_PS_PATH);
     popAssert(m_SolidShader->Initialize(device), "Solid Shader failed initing");
 
     m_Terrain = new Terrain();
@@ -55,6 +65,12 @@ bool TerrainRenderer::Initialize(ID3D11Device* device, ID3D11DeviceContext* devi
     m_DiffuseTexture = std::make_shared<Texture>();
     popAssert(m_DiffuseTexture->Initialize(device, DIFFUSE_TEXTURE_PATH), "Terrain Diffuse Texture failed initing");
 
+    m_HeightMapTexture = std::make_shared<Texture>();
+    popAssert(m_HeightMapTexture->Initialize(device, HEIGHT_TEXTURE_PATH), "Terrain Height Texture failed initing");
+    
+    m_NormalMapTexture = std::make_shared<Texture>();
+    popAssert(m_NormalMapTexture->Initialize(device, NORMAL_TEXTURE_PATH), "Terrain Normal Texture failed initing");
+    
     return true;
 }
 

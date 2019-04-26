@@ -1,5 +1,5 @@
 #pragma once
-#include <stdint.h>
+
 class Win64_InputHandler
 {
 public:
@@ -8,10 +8,10 @@ public:
 
     void Initialize();
 
-    void KeyDown(uint16_t key);
-    void KeyUp(uint16_t key);
+    void KeyDown(u16 key);
+    void KeyUp(u16 key);
 
-    bool IsKeyDown(uint16_t key);
+    bool IsKeyDown(u16 key);
 
 private:
     bool m_Keys[256];

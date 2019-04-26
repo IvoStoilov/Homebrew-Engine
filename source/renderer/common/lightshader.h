@@ -10,6 +10,10 @@ struct LightShaderParams : public TextureShaderParams
 class LightShader : public TextureShader
 {
     using super = TextureShader;
+public:
+    LightShader();
+    LightShader(const String& vsPath, const String& psPath);
+
 protected:
     struct LightBufferType
     {
@@ -18,8 +22,8 @@ protected:
     };
 
 protected:
-    virtual const String GetVSPath() const override { return "../../source/renderer/shader/diffuselightingVS.hlsl"; }
-    virtual const String GetPSPath() const override { return "../../source/renderer/shader/diffuselightingPS.hlsl"; }
+    virtual const String GetVSPath() const override { return m_VSPath; }
+    virtual const String GetPSPath() const override { return m_PSPath; }
 
     virtual bool InitializeInternal(ID3D11Device* device) override;
     virtual bool SetShaderParametersInternal(ID3D11DeviceContext* deviceContext, const ShaderParamsBase& shaderParams) override;
@@ -28,5 +32,7 @@ protected:
     virtual void ShutdownInternal() override;
     
 protected:
-    ID3D11Buffer* m_LightBuffer;
+    ID3D11Buffer* m_LightBuffer = nullptr;
+    String m_VSPath;
+    String m_PSPath;
 };

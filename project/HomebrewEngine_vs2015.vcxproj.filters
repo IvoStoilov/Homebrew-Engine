@@ -350,6 +350,12 @@
     <FxCompile Include="..\source\renderer\shader\skydomeVS.hlsl">
       <Filter>Engine\renderer\shaders</Filter>
     </FxCompile>
+    <FxCompile Include="..\source\renderer\shader\terrainPS.hlsl">
+      <Filter>Engine\renderer\shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\source\renderer\shader\terrainVS.hlsl">
+      <Filter>Engine\renderer\shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\tools\debugger_visualization\modelloader_vertexdata.natvis" />

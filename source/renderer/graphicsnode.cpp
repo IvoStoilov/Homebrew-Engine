@@ -50,7 +50,7 @@ void GraphicsNode::Render(ID3D11DeviceContext* deviceContext)
     params.m_World = globalMatrix.ToXMMATRIX();
     params.m_View = m_ViewMatrix.ToXMMATRIX();
     params.m_Projection = m_ProjectionMatrix.ToXMMATRIX();
-    params.m_Textures.push_back(m_Model->GetTexture());
+    params.m_PSTextures.push_back(m_Model->GetTexture());
     params.m_DiffuseColor = _DIFFUSE_COLOR;
     params.m_LightDirection = _LIGHT_DIRECTION;
     m_LightShader->Render(deviceContext, m_Model->GetIndexCount(), params);

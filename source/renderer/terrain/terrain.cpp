@@ -8,12 +8,11 @@
 #include "system/profiling/profilemanager.h"
 #include "system/commandline/commandlineoptions.h"
 
-using namespace DirectX;
-
 //Temp Hack for the Half size. Need to figure out how to store meta data for the mesh or probrably for the terrain
-constexpr float TERRAIN_HALF_SIZE = 128.f; 
+constexpr f32 TERRAIN_HALF_SIZE = 128.f; 
+constexpr f32 TERRAIN_SCALE = 128.f;
 
-const std::string TERRAIN_MESH_BIN = "../../resource/terrain/bin/terrain513x513newFormattest1.bin";
+const std::string TERRAIN_MESH_BIN = "../../resource/terrain/bin/islands2Orig.bin";
   
 
 Terrain::Terrain() :
@@ -26,10 +25,6 @@ Terrain::Terrain() :
     m_ScaleV(1.f),
     m_MaxTerrainHeight(25.f)
 {}
-
-Terrain::~Terrain()
-{
-}
 
 bool Terrain::Initialize(ID3D11Device* device)
 {
@@ -48,7 +43,8 @@ bool Terrain::InitializeTerrainMesh()
 {
     m_Mesh = new Mesh();
     m_Mesh->Deserialize(TERRAIN_MESH_BIN);
-    m_Mesh->SetDrawNormals(true);
+    //m_Mesh->SetDrawNormals(true);
+    m_Mesh->ScaleMesh(TERRAIN_SCALE);
     return true;
 }
 
@@ -90,20 +86,25 @@ void Terrain::Serialize(const std::string& path)
 bool Terrain::InitializeForBinarize(const std::string& meshOBJFilePath, const std::string& heighMapBMPFilePath)
 {
     m_Mesh = new Mesh();
-    bool result = true;
+    bool result = false;
+    if (!meshOBJFilePath.empty())
+    {
+        result = m_Mesh->InitializeMeshFromObjFile(meshOBJFilePath, false);
+        popAssert(result, "Terrain::InitializeForBinarize::InitializeMeshFromObjFile failed");
+    }
 
-    result = LoadHeightMap(heighMapBMPFilePath);
-    popAssert(result, "Terrain::InitializeForBinarize::LoadTerrainData failed");
+    if (!heighMapBMPFilePath.empty())
+    {
+        result = LoadHeightMap(heighMapBMPFilePath);
+        popAssert(result, "Terrain::InitializeForBinarize::LoadTerrainData failed");
 
-    result = m_Mesh->InitializeMeshFromObjFile(meshOBJFilePath);
-    popAssert(result, "Terrain::InitializeForBinarize::InitializeMeshFromObjFile failed");
+        InitializeTerrainHeight();
 
-    InitializeTerrainHeight();
-    
-    m_Mesh->ComputeFaceNormals();
-    InitializeTerrainNormals();
+        m_Mesh->ComputeFaceNormals();
+        InitializeTerrainNormals();
+    }
 
-    return true;
+    return result;
 }
 
 bool Terrain::LoadHeightMap(const std::string& path)

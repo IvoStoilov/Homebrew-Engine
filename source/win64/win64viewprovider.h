@@ -1,6 +1,5 @@
 #pragma once
 #include <windows.h>
-#include <stdint.h>
 
 class Win64_ViewProvider
 {
@@ -21,8 +20,8 @@ private:
     HINSTANCE m_hInstance;
     HWND m_HWND;
 
-    int32_t m_WindowPosX;
-    int32_t m_WindowPosY;
+    u32 m_WindowPosX;
+    u32 m_WindowPosY;
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

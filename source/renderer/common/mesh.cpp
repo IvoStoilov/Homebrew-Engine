@@ -22,10 +22,6 @@ typedef std::map< Pair, Mesh::Edge*> EdgeMap;
 
 constexpr bool REBUILD_HALFEDGELIST_ENABLED = false;
 
-Mesh::Mesh()
-{
-}
-
 bool Mesh::InitializeMeshFromObjFile(const std::string& filepath, bool buildHalfEdgeList/*=true*/)
 {
     InitializeVertexList(filepath);
@@ -51,7 +47,9 @@ void Mesh::InitializeVertexList(const std::string& filepath)
     VertexMap vertexMap;
 
     RawGeometryData rawData;
-    if (ModelLoader::LoadOBJFile(filepath, rawData))
+    bool fileRead = ModelLoader::LoadOBJFile(filepath, rawData);
+    popAssert(fileRead, "Mesh::InitializeVertexList failed to read file");
+    if (fileRead)
     {
         uint32_t indexListSize = rawData.m_PosIndexes.size();
         for (uint32_t i = 0; i < indexListSize; i++)
@@ -65,9 +63,10 @@ void Mesh::InitializeVertexList(const std::string& filepath)
             }
             else
             {
-                Mesh::Vertex vertex (vec4(rawData.m_Positions[rawData.m_PosIndexes[i]]),
-                                     vec4(rawData.m_Normals[rawData.m_NormIndexes[i]]),
-                                     vec2(rawData.m_UVs[rawData.m_UVIndexes[i]]));
+                vec4 pos    = (rawData.m_PosIndexes[i]  < rawData.m_Positions.size()) ? rawData.m_Positions[rawData.m_PosIndexes[i]] : vec4::Zero;
+                vec4 normal = (rawData.m_NormIndexes[i] < rawData.m_Normals.size())   ? rawData.m_Normals[rawData.m_NormIndexes[i]]  : vec4::Zero;
+                vec2 uv     = (rawData.m_UVIndexes[i]   < rawData.m_UVs.size())       ? rawData.m_UVs[rawData.m_UVIndexes[i]]        : vec2::Zero;
+                Mesh::Vertex vertex (pos, normal, uv);
                 
                 std::vector<uint32_t> indexList;
                 indexList.push_back(i);
@@ -337,7 +336,7 @@ void Mesh::PreSerialize()
     PROFILE_FUNCTION(Mesh::PreSerialize);
 }
 
-void Mesh::Serialize(const std::string& path)
+void Mesh::Serialize(const String& path)
 {
     PROFILE_FUNCTION(Mesh::Serialize);
     
@@ -365,7 +364,7 @@ void Mesh::Serialize(const std::string& path)
     fileToWrite.close();
 }
 
-void Mesh::Deserialize(const std::string& path)
+void Mesh::Deserialize(const String& path)
 {
     PROFILE_FUNCTION(Mesh::Deserialize);
     auto fileToRead = std::fstream(path, std::ios::in | std::ios::binary);
@@ -375,44 +374,55 @@ void Mesh::Deserialize(const std::string& path)
         char u32Buffer[4];
         fileToRead.read(u32Buffer, sizeof(u32Buffer));
         u32 vertexSize = *reinterpret_cast<u32*>(u32Buffer);
-
-        char* streamBuffer = new char[vertexSize * sizeof(Vertex)];
-        fileToRead.read(streamBuffer, vertexSize * sizeof(Vertex));
-        m_Vertices.resize(vertexSize);
-        memcpy(reinterpret_cast<char*>(&m_Vertices[0]), streamBuffer, vertexSize * sizeof(Vertex));
+        if (vertexSize > 0)
+        {
+            char* streamBuffer = new char[vertexSize * sizeof(Vertex)];
+            fileToRead.read(streamBuffer, vertexSize * sizeof(Vertex));
+            m_Vertices.resize(vertexSize);
+            memcpy(reinterpret_cast<char*>(&m_Vertices[0]), streamBuffer, vertexSize * sizeof(Vertex));
+        }
     }
 
     {
         char u32Buffer[4];
         fileToRead.read(u32Buffer, sizeof(u32Buffer));
-        u32 vertexSize = *reinterpret_cast<u32*>(u32Buffer);
+        u32 edgeArrSize = *reinterpret_cast<u32*>(u32Buffer);
 
-        char* streamBuffer = new char[vertexSize * sizeof(Edge)];
-        fileToRead.read(streamBuffer, vertexSize * sizeof(Edge));
-        m_Edges.resize(vertexSize);
-        memcpy(reinterpret_cast<char*>(&m_Edges[0]), streamBuffer, vertexSize * sizeof(Edge));
+        if (edgeArrSize > 0)
+        {
+            char* streamBuffer = new char[edgeArrSize * sizeof(Edge)];
+            fileToRead.read(streamBuffer, edgeArrSize * sizeof(Edge));
+            m_Edges.resize(edgeArrSize);
+            memcpy(reinterpret_cast<char*>(&m_Edges[0]), streamBuffer, edgeArrSize * sizeof(Edge));
+        }
     }
 
     {
         char u32Buffer[4];
         fileToRead.read(u32Buffer, sizeof(u32Buffer));
-        u32 vertexSize = *reinterpret_cast<u32*>(u32Buffer);
-
-        char* streamBuffer = new char[vertexSize * sizeof(Triangle)];
-        fileToRead.read(streamBuffer, vertexSize * sizeof(Triangle));
-        m_Triangles.resize(vertexSize);
-        memcpy(reinterpret_cast<char*>(&m_Triangles[0]), streamBuffer, vertexSize * sizeof(Triangle));
+        u32 triangleArrSize = *reinterpret_cast<u32*>(u32Buffer);
+        
+        if (triangleArrSize > 0)
+        {
+            char* streamBuffer = new char[triangleArrSize * sizeof(Triangle)];
+            fileToRead.read(streamBuffer, triangleArrSize * sizeof(Triangle));
+            m_Triangles.resize(triangleArrSize);
+            memcpy(reinterpret_cast<char*>(&m_Triangles[0]), streamBuffer, triangleArrSize * sizeof(Triangle));
+        }
     }
 
     {
         char u32Buffer[4];
         fileToRead.read(u32Buffer, sizeof(u32Buffer));
-        u32 indexSize = *reinterpret_cast<u32*>(u32Buffer);
+        u32 indexArrSize = *reinterpret_cast<u32*>(u32Buffer);
 
-        char* streamBuffer = new char[indexSize * sizeof(u32)];
-        fileToRead.read(streamBuffer, indexSize * sizeof(u32));
-        m_Indexes.resize(indexSize);
-        memcpy(reinterpret_cast<char*>(&m_Indexes[0]), streamBuffer, indexSize * sizeof(u32));
+        if (indexArrSize > 0)
+        {
+            char* streamBuffer = new char[indexArrSize * sizeof(u32)];
+            fileToRead.read(streamBuffer, indexArrSize * sizeof(u32));
+            m_Indexes.resize(indexArrSize);
+            memcpy(reinterpret_cast<char*>(&m_Indexes[0]), streamBuffer, indexArrSize * sizeof(u32));
+        }
     }
 
     fileToRead.close();
@@ -451,12 +461,17 @@ struct VertexType
 {
     DirectX::XMFLOAT4 position;
     DirectX::XMFLOAT2 uv;
-    DirectX::XMFLOAT3 normal;
+
+    //Hack commented. TODO istoilov : Investigate a way shader classes to communicate the vertex data layour
+    //Reflection?
+    //DirectX::XMFLOAT3 normal;
 };
 
 bool Mesh::InitializeVertexBuffer(ID3D11Device* device)
 {
     VertexType* vertices = new VertexType[m_Vertices.size()];
+    memset(vertices, 0, m_Vertices.size() * sizeof(VertexType));
+
     for (uint32_t i = 0; i < m_Vertices.size(); i++)
     {
         float x = m_Vertices[i].m_Position.x;
@@ -465,10 +480,10 @@ bool Mesh::InitializeVertexBuffer(ID3D11Device* device)
 
         vertices[i].position = DirectX::XMFLOAT4(x, y, z, 0.f);
         vertices[i].uv = DirectX::XMFLOAT2(m_Vertices[i].m_UV.x, m_Vertices[i].m_UV.y);
-        vertices[i].normal = DirectX::XMFLOAT3(m_Vertices[i].m_Normal.x, m_Vertices[i].m_Normal.y, m_Vertices[i].m_Normal.z);
+        //vertices[i].normal = DirectX::XMFLOAT3(m_Vertices[i].m_Normal.x, m_Vertices[i].m_Normal.y, m_Vertices[i].m_Normal.z);
 
-        if(m_DrawNormals)
-            g_DebugDisplay->AddLine(m_Vertices[i].m_Position, m_Vertices[i].m_Position + m_Vertices[i].m_Normal, vec4(0.f, 1.f, 0.f, 1.f));
+        //if(m_DrawNormals)
+        //    g_DebugDisplay->AddLine(m_Vertices[i].m_Position, m_Vertices[i].m_Position + m_Vertices[i].m_Normal, vec4(0.f, 1.f, 0.f, 1.f));
     }
 
     D3D11_BUFFER_DESC vertexBufferDesc;
@@ -564,6 +579,14 @@ void Mesh::Render(ID3D11DeviceContext* deviceContext)
     deviceContext->IASetIndexBuffer(m_IndexBuffer, DXGI_FORMAT_R32_UINT, 0);
     D3D_PRIMITIVE_TOPOLOGY drawTopology = g_CommandLineOptions->m_DrawWireframe ? D3D11_PRIMITIVE_TOPOLOGY_LINELIST : D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     deviceContext->IASetPrimitiveTopology(drawTopology);
+}
+
+void Mesh::ScaleMesh(f32 scaleFactor)
+{
+    for (Vertex& v : m_Vertices)
+    {
+        v.m_Position *= scaleFactor;
+    }
 }
 
 Mesh::Edge::Edge() :

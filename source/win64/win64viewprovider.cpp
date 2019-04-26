@@ -1,3 +1,4 @@
+#include "precompile.h"
 #include "win64/win64viewprovider.h"
 #include "system/inputmanager.h"
 #include "system/commandline/commandlineoptions.h"

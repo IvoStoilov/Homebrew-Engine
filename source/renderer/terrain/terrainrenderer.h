@@ -23,4 +23,6 @@ private:
     ColorShader* m_WireframeShader;
     LightShader* m_SolidShader;
     SharedPtr<Texture> m_DiffuseTexture;
+    SharedPtr<Texture> m_HeightMapTexture;
+    SharedPtr<Texture> m_NormalMapTexture;
 };

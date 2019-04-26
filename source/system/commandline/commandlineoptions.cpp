@@ -1,3 +1,4 @@
+#include "precompile.h"
 #include "system/commandline/commandlineoptions.h"
 #include "system/commandline/commandlineparser.h"
 #include "system/error.h"

@@ -1,9 +1,9 @@
+#include "precompile.h"
 #include "win64/win64viewprovider.h"
 #include "system/error.h"
 #include "system/commandline/commandlineparser.h"
 #include "system/commandline/commandlineoptions.h"
 #include <stdio.h>
-#include <string>
 
 const std::string INI_PATH = "../homebrew.ini";
 

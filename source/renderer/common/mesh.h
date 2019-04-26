@@ -10,8 +10,6 @@
 */
 #include "system/math/vec4.h"
 #include "system/math/vec2.h"
-#include <vector>
-#include <string.h>
 
 struct ID3D11Buffer;
 struct ID3D11Device;
@@ -61,7 +59,7 @@ public:
     };
 
 public:
-    Mesh();
+    Mesh() = default;
     //should not move or it will break the index lists. or we should rebuld the lists on copy should we need this to happen
     Mesh(const Mesh& other) = delete;
     void operator= (const Mesh& other) = delete;
@@ -70,24 +68,26 @@ public:
     void Shutdown();
 
     void PreSerialize();
-    void Serialize(const std::string& path);
-    void Deserialize(const std::string& path);
+    void Serialize(const String& path);
+    void Deserialize(const String& path);
     void PostDeserialize();
 
     //Probably bad, but will rely on external classes(like Model3D or Terrain.h) to upload the data into the GPU
     //Would be nice to optimize data transformations
     //DEPRECATED! SHOULD NOT BE USED.
-    inline std::vector<Vertex>&  GetVertices() { return m_Vertices; }
-    inline std::vector<uint32_t>& GetIndexes()  { return m_Indexes;  }
+    inline Array<Vertex>&  GetVertices() { return m_Vertices; }
+    inline Array<uint32_t>& GetIndexes()  { return m_Indexes;  }
 
     void GetAdjacentTriangles(const Vertex& v, std::vector<Triangle*>& outResult) const;
     void ComputeFaceNormals();
 
     bool InitializeBuffers(ID3D11Device* device);
     void Render(ID3D11DeviceContext* deviceContext);
-    uint32_t GetIndexCount() const { return m_Indexes.size(); }
+    u32 GetIndexCount() const { return m_Indexes.size(); }
 
     inline void SetDrawNormals(bool value) { m_DrawNormals = value; }
+    void ScaleMesh(f32 scaleFactor);
+
 private:
     void InitializeVertexList(const std::string& filepath);
     void InitializeEdgeListIndexes();
@@ -102,10 +102,10 @@ private:
     void SetupBuffersForSolid(uint32_t*& outIndexes, uint32_t& outArrSize);
 private:
     bool m_DrawNormals = false;
-    std::vector<Vertex>   m_Vertices;
-    std::vector<Edge>     m_Edges;
-    std::vector<Triangle> m_Triangles;
-    std::vector<uint32_t> m_Indexes;
+    Array<Vertex>   m_Vertices;
+    Array<Edge>     m_Edges;
+    Array<Triangle> m_Triangles;
+    Array<uint32_t> m_Indexes;
 
     ID3D11Buffer* m_VertexBuffer;
     ID3D11Buffer* m_IndexBuffer;

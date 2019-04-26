@@ -23,9 +23,11 @@ bool TextureShader::InitializeInternal(ID3D11Device* device)
     samplerDesc.MinLOD = 0;
     samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-    result = device->CreateSamplerState(&samplerDesc, &m_SampleState);
+    result = device->CreateSamplerState(&samplerDesc, &m_VSSampleState);
     popAssert(!FAILED(result), "TextureShader::InitializeShader::CreateSampler failed");
 
+    result = device->CreateSamplerState(&samplerDesc, &m_PSSampleState);
+    popAssert(!FAILED(result), "TextureShader::InitializeShader::CreateSampler failed");
     return true;
 }
 
@@ -54,10 +56,16 @@ void TextureShader::AddPolygonLayout(Array<D3D11_INPUT_ELEMENT_DESC>& polygonLay
 
 void TextureShader::ShutdownInternal()
 {
-    if (m_SampleState)
+    if (m_VSSampleState)
     {
-        m_SampleState->Release();
-        m_SampleState = 0;
+        m_VSSampleState->Release();
+        m_VSSampleState = nullptr;
+    }
+
+    if (m_PSSampleState)
+    {
+        m_PSSampleState->Release();
+        m_PSSampleState = nullptr;
     }
 }
 
@@ -70,11 +78,20 @@ bool TextureShader::SetShaderParametersInternal(ID3D11DeviceContext* deviceConte
         return false;
     }
 
-    Array<ID3D11ShaderResourceView*> resourceViewArray = textureShaderParams->GetShaderResourceViewArray();
-    if (!resourceViewArray.empty())
+    Array<ID3D11ShaderResourceView*> VSResourceViewArray = TextureShaderParams::GetShaderResourceViewArray(textureShaderParams->m_VSTextures);
+    if (!VSResourceViewArray.empty())
     {
-        deviceContext->PSSetShaderResources(0, resourceViewArray.size(), &(resourceViewArray[0]));
+        deviceContext->VSSetShaderResources(0, VSResourceViewArray.size(), &(VSResourceViewArray[0]));
     }
+
+    Array<ID3D11ShaderResourceView*> PSResourceViewArray = TextureShaderParams::GetShaderResourceViewArray(textureShaderParams->m_PSTextures);
+    if (!PSResourceViewArray.empty())
+    {
+        deviceContext->PSSetShaderResources(0, PSResourceViewArray.size(), &(PSResourceViewArray[0]));
+    }
+
+    deviceContext->VSSetSamplers(0, 1, &m_VSSampleState);
+    deviceContext->PSSetSamplers(0, 1, &m_PSSampleState);
 
     return true;
 }

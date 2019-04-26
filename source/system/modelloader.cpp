@@ -1,3 +1,4 @@
+#include "precompile.h"
 #include "system/modelloader.h"
 #include "system/error.h"
 #include <fstream>
@@ -156,10 +157,28 @@ bool ModelLoader::LoadOBJFile(const std::string& filepath, RawGeometryData& outD
         {
             uint32_t vertexIndex[3], normalIndex[3];
             uint32_t uvIndex[3] = { 1, 1, 1 };
-            outData.m_UVs.push_back(vec2::Zero);
-            //std::string v1, v2, v3;
-            int matches = fscanf(file, "%d//%d %d//%d %d//%d\n", &vertexIndex[0], /*&uvIndex[0],*/ &normalIndex[0], &vertexIndex[1], /*&uvIndex[1],*/ &normalIndex[1], &vertexIndex[2], /*&uvIndex[2],*/ &normalIndex[2]);
-            //int matches = fscanf(file, "%s %s %s\n", &v1, &v2, &v3);
+            
+            s8 matches = 0;
+            //Vertex Index / UV Index / Normal Index
+            if (!outData.m_Positions.empty() && !outData.m_UVs.empty() && !outData.m_Normals.empty())
+            {
+                matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
+                popAssert(matches == 9, "ModelLoader::LoadOBJFile - invalid read format for faces");
+            }
+            else if (!outData.m_Positions.empty() && outData.m_UVs.empty() && !outData.m_Normals.empty())
+            {
+                matches = fscanf(file, "%d//%d %d//%d %d//%d\n", &vertexIndex[0], /*&uvIndex[0],*/ &normalIndex[0], &vertexIndex[1], /*&uvIndex[1],*/ &normalIndex[1], &vertexIndex[2], /*&uvIndex[2],*/ &normalIndex[2]);
+                popAssert(matches == 6, "ModelLoader::LoadOBJFile - invalid read format for faces");
+            }
+            else if (!outData.m_Positions.empty() && !outData.m_UVs.empty() && outData.m_Normals.empty())
+            {
+                matches = fscanf(file, "%d/%d %d/%d %d/%d\n", &vertexIndex[0], &uvIndex[0], &vertexIndex[1], &uvIndex[1], &vertexIndex[2], &uvIndex[2]);
+                popAssert(matches == 6, "ModelLoader::LoadOBJFile - invalid read format for faces");
+            }
+            else
+            {
+                popAssert(false, "ModelLoader::LoadOBJFile - face format not supported");
+            }
 
             outData.m_PosIndexes.push_back(vertexIndex[0] - 1);
             outData.m_PosIndexes.push_back(vertexIndex[1] - 1);

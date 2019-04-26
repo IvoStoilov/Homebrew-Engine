@@ -4,12 +4,13 @@
 
 struct TextureShaderParams : public ShaderParamsBase
 {
-    Array<SharedPtr<Texture>> m_Textures;
+    Array<SharedPtr<Texture>> m_PSTextures;
+    Array<SharedPtr<Texture>> m_VSTextures;
 
-    Array<ID3D11ShaderResourceView*> GetShaderResourceViewArray() const
+    static Array<ID3D11ShaderResourceView*> GetShaderResourceViewArray(const Array<SharedPtr<Texture>>& textures)
     {
         Array<ID3D11ShaderResourceView*> result;
-        for (const SharedPtr<Texture>& texture : m_Textures)
+        for (const SharedPtr<Texture>& texture : textures)
         {
             result.push_back(texture.get()->GetTexture());
         }
@@ -30,5 +31,6 @@ protected:
     virtual void ShutdownInternal() override;
 
 protected:
-    ID3D11SamplerState* m_SampleState;
+    ID3D11SamplerState* m_VSSampleState;
+    ID3D11SamplerState* m_PSSampleState;
 };

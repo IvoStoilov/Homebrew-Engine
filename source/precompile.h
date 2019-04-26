@@ -20,6 +20,10 @@ using s16 = int16_t;
 using s32 = int32_t;
 using s64 = int64_t;
 
+using f32 = float;
+using f64 = double;
+using f128 = long double;
+
 using String = std::string;
 template<class T>
 using Array = std::vector<T>;
