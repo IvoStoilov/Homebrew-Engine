@@ -41,8 +41,9 @@ bool TerrainRenderer::Render(D3D11* d3d)
         params.m_View = m_ViewMatrix.ToXMMATRIX();
         params.m_Projection = d3d->GetProjectionMatrix();
         //params.m_VSTextures.push_back(m_HeightMapTexture);
-        params.m_VSTextures.push_back(m_NormalMapTexture);
-        params.m_PSTextures.push_back(m_DiffuseTexture);
+        //params.m_VSTextures.push_back(m_NormalMapTexture);
+        //params.m_PSTextures.push_back(m_DiffuseTexture);
+        params.m_PSTextures.push_back(m_NormalMapTexture);
         params.m_DiffuseColor = DIFFUSE_COLOR;
         params.m_LightDirection = LIGHT_DIRECTION;
         m_SolidShader->Render(d3d->GetDeviceContext(), m_Terrain->GetIndexCount(), params);

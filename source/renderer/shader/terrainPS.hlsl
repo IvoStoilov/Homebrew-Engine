@@ -4,7 +4,7 @@ cbuffer LightBuffer
     float4 lightDirection;
 };
 
-Texture2D shaderTexture;
+Texture2D normalMap : register(t0);
 SamplerState sampleType;
 
 struct PixelInputType
@@ -24,8 +24,14 @@ float4 main(PixelInputType input) : SV_TARGET
     
     lightDir = -lightDirection;
     lightDir = normalize(lightDir.xyz);
+
+    float3 normalSample = normalMap.SampleLevel(sampleType, input.m_UV, 0).xzy;
+    float subtract = 1;
+    normalSample = (2 * normalSample) - subtract.xxx;
+    normalSample = normalize(normalSample);
+
     float3 terrainNormal = normalize(input.m_Normal);
-    float dotRes = dot(terrainNormal, lightDir.xyz);
+    float dotRes = dot(normalSample, lightDir.xyz);
     lightIntensity = saturate(dotRes);
 
     color = saturate(diffuseColor * lightIntensity);

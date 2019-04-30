@@ -3,6 +3,7 @@
 
 class Model3D;
 class LightShader;
+class TextureShader;
 class VisualComponent;
 struct ID3D11Device;
 struct ID3D11DeviceContext;
@@ -29,5 +30,6 @@ private:
 
     //TODO (istoilov) : Make an abstraction over shader implementations
     LightShader* m_LightShader;
+    TextureShader* m_TextureShader;
     Model3D* m_Model;
 };

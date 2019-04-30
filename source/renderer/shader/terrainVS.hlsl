@@ -23,20 +23,6 @@ struct PixelInputType
     float3 m_Normal   : NORMAL;
 };
 
-float GetDegreeToRad(float degree)
-{
-    return degree * 3.14159265f / 180.f;
-}
-
-float3x3 GetRotateMatrixAxisY(float degree)
-{
-    float rad = GetDegreeToRad(degree);
-    float3x3 rot = { cos(rad), 0.f, sin(rad),
-                          0.f, 1.f, 0.f,
-                    -sin(rad), 0.f, cos(rad) };
-    return rot;
-}
-
 PixelInputType main(VertexInputType input)
 {
     PixelInputType output;
@@ -49,7 +35,12 @@ PixelInputType main(VertexInputType input)
     output.m_Position = mul(output.m_Position, projectionMatrix);
 
     output.m_UV = input.m_UV;
-    float3 normalSample = normalMap.SampleLevel(sampleType, input.m_UV, 0).yzx;
+    //We need to invert the order in which we sample the texture, because it was exported with the following settings :
+    //  - z is height in the texture, in our engine y is height, hence the normal sample is .xzy
+    //  - -y is forward, but in our case y is forward, this means that the UV.y coord had to be inverted ( 1 - y)
+    output.m_UV.y = 1.f - output.m_UV.y;
+
+    float3 normalSample = normalMap.SampleLevel(sampleType, output.m_UV, 0).xzy;
     float subtract = 1;
     normalSample = (2 * normalSample) - subtract.xxx;
     output.m_Normal = mul(normalSample, worldMatrix);

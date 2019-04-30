@@ -23,6 +23,10 @@ void GraphicsNode::Initialize(ID3D11Device* device)
     m_LightShader = new LightShader();
     popAssert(m_LightShader != nullptr, "Memory Alloc Failed");
     popAssert(m_LightShader->Initialize(device), "Shader Init Failed");
+
+    m_TextureShader = new TextureShader();
+    popAssert(m_TextureShader != nullptr, "Memory Alloc Failed");
+    popAssert(m_TextureShader->Initialize(device), "Shader Init Failed");
 }
 
 void GraphicsNode::Shutdown()
@@ -46,14 +50,22 @@ void GraphicsNode::Render(ID3D11DeviceContext* deviceContext)
     
     m_Model->Render(deviceContext);
 
-    LightShaderParams params;
+    //LightShaderParams params;
+    //params.m_World = globalMatrix.ToXMMATRIX();
+    //params.m_View = m_ViewMatrix.ToXMMATRIX();
+    //params.m_Projection = m_ProjectionMatrix.ToXMMATRIX();
+    //params.m_PSTextures.push_back(m_Model->GetTexture());
+    //params.m_DiffuseColor = _DIFFUSE_COLOR;
+    //params.m_LightDirection = _LIGHT_DIRECTION;
+    //m_LightShader->Render(deviceContext, m_Model->GetIndexCount(), params);
+
+    TextureShaderParams params;
     params.m_World = globalMatrix.ToXMMATRIX();
     params.m_View = m_ViewMatrix.ToXMMATRIX();
     params.m_Projection = m_ProjectionMatrix.ToXMMATRIX();
     params.m_PSTextures.push_back(m_Model->GetTexture());
-    params.m_DiffuseColor = _DIFFUSE_COLOR;
-    params.m_LightDirection = _LIGHT_DIRECTION;
-    m_LightShader->Render(deviceContext, m_Model->GetIndexCount(), params);
+    m_TextureShader->Render(deviceContext, m_Model->GetIndexCount(), params);
+    
 }
 
 GraphicsNode::GraphicsNode(VisualComponent* visComponent) :

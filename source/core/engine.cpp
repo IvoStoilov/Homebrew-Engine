@@ -44,13 +44,14 @@ bool Engine::Initialize(HINSTANCE hInstance, HWND hwnd, uint32_t width, uint32_t
     {
         VisualComponent* visComp = nullptr;
         m_Entities.push_back(new Entity());
+        m_Entities[0]->SetGlobalPosition(vec4(0.f, 10.f, 65.f, 1.f));
         visComp = new VisualComponent();
         visComp->SetModelPath(std::string("../../resource/geometry/cube.bgd"));
         visComp->SetTexturePath(std::string("../../resource/metal_texture.jpg"));
         m_Entities[0]->AddComponent(visComp);
 
         m_Entities.push_back(new Entity());
-        m_Entities[1]->SetGlobalPosition(vec4(2.f, 0.f, 2.f, 1.f));
+        m_Entities[1]->SetGlobalPosition(vec4(65.f, 10.f, 0.f, 1.f));
         visComp = new VisualComponent();
         visComp->SetModelPath(std::string("../../resource/geometry/cube.bgd"));
         visComp->SetTexturePath(std::string("../../resource/ink-splatter-texture.png"));
