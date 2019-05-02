@@ -39,15 +39,34 @@ BaseShader::VS_PS_Blobs BaseShader::CompileShaders(ID3D11Device* device, const S
 
     result = D3DX11CompileFromFile(vsPath.c_str(), NULL, NULL, "main", "vs_5_0", shaderCompileFlags, 0, NULL,
         &vertexShaderBuffer, &errorMessage, NULL);
-    popAssert(!FAILED(result), "SkydomeShaderVS Compilation Failed.");
+    popAssert(!FAILED(result), "Vertex Compilation Failed.");
+
+    if (errorMessage)
+    {
+        u32 size = errorMessage->GetBufferSize();
+        char* errorMsg = new char[size];
+        memcpy(errorMsg, errorMessage->GetBufferPointer(), size);
+        int b = 0;
+        delete[] errorMsg;
+    }
 
     result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_VertexShader);
-    popAssert(!FAILED(result), "SkydomeShader::InitializeShader::CreateVertexShader failed");
+    popAssert(!FAILED(result), "BaseShader::InitializeShader::CreateVertexShader failed");
 
     ID3D10Blob* pixelShaderBuffer = nullptr;
     result = D3DX11CompileFromFile(psPath.c_str(), NULL, NULL, "main", "ps_5_0", shaderCompileFlags, 0, NULL,
         &pixelShaderBuffer, &errorMessage, NULL);
     popAssert(!FAILED(result), "Pixel Shader Compilation Failed.");
+
+    if (errorMessage)
+    {
+        u32 size = errorMessage->GetBufferSize();
+        char* errorMsg = new char[size];
+        memcpy(errorMsg, errorMessage->GetBufferPointer(), size);
+        int b = 0;
+        delete[] errorMsg;
+    }
+    
 
     result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_PixelShader);
     popAssert(!FAILED(result), "SkydomeShader::InitializeShader::CreateVertexShader failed");

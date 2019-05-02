@@ -22,7 +22,19 @@ private:
     Terrain* m_Terrain;
     ColorShader* m_WireframeShader;
     LightShader* m_SolidShader;
-    SharedPtr<Texture> m_DiffuseTexture;
+
     SharedPtr<Texture> m_HeightMapTexture;
     SharedPtr<Texture> m_NormalMapTexture;
+    SharedPtr<Texture> m_HiteMapTexture;
+
+    SharedPtr<Texture> m_SnowAlbedoTexture;
+    SharedPtr<Texture> m_SnowHeightTexture;
+
+    SharedPtr<Texture> m_RockAlbedoTexture;
+    SharedPtr<Texture> m_RockHeightTexture;
+
+    SharedPtr<Texture> m_SandHeightTexture;
+    SharedPtr<Texture> m_SandAlbedoTexture;
+
+    SharedPtr<Texture> m_GrassAlbedoTexture;
 };

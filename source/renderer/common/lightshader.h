@@ -5,6 +5,7 @@ struct LightShaderParams : public TextureShaderParams
 {
     DirectX::XMFLOAT4 m_DiffuseColor;
     DirectX::XMFLOAT4 m_LightDirection;
+    DirectX::XMFLOAT4 m_AmbientLight;
 };
 
 class LightShader : public TextureShader
@@ -19,6 +20,7 @@ protected:
     {
         DirectX::XMFLOAT4 m_DiffuseColor;
         DirectX::XMFLOAT4 m_LightDirection;
+        DirectX::XMFLOAT4 m_AmbientLight;
     };
 
 protected:

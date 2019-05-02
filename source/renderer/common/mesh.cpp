@@ -585,7 +585,8 @@ void Mesh::ScaleMesh(f32 scaleFactor)
 {
     for (Vertex& v : m_Vertices)
     {
-        v.m_Position *= scaleFactor;
+        v.m_Position.x *= scaleFactor;
+        v.m_Position.y *= scaleFactor;
     }
 }
 

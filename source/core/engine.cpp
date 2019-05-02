@@ -39,7 +39,7 @@ bool Engine::Initialize(HINSTANCE hInstance, HWND hwnd, uint32_t width, uint32_t
 
     m_Camera = new Camera();
     popAssert(m_Camera != nullptr, "Memory Alloc Failed");
-    m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
+    m_Camera->SetPosition(-32.0f, +32.0f, -32.0f);
 
     {
         VisualComponent* visComp = nullptr;

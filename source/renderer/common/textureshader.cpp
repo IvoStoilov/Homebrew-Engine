@@ -80,15 +80,15 @@ bool TextureShader::SetShaderParametersInternal(ID3D11DeviceContext* deviceConte
     }
 
     Array<ID3D11ShaderResourceView*> VSResourceViewArray = TextureShaderParams::GetShaderResourceViewArray(textureShaderParams->m_VSTextures);
-    if (!VSResourceViewArray.empty())
+    for (u16 i = 0; i < VSResourceViewArray.size(); ++i)
     {
-        deviceContext->VSSetShaderResources(0, VSResourceViewArray.size(), &(VSResourceViewArray[0]));
+        deviceContext->VSSetShaderResources(i, 1, &(VSResourceViewArray[i]));
     }
 
     Array<ID3D11ShaderResourceView*> PSResourceViewArray = TextureShaderParams::GetShaderResourceViewArray(textureShaderParams->m_PSTextures);
-    if (!PSResourceViewArray.empty())
+    for (u16 i = 0; i < PSResourceViewArray.size(); ++i)
     {
-        deviceContext->PSSetShaderResources(0, PSResourceViewArray.size(), &(PSResourceViewArray[0]));
+        deviceContext->PSSetShaderResources(i, 1, &(PSResourceViewArray[i]));
     }
 
     deviceContext->VSSetSamplers(0, 1, &m_VSSampleState);

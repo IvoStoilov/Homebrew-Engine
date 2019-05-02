@@ -64,6 +64,7 @@ bool LightShader::SetShaderParametersInternal(ID3D11DeviceContext* deviceContext
     LightBufferType* lightData = reinterpret_cast<LightBufferType*>(mappedResource.pData);
     lightData->m_DiffuseColor   = lightShaderParams->m_DiffuseColor;
     lightData->m_LightDirection = lightShaderParams->m_LightDirection;
+    lightData->m_AmbientLight   = lightShaderParams->m_AmbientLight;
     
     deviceContext->Unmap(m_LightBuffer, 0);
     lightData = nullptr;
