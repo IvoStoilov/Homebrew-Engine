@@ -17,14 +17,12 @@
 #include "renderer/d3d11renderer.h"
 #include "renderer/debugdisplay/debugdisplayrenderer.h"
 
-typedef std::tuple<int, int> Pair;
-typedef std::map< Pair, Mesh::Edge*> EdgeMap;
-
 constexpr bool REBUILD_HALFEDGELIST_ENABLED = false;
 
 bool Mesh::InitializeMeshFromObjFile(const std::string& filepath, bool buildHalfEdgeList/*=true*/)
 {
     InitializeVertexList(filepath);
+    BuildTangents();
     if (buildHalfEdgeList)
     {
         InitializeEdgeListIndexes();
@@ -51,14 +49,14 @@ void Mesh::InitializeVertexList(const std::string& filepath)
     popAssert(fileRead, "Mesh::InitializeVertexList failed to read file");
     if (fileRead)
     {
-        uint32_t indexListSize = rawData.m_PosIndexes.size();
-        for (uint32_t i = 0; i < indexListSize; i++)
+        u32 indexListSize = rawData.m_PosIndexes.size();
+        for (u32 i = 0; i < indexListSize; i++)
         {
             Key current = std::make_tuple(rawData.m_PosIndexes[i], rawData.m_NormIndexes[i], rawData.m_UVIndexes[i]);
             if (vertexMap.find(current) != vertexMap.end())
             {
                 Value& v = vertexMap[current];
-                std::vector<uint32_t>& indexList = std::get<1>(v);
+                Array<u32>& indexList = std::get<1>(v);
                 indexList.push_back(i);
             }
             else
@@ -68,7 +66,7 @@ void Mesh::InitializeVertexList(const std::string& filepath)
                 vec2 uv     = (rawData.m_UVIndexes[i]   < rawData.m_UVs.size())       ? rawData.m_UVs[rawData.m_UVIndexes[i]]        : vec2::Zero;
                 Mesh::Vertex vertex (pos, normal, uv);
                 
-                std::vector<uint32_t> indexList;
+                Array<u32> indexList;
                 indexList.push_back(i);
                 Value v = std::make_tuple(vertex, indexList);
                 vertexMap[current] = v;
@@ -93,8 +91,11 @@ void Mesh::InitializeVertexList(const std::string& filepath)
 
 void Mesh::InitializeEdgeListIndexes()
 {
-    m_Edges.clear();
+    typedef std::tuple<int, int> Pair;
+    typedef std::map< Pair, Mesh::Edge*> EdgeMap;
     EdgeMap edgeMap;
+
+    m_Edges.clear();
     m_Edges.reserve(m_Indexes.size() + m_Vertices.size());
     m_Triangles.reserve(m_Indexes.size() / 3);
     popAssert(m_Indexes.size() != 0, "Index size is 0, Probably not read from file.");
@@ -118,8 +119,6 @@ void Mesh::InitializeEdgeListIndexes()
         Edge* edgeTU = &m_Edges.back();
         edgeTU->m_SelfIndex = m_Edges.size() - 1;
         
-        
-
         edgeMap[uv] = edgeUV;
         edgeMap[vt] = edgeVT;
         edgeMap[tu] = edgeTU;
@@ -219,12 +218,12 @@ void Mesh::Shutdown()
     m_Triangles.clear();
 }
 
-vec4 Mesh::ComputeFaceNormal(uint32_t a, uint32_t b, uint32_t c)
+vec4 Mesh::ComputeFaceNormal(uint32_t a, uint32_t b, uint32_t c) const
 {
     return ComputeFaceNormal(m_Vertices[a], m_Vertices[b], m_Vertices[c]);
 }
 
-vec4 Mesh::ComputeFaceNormal(const Vertex& a, const Vertex b, const Vertex& c)
+vec4 Mesh::ComputeFaceNormal(const Vertex& a, const Vertex& b, const Vertex& c) const
 {
     //Using right-hand coordinate system and clockwise face orientation
     vec4 AB = b.m_Position - a.m_Position;
@@ -235,7 +234,7 @@ vec4 Mesh::ComputeFaceNormal(const Vertex& a, const Vertex b, const Vertex& c)
     return result;
 }
 
-void Mesh::GetAdjacentTriangles(const Vertex& v, std::vector<Triangle*>& outResult) const
+void Mesh::GetAdjacentTriangles(const Vertex& v, Array<Triangle*>& outResult) const
 {
     Edge* current = v.m_Edge;
     do
@@ -246,6 +245,65 @@ void Mesh::GetAdjacentTriangles(const Vertex& v, std::vector<Triangle*>& outResu
             outResult.push_back(current->m_Face);
         }
     } while (current != v.m_Edge);
+}
+
+
+void Mesh::BuildTangents()
+{
+    u32 vtxCount = m_Vertices.size();
+    Array<vec4> tanA(vtxCount, vec4());
+    Array<vec4> tanB(vtxCount, vec4());
+
+    u32 indexCount = m_Indexes.size();
+    for (u32 i = 0; i < indexCount; i += 3)
+    {
+        vec4 a = m_Vertices[m_Indexes[i  ]].m_Position;
+        vec4 b = m_Vertices[m_Indexes[i+1]].m_Position;
+        vec4 c = m_Vertices[m_Indexes[i+2]].m_Position;
+
+        vec2 tex0 = m_Vertices[m_Indexes[i  ]].m_UV;
+        vec2 tex1 = m_Vertices[m_Indexes[i+1]].m_UV;
+        vec2 tex2 = m_Vertices[m_Indexes[i+2]].m_UV;
+
+        vec4 edge1 = b - a;
+        vec4 edge2 = c - a;
+        vec2 uvEdge1 = tex1 - tex0;
+        vec2 uvEdge2 = tex2 - tex0;
+
+        f32 r = 1.f / (uvEdge1.x * uvEdge2.y - uvEdge1.y * uvEdge2.x);
+
+        vec4 tangent(   ((edge1.x * uvEdge2.y) - (edge2.x * uvEdge1.y)) * r,
+                        ((edge1.y * uvEdge2.y) - (edge2.y * uvEdge1.y)) * r,
+                        ((edge1.z * uvEdge2.y) - (edge2.z * uvEdge1.y)) * r );
+
+        vec4 bitangent( ((edge2.x * uvEdge1.x) - (edge1.x * uvEdge2.x)) * r,
+                        ((edge2.y * uvEdge1.x) - (edge1.y * uvEdge2.x)) * r,
+                        ((edge2.z * uvEdge1.x) - (edge1.z * uvEdge2.x)) * r );
+       
+        tanA[m_Indexes[i    ]] += tangent;
+        tanA[m_Indexes[i + 1]] += tangent;
+        tanA[m_Indexes[i + 2]] += tangent;
+
+        tanB[m_Indexes[i    ]] += bitangent;
+        tanB[m_Indexes[i + 1]] += bitangent;
+        tanB[m_Indexes[i + 2]] += bitangent;
+    }
+
+    for (u32 i = 0; i < vtxCount; i++)
+    {
+        vec4& n = m_Vertices[i].m_Normal;
+        vec4& t0 = tanA[i];
+        vec4& t1 = tanB[i];
+
+        //Applies corretion in the case where the computed tangent is not perpendicular to the surface normal;
+        vec4 t = t0 - (n * vec4::Dot(n, t0));
+        t.Normalize();
+
+        //Applies correction in the case where the tangent, binormal and normal do not produce S+ orientation
+        vec4 biNormal = vec4::Cross(n, t0);
+        f32 w = (vec4::Dot(biNormal, t1) < 0) ? -1.0f : 1.0f;
+        m_Vertices[i].m_Tangent = vec4(t.x, t.y, t.z, w);
+    }
 }
 
 void Mesh::BuildHullEdges()
@@ -335,6 +393,7 @@ void Mesh::PreSerialize()
 {
     PROFILE_FUNCTION(Mesh::PreSerialize);
 }
+
 
 void Mesh::Serialize(const String& path)
 {
@@ -462,9 +521,10 @@ struct VertexType
     DirectX::XMFLOAT4 position;
     DirectX::XMFLOAT2 uv;
 
-    //Hack commented. TODO istoilov : Investigate a way shader classes to communicate the vertex data layour
+    //TODO istoilov : Investigate a way shader classes to communicate the vertex data layour
     //Reflection?
-    //DirectX::XMFLOAT3 normal;
+    DirectX::XMFLOAT3 normal;
+    DirectX::XMFLOAT4 tangent;
 };
 
 bool Mesh::InitializeVertexBuffer(ID3D11Device* device)
@@ -480,7 +540,8 @@ bool Mesh::InitializeVertexBuffer(ID3D11Device* device)
 
         vertices[i].position = DirectX::XMFLOAT4(x, y, z, 0.f);
         vertices[i].uv = DirectX::XMFLOAT2(m_Vertices[i].m_UV.x, m_Vertices[i].m_UV.y);
-        //vertices[i].normal = DirectX::XMFLOAT3(m_Vertices[i].m_Normal.x, m_Vertices[i].m_Normal.y, m_Vertices[i].m_Normal.z);
+        vertices[i].normal = DirectX::XMFLOAT3(m_Vertices[i].m_Normal.x, m_Vertices[i].m_Normal.y, m_Vertices[i].m_Normal.z);
+        vertices[i].tangent = DirectX::XMFLOAT4(m_Vertices[i].m_Tangent.x, m_Vertices[i].m_Tangent.y, m_Vertices[i].m_Tangent.z, m_Vertices[i].m_Tangent.w);
 
         //if(m_DrawNormals)
         //    g_DebugDisplay->AddLine(m_Vertices[i].m_Position, m_Vertices[i].m_Position + m_Vertices[i].m_Normal, vec4(0.f, 1.f, 0.f, 1.f));
@@ -587,6 +648,7 @@ void Mesh::ScaleMesh(f32 scaleFactor)
     {
         v.m_Position.x *= scaleFactor;
         v.m_Position.y *= scaleFactor;
+        v.m_Position.z *= scaleFactor;
     }
 }
 

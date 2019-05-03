@@ -24,15 +24,29 @@ void LightShader::AddPolygonLayout(Array<D3D11_INPUT_ELEMENT_DESC>& polygonLayou
 {
     super::AddPolygonLayout(polygonLayoutsToAdd);
 
-    polygonLayoutsToAdd.emplace_back(D3D11_INPUT_ELEMENT_DESC());
-    D3D11_INPUT_ELEMENT_DESC& polygonLayout = polygonLayoutsToAdd.back();
-    polygonLayout.SemanticName = "NORMAL";
-    polygonLayout.SemanticIndex = 0;
-    polygonLayout.Format = DXGI_FORMAT_R32G32B32_FLOAT;
-    polygonLayout.InputSlot = 0;
-    polygonLayout.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-    polygonLayout.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-    polygonLayout.InstanceDataStepRate = 0;
+    {
+        polygonLayoutsToAdd.emplace_back(D3D11_INPUT_ELEMENT_DESC());
+        D3D11_INPUT_ELEMENT_DESC& polygonLayout = polygonLayoutsToAdd.back();
+        polygonLayout.SemanticName = "NORMAL";
+        polygonLayout.SemanticIndex = 0;
+        polygonLayout.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+        polygonLayout.InputSlot = 0;
+        polygonLayout.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+        polygonLayout.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+        polygonLayout.InstanceDataStepRate = 0;
+    }
+
+    {
+        polygonLayoutsToAdd.emplace_back(D3D11_INPUT_ELEMENT_DESC());
+        D3D11_INPUT_ELEMENT_DESC& polygonLayout = polygonLayoutsToAdd.back();
+        polygonLayout.SemanticName = "TANGENT";
+        polygonLayout.SemanticIndex = 0;
+        polygonLayout.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+        polygonLayout.InputSlot = 0;
+        polygonLayout.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+        polygonLayout.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+        polygonLayout.InstanceDataStepRate = 0;
+    }
 }
 
 void LightShader::ShutdownInternal()

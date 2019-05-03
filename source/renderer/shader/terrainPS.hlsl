@@ -22,6 +22,8 @@ struct PixelInputType
     float4 m_FinalPosition  : SV_POSITION;
     float4 m_GlobalPosition : POSITION0;
     float2 m_UV             : TEXCOORD0;
+    float3 m_VertexNormal   : NORMAL;
+    float4 m_Tangent        : TANGENT;
 };
 
 float4 GetTriPlanarBlend(Texture2D textureToSample, float3 worldPos, float3 worldNormal)
@@ -46,15 +48,11 @@ float4 GetTriPlanarBlend(Texture2D textureToSample, float3 worldPos, float3 worl
             color3.xyzw * blendWeights.zzzz;
 }
 
-float3 SampleNormal(float2 uv)
+float3 SampleNormal(in float2 uv, in float3 tan, in float3 biNorm, in float3 norm)
 {
-    float3x3 worldMatrix_HACK_rotate90AxisX = { 1.f, 0.f, 0.f,
-                                               0.f, 0.f,-1.f,
-                                               0.f, 1.f, 0.f };
-    float3 normalSample = normalMap.SampleLevel(sampleType, uv, 0).xyz;
-    float3 subtract = { 1, 1, 1 };
-    normalSample = (normalSample * 2.f) - subtract;
-    normalSample = mul(normalSample, worldMatrix_HACK_rotate90AxisX);
+    float3 normalSample = normalMap.SampleLevel(sampleType, uv, 0).xzy;
+    normalSample = (normalSample * 2.f) - 1;
+    normalSample = (normalSample.x * tan) + (normalSample.y * norm) + (normalSample.z * biNorm);
     normalSample = normalize(normalSample);
     return normalSample;
 }
@@ -108,7 +106,7 @@ inline float4 ComputTextureColor(float4 globalPosition, float2 uv, float3 global
     float slope = 1.f - globalNormal.y;
     float4 hiteMapWeights = hiteMap.SampleLevel(sampleType, uv, 0);
 
-    if (slope >= 0.4f + hiteMapWeights.z)
+    if (slope >= 0.8f + hiteMapWeights.z)
     {
         return SampleRockAlbedo(globalPosition.xyz, globalNormal);
     }
@@ -139,7 +137,9 @@ inline float4 ComputTextureColor(float4 globalPosition, float2 uv, float3 global
 
 float4 main(PixelInputType input) : SV_TARGET
 {
-    float3 terrainNormal = SampleNormal(input.m_UV);
+    //return float4(input.m_VertexNormal, 1.f);
+    float3 biNormal = cross(input.m_VertexNormal, input.m_Tangent);
+    float3 terrainNormal = SampleNormal(input.m_UV, input.m_Tangent.xyz, biNormal, input.m_VertexNormal);
     //return float4(terrainNormal, 1.f);
     float4 textureColor = ComputTextureColor(input.m_GlobalPosition, input.m_UV, terrainNormal);
     

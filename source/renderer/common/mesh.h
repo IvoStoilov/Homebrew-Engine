@@ -1,12 +1,15 @@
 #pragma once
 /*
+    Engine is using Left Handd coordinate system
+
     Using a Half-Ednge Data structure to represent Meshes.
     http://www.sccg.sk/~samuelcik/dgs/half_edge.pdf
 
     HalfEdge list initialization
     https://stackoverflow.com/questions/15365471/initializing-half-edge-data-structure-from-vertices
 
-    TODO (istoilov) : Consider Serialization and prebacking data format to reduce load times.
+    Tangent Computation needed for Normal Mapping
+    https://www.marti.works/calculating-tangents-for-your-mesh/
 */
 #include "system/math/vec4.h"
 #include "system/math/vec2.h"
@@ -39,6 +42,7 @@ public:
     {
         vec4 m_Position;
         vec4 m_Normal;
+        vec4 m_Tangent;
         vec2 m_UV;
 
         Edge* m_Edge;
@@ -78,7 +82,7 @@ public:
     inline Array<Vertex>&  GetVertices() { return m_Vertices; }
     inline Array<uint32_t>& GetIndexes()  { return m_Indexes;  }
 
-    void GetAdjacentTriangles(const Vertex& v, std::vector<Triangle*>& outResult) const;
+    void GetAdjacentTriangles(const Vertex& v, Array<Triangle*>& outResult) const;
     void ComputeFaceNormals();
 
     bool InitializeBuffers(ID3D11Device* device);
@@ -92,9 +96,10 @@ private:
     void InitializeVertexList(const std::string& filepath);
     void InitializeEdgeListIndexes();
     
+    void BuildTangents();
     void BuildHullEdges();
-    vec4 ComputeFaceNormal(uint32_t i, uint32_t j, uint32_t k);
-    vec4 ComputeFaceNormal(const Vertex& a, const Vertex b, const Vertex& c);
+    vec4 ComputeFaceNormal(uint32_t i, uint32_t j, uint32_t k) const;
+    vec4 ComputeFaceNormal(const Vertex& a, const Vertex& b, const Vertex& c) const;
 
     bool InitializeVertexBuffer(ID3D11Device* device);
     bool InitializeIndexBuffer(ID3D11Device* device);

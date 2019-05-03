@@ -49,7 +49,7 @@ bool TerrainRenderer::Render(D3D11* d3d)
     else
     {
         LightShaderParams params;
-        params.m_World = mat4x4::GetRotateXAxisMatrix(MathUtil::ToRads(90)).ToXMMATRIX();
+        params.m_World = DirectX::XMMatrixIdentity();   //mat4x4::GetRotateXAxisMatrix(MathUtil::ToRads(90)).ToXMMATRIX();
         params.m_View = m_ViewMatrix.ToXMMATRIX();
         params.m_Projection = d3d->GetProjectionMatrix();
 

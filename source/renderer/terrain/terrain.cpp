@@ -12,7 +12,7 @@
 constexpr f32 TERRAIN_HALF_SIZE = 128.f; 
 constexpr f32 TERRAIN_SCALE = 128.f;
 
-const std::string TERRAIN_MESH_BIN = "../../resource/terrain/bin/islands2Orig.bin";
+const std::string TERRAIN_MESH_BIN = "../../resource/terrain/bin/islands2PosUVNormYUp.bin";
   
 
 Terrain::Terrain() :
