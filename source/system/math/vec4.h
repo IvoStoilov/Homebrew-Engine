@@ -1,9 +1,10 @@
 #pragma once
-#include <stdint.h>
 #include <array>
+#include <directxmath.h>
 
 class mat4x4;
 struct D3DXVECTOR4;
+
 class vec4
 {
 public:
@@ -11,11 +12,14 @@ public:
    vec4(const vec4& value);
    vec4(std::array<float, 3>& value);
    vec4(float x, float y, float z, float w = 0);
+   vec4(const DirectX::XMVECTOR& value);
+
+   void operator= (const vec4& rhs);
+   void operator= (const DirectX::XMVECTOR& value);
 
    bool operator==(const vec4& rhs) const;
    bool operator!=(const vec4& rhs) const;
    
-   void operator=  (const vec4& rhs);
    void operator+= (const vec4& rhs);
    void operator-= (const vec4& rhs);
    void operator*= (const float rhs);

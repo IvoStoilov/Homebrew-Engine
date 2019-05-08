@@ -1,3 +1,4 @@
+#include "precompile.h"
 #include "core/input/inputhandler.h"
 
 #include "renderer/d3d11renderer.h"

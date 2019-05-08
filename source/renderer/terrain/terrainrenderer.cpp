@@ -49,21 +49,22 @@ bool TerrainRenderer::Render(D3D11* d3d)
     else
     {
         LightShaderParams params;
-        params.m_World = DirectX::XMMatrixIdentity();   //mat4x4::GetRotateXAxisMatrix(MathUtil::ToRads(90)).ToXMMATRIX();
+        params.m_World = DirectX::XMMatrixIdentity();
         params.m_View = m_ViewMatrix.ToXMMATRIX();
         params.m_Projection = d3d->GetProjectionMatrix();
 
-        params.m_VSTextures.push_back(m_HeightMapTexture);
-        
-        params.m_PSTextures.push_back(m_NormalMapTexture);
-        params.m_PSTextures.push_back(m_HiteMapTexture);
-        params.m_PSTextures.push_back(m_SnowAlbedoTexture);
-        params.m_PSTextures.push_back(m_RockAlbedoTexture);
-        params.m_PSTextures.push_back(m_GrassAlbedoTexture);
-        params.m_PSTextures.push_back(m_SandAlbedoTexture);
-        params.m_PSTextures.push_back(m_SandHeightTexture);
-        params.m_PSTextures.push_back(m_RockHeightTexture);
-        params.m_PSTextures.push_back(m_SnowHeightTexture);
+        params.m_VSTextures.push_back(std::make_pair(m_HeightMapTexture  , 0));
+        params.m_PSTextures.push_back(std::make_pair(m_NormalMapTexture  , 0));
+        params.m_PSTextures.push_back(std::make_pair(m_HiteMapTexture    , 1));
+        params.m_PSTextures.push_back(std::make_pair(m_SnowAlbedoTexture , 2));
+        params.m_PSTextures.push_back(std::make_pair(m_RockAlbedoTexture , 3));
+        params.m_PSTextures.push_back(std::make_pair(m_GrassAlbedoTexture, 4));
+        params.m_PSTextures.push_back(std::make_pair(m_SandAlbedoTexture , 5));
+        params.m_PSTextures.push_back(std::make_pair(m_SandHeightTexture , 6));
+        params.m_PSTextures.push_back(std::make_pair(m_RockHeightTexture , 7));
+        params.m_PSTextures.push_back(std::make_pair(m_SnowHeightTexture , 8));
+
+        params.m_ClipPlane = DirectX::XMVectorSet(m_ClipPlane.x, m_ClipPlane.y, m_ClipPlane.z, m_ClipPlane.w);
 
         params.m_DiffuseColor = DIFFUSE_COLOR;
         params.m_LightDirection = LIGHT_DIRECTION;

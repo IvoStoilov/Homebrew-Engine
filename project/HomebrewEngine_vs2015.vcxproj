@@ -30,6 +30,8 @@
     <ClCompile Include="..\source\renderer\common\mesh.cpp" />
     <ClCompile Include="..\source\renderer\common\model2d.cpp" />
     <ClCompile Include="..\source\renderer\common\model3d.cpp" />
+    <ClCompile Include="..\source\renderer\common\reflectionshader.cpp" />
+    <ClCompile Include="..\source\renderer\common\rendertexture.cpp" />
     <ClCompile Include="..\source\renderer\common\texture.cpp" />
     <ClCompile Include="..\source\renderer\common\textureshader.cpp" />
     <ClCompile Include="..\source\renderer\d3d11.cpp" />
@@ -44,6 +46,7 @@
     <ClCompile Include="..\source\renderer\textrendering\fontshader.cpp" />
     <ClCompile Include="..\source\renderer\textrendering\text.cpp" />
     <ClCompile Include="..\source\renderer\textrendering\textrenderer.cpp" />
+    <ClCompile Include="..\source\renderer\water\waterrenderer.cpp" />
     <ClCompile Include="..\source\system\clock.cpp" />
     <ClCompile Include="..\source\system\commandline\commandlineoptions.cpp" />
     <ClCompile Include="..\source\system\commandline\commandlineparser.cpp" />
@@ -76,6 +79,8 @@
     <ClInclude Include="..\source\renderer\common\mesh.h" />
     <ClInclude Include="..\source\renderer\common\model2d.h" />
     <ClInclude Include="..\source\renderer\common\model3d.h" />
+    <ClInclude Include="..\source\renderer\common\reflectionshader.h" />
+    <ClInclude Include="..\source\renderer\common\rendertexture.h" />
     <ClInclude Include="..\source\renderer\common\resourcemanager\texturemanager.h" />
     <ClInclude Include="..\source\renderer\common\texture.h" />
     <ClInclude Include="..\source\renderer\common\textureshader.h" />
@@ -92,6 +97,7 @@
     <ClInclude Include="..\source\renderer\textrendering\fontshader.h" />
     <ClInclude Include="..\source\renderer\textrendering\text.h" />
     <ClInclude Include="..\source\renderer\textrendering\textrenderer.h" />
+    <ClInclude Include="..\source\renderer\water\waterrenderer.h" />
     <ClInclude Include="..\source\system\clock.h" />
     <ClInclude Include="..\source\system\commandline\commandlineoptions.h" />
     <ClInclude Include="..\source\system\commandline\commandlineparser.h" />
@@ -142,6 +148,26 @@
     <FxCompile Include="..\source\renderer\shader\fontVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="..\source\renderer\shader\reflectionPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="..\source\renderer\shader\reflectionVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="..\source\renderer\shader\simplePS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>

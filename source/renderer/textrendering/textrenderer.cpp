@@ -1,3 +1,4 @@
+#include "precompile.h"
 #include "renderer/textrendering/textrenderer.h"
 #include "renderer/d3d11.h"
 

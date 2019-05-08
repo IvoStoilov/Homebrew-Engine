@@ -13,6 +13,59 @@
 */
 #include "system/math/vec4.h"
 #include "system/math/vec2.h"
+#include "system/error.h"
+
+struct VertexTypePos
+{
+    DirectX::XMFLOAT4 m_Position;
+    
+    void SetValues(const DirectX::XMFLOAT4& pos, const DirectX::XMFLOAT2& uv, const DirectX::XMFLOAT3& norm, const DirectX::XMFLOAT4& tangent)
+    {
+        m_Position = pos;
+    }
+};
+
+struct VertexTypePosUV
+{
+    DirectX::XMFLOAT4 m_Position;
+    DirectX::XMFLOAT2 m_UV;
+
+    void SetValues(const DirectX::XMFLOAT4& pos, const DirectX::XMFLOAT2& uv, const DirectX::XMFLOAT3& norm, const DirectX::XMFLOAT4& tangent)
+    {
+        m_Position = pos;
+        m_UV = uv;
+    }
+};
+
+struct VertexTypePosUVNorm
+{
+    DirectX::XMFLOAT4 m_Position;
+    DirectX::XMFLOAT2 m_UV;
+    DirectX::XMFLOAT3 m_Normal;
+
+    void SetValues(const DirectX::XMFLOAT4& pos, const DirectX::XMFLOAT2& uv, const DirectX::XMFLOAT3& norm, const DirectX::XMFLOAT4& tangent)
+    {
+        m_Position = pos;
+        m_UV = uv;
+        m_Normal = norm;
+    }
+};
+
+struct VertexTypePosUVNormTan
+{
+    DirectX::XMFLOAT4 m_Position;
+    DirectX::XMFLOAT2 m_UV;
+    DirectX::XMFLOAT3 m_Normal;
+    DirectX::XMFLOAT4 m_Tangent;
+
+    void SetValues(const DirectX::XMFLOAT4& pos, const DirectX::XMFLOAT2& uv, const DirectX::XMFLOAT3& norm, const DirectX::XMFLOAT4& tangent)
+    {
+        m_Position = pos;
+        m_UV = uv;
+        m_Normal = norm;
+        m_Tangent = tangent;
+    }
+};
 
 struct ID3D11Buffer;
 struct ID3D11Device;
@@ -85,9 +138,10 @@ public:
     void GetAdjacentTriangles(const Vertex& v, Array<Triangle*>& outResult) const;
     void ComputeFaceNormals();
 
+    template<class T>
     bool InitializeBuffers(ID3D11Device* device);
     void Render(ID3D11DeviceContext* deviceContext);
-    u32 GetIndexCount() const { return m_Indexes.size(); }
+    u32 GetIndexCount() const { return static_cast<u32>(m_Indexes.size()); }
 
     inline void SetDrawNormals(bool value) { m_DrawNormals = value; }
     void ScaleMesh(f32 scaleFactor);
@@ -101,11 +155,14 @@ private:
     vec4 ComputeFaceNormal(uint32_t i, uint32_t j, uint32_t k) const;
     vec4 ComputeFaceNormal(const Vertex& a, const Vertex& b, const Vertex& c) const;
 
+    template<class T>
     bool InitializeVertexBuffer(ID3D11Device* device);
+
     bool InitializeIndexBuffer(ID3D11Device* device);
     void SetupBuffersForWireframe(uint32_t*& outIndexes, uint32_t& outArrSize);
     void SetupBuffersForSolid(uint32_t*& outIndexes, uint32_t& outArrSize);
 private:
+    u32 m_SizeOfElement = 0;
     bool m_DrawNormals = false;
     Array<Vertex>   m_Vertices;
     Array<Edge>     m_Edges;
@@ -115,3 +172,53 @@ private:
     ID3D11Buffer* m_VertexBuffer;
     ID3D11Buffer* m_IndexBuffer;
 };
+
+template<class T>
+bool Mesh::InitializeBuffers(ID3D11Device* device)
+{
+    popAssert(InitializeVertexBuffer<T>(device), "");
+    popAssert(InitializeIndexBuffer(device), "");
+    return true;
+}
+
+template<class T>
+bool Mesh::InitializeVertexBuffer(ID3D11Device* device)
+{
+    m_SizeOfElement = sizeof(T);
+    T* vertices = new T[m_Vertices.size()];
+    memset(vertices, 0, m_Vertices.size() * sizeof(T));
+
+    for (uint32_t i = 0; i < m_Vertices.size(); i++)
+    {
+        float x = m_Vertices[i].m_Position.x;
+        float y = m_Vertices[i].m_Position.y;
+        float z = m_Vertices[i].m_Position.z;
+
+        vertices[i].SetValues( DirectX::XMFLOAT4(x, y, z, 0.f)
+                             , DirectX::XMFLOAT2(m_Vertices[i].m_UV.x, m_Vertices[i].m_UV.y)
+                             , DirectX::XMFLOAT3(m_Vertices[i].m_Normal.x, m_Vertices[i].m_Normal.y, m_Vertices[i].m_Normal.z)
+                             , DirectX::XMFLOAT4(m_Vertices[i].m_Tangent.x, m_Vertices[i].m_Tangent.y, m_Vertices[i].m_Tangent.z, m_Vertices[i].m_Tangent.w));
+
+        //if(m_DrawNormals)
+        //    g_DebugDisplay->AddLine(m_Vertices[i].m_Position, m_Vertices[i].m_Position + m_Vertices[i].m_Normal, vec4(0.f, 1.f, 0.f, 1.f));
+    }
+
+    D3D11_BUFFER_DESC vertexBufferDesc;
+    vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+    vertexBufferDesc.ByteWidth = sizeof(T) * m_Vertices.size();
+    vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vertexBufferDesc.CPUAccessFlags = 0;
+    vertexBufferDesc.MiscFlags = 0;
+    vertexBufferDesc.StructureByteStride = 0;
+
+    D3D11_SUBRESOURCE_DATA vertexData;
+    vertexData.pSysMem = vertices;
+    vertexData.SysMemPitch = 0;
+    vertexData.SysMemSlicePitch = 0;
+
+    HRESULT result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &m_VertexBuffer);
+    popAssert(!FAILED(result), "Terrain Vertex Buffer creation failed");
+
+    delete[] vertices;
+    return !FAILED(result);
+}

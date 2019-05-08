@@ -24,6 +24,8 @@ struct PixelInputType
     float2 m_UV             : TEXCOORD0;
     float3 m_VertexNormal   : NORMAL;
     float4 m_Tangent        : TANGENT;
+
+    float m_Clip : SV_ClipDistance0;
 };
 
 float4 GetTriPlanarBlend(Texture2D textureToSample, float3 worldPos, float3 worldNormal)
@@ -137,6 +139,9 @@ inline float4 ComputTextureColor(float4 globalPosition, float2 uv, float3 global
 
 float4 main(PixelInputType input) : SV_TARGET
 {
+    input.m_VertexNormal = normalize(input.m_VertexNormal);
+    input.m_Tangent = normalize(input.m_Tangent);
+
     //return float4(input.m_VertexNormal, 1.f);
     float3 biNormal = cross(input.m_VertexNormal, input.m_Tangent);
     float3 terrainNormal = SampleNormal(input.m_UV, input.m_Tangent.xyz, biNormal, input.m_VertexNormal);

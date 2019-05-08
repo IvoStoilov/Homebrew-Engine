@@ -1,3 +1,4 @@
+#include "precompile.h"
 #include "renderer/common/model2d.h"
 #include "renderer/common/texture.h"
 

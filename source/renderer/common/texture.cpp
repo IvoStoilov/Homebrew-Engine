@@ -1,11 +1,6 @@
 #include "renderer/common/texture.h"
 #include "extern/DirectXTK/Inc/WICTextureLoader.h"
 
-Texture::Texture() :
-    m_Texture(nullptr)
-{
-}
-
 Texture::~Texture()
 {
     Shutdown();

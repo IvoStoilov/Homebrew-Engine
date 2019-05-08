@@ -56,6 +56,9 @@
     <Filter Include="Engine\renderer\skydome">
       <UniqueIdentifier>{31145d39-1235-4795-a94e-b5086e54eb23}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\renderer\water">
+      <UniqueIdentifier>{8abb4d86-1fd5-427d-9fd6-8e6ce424acf6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\win64\win64viewprovider.cpp">
@@ -182,6 +185,15 @@
       <Filter>Engine\renderer\skydome</Filter>
     </ClCompile>
     <ClCompile Include="..\source\renderer\common\baseshader.cpp">
+      <Filter>Engine\renderer\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\water\waterrenderer.cpp">
+      <Filter>Engine\renderer\water</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\common\reflectionshader.cpp">
+      <Filter>Engine\renderer\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\renderer\common\rendertexture.cpp">
       <Filter>Engine\renderer\common</Filter>
     </ClCompile>
   </ItemGroup>
@@ -318,6 +330,15 @@
     <ClInclude Include="..\source\precompile.h">
       <Filter>Engine</Filter>
     </ClInclude>
+    <ClInclude Include="..\source\renderer\water\waterrenderer.h">
+      <Filter>Engine\renderer\water</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\common\reflectionshader.h">
+      <Filter>Engine\renderer\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\renderer\common\rendertexture.h">
+      <Filter>Engine\renderer\common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\source\renderer\shader\simplePS.hlsl">
@@ -354,6 +375,12 @@
       <Filter>Engine\renderer\shaders</Filter>
     </FxCompile>
     <FxCompile Include="..\source\renderer\shader\terrainVS.hlsl">
+      <Filter>Engine\renderer\shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\source\renderer\shader\reflectionPS.hlsl">
+      <Filter>Engine\renderer\shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\source\renderer\shader\reflectionVS.hlsl">
       <Filter>Engine\renderer\shaders</Filter>
     </FxCompile>
   </ItemGroup>

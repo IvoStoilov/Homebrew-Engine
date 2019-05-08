@@ -10,6 +10,7 @@
 #include "renderer/debugdisplay/debugdisplayrenderer.h"
 #include "renderer/skydome/skydomerenderer.h"
 #include "renderer/textrendering/textrenderer.h"
+#include "renderer/water/waterrenderer.h"
 
 #include "renderer/textrendering/text.h"
 
@@ -24,14 +25,18 @@
 #include <windows.h>
 
 std::string path = "../../resource/ink-splatter-texture.png";
+constexpr f32 WATER_LEVEL = 3.f;
 
 D3D11Renderer* D3D11Renderer::s_Instance = nullptr;
 
-bool D3D11Renderer::Initialize(HWND hwnd, uint32_t screenWidth, uint32_t screenHeight)
+bool D3D11Renderer::Initialize(HWND hwnd, u32 screenWidth, u32 screenHeight)
 {
     m_D3D = new D3D11();
     popAssert(m_D3D != nullptr, "Memory Alloc Failed");
     popAssert(m_D3D->Initialize(screenWidth, screenHeight, hwnd, VSYNC_ENABLED, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR), "D3D Init Failed");
+
+    m_ReflectionTexture = std::make_shared<RenderTexture>();
+    m_ReflectionTexture->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight);
 
     m_SubRenderers.resize(SubRendererOrder::COUNT);
 
@@ -40,6 +45,9 @@ bool D3D11Renderer::Initialize(HWND hwnd, uint32_t screenWidth, uint32_t screenH
     
     ISubRenderer* terrainRenderer = new TerrainRenderer();
     m_SubRenderers[SubRendererOrder::Terrain] = terrainRenderer;
+
+    ISubRenderer* waterRenderer = new WaterRenderer(WATER_LEVEL);
+    m_SubRenderers[SubRendererOrder::Water] = waterRenderer;
 
     ISubRenderer* textRenderer = new TextRenderer(screenWidth, screenHeight);
     m_SubRenderers[SubRendererOrder::Text] = textRenderer;
@@ -64,11 +72,13 @@ void D3D11Renderer::Shutdown()
         node->Shutdown();
         delete node;
     }
+
     m_Nodes.clear();
 
     for (ISubRenderer* subRenderer : m_SubRenderers)
     {
         subRenderer->Shutdown();
+        delete subRenderer;
     }
 
     if (m_D3D)
@@ -102,36 +112,62 @@ bool D3D11Renderer::Frame()
 
 bool D3D11Renderer::PreFrame()
 {
-    mat4x4 viewMatrix;
-    g_Engine->GetCameraViewMatrix(viewMatrix);
+    return true;
+}
 
-    m_ViewMatrix = viewMatrix.ToD3DXMATRIX();
+bool D3D11Renderer::RenderReflection()
+{
+    D3DXMATRIX worldMatrix, reflectionViewMatrix, projectionMatrix;
+    
+    m_ReflectionTexture->SetRenderTarget(m_D3D->GetDeviceContext(), m_D3D->GetDepthStencilView());
+    m_ReflectionTexture->ClearRenderTarget(m_D3D->GetDeviceContext(), m_D3D->GetDepthStencilView(), 0.0f, 0.0f, 0.0f, 1.0f);
 
-    for (ISubRenderer* subRenderer : m_SubRenderers)
-        subRenderer->UpdateViewMatrix(viewMatrix);
+    mat4x4 reflectedViewMatrix = g_Engine->GetCamera()->ComputeReflectionMatrix(WATER_LEVEL);
+    m_D3D->GetProjectionMatrix(projectionMatrix);
+    f32 clipPlane[4] = { 0, 1, 0, -WATER_LEVEL };
+    //istoilov : we render everything before the water
+    for (u8 i = 0; i < SubRendererOrder::Water; i++)
+    {
+        if (m_SubRenderers[i]->IsEnabled())
+        {
+            m_SubRenderers[i]->UpdateViewMatrix(reflectedViewMatrix);
+            m_SubRenderers[i]->UpdateReflectionMatrix(reflectedViewMatrix);
+            m_SubRenderers[i]->SetClipPlane(vec4(0, 1, 0, -WATER_LEVEL));
+            m_SubRenderers[i]->Render(m_D3D);
+        }
+    }
+
+    m_D3D->SetBackBufferRenderTarget();
 
     return true;
 }
 
 bool D3D11Renderer::Render()
 {
-    // Clear the buffers to begin the scene.
+    RenderReflection();
+
     m_D3D->BeginScene(0.f, 0.f, 0.f, 0.f);
+
+    mat4x4 viewMatrix;
+    g_Engine->GetCameraViewMatrix(viewMatrix);
 
     for (ISubRenderer* subRenderer : m_SubRenderers)
     {
         if (subRenderer->IsEnabled())
         {
+            subRenderer->UpdateViewMatrix(viewMatrix);
+            subRenderer->SetClipPlane(vec4::Zero);
             subRenderer->Render(m_D3D);
         }
     }
 
     //TODO istoilov : Move code to a dedicated solid object sub renderer.
-    m_D3D->GetProjectionMatrix(m_ProjectionMatrix);
+    D3DXMATRIX projectionMatrix;
+    m_D3D->GetProjectionMatrix(projectionMatrix);
     for (GraphicsNode* node : m_Nodes)
     {
-        node->SetProjectionMatrix(mat4x4(m_ProjectionMatrix));
-        node->SetViewMatrix(m_ViewMatrix);
+        node->SetProjectionMatrix(mat4x4(projectionMatrix));
+        node->SetViewMatrix(viewMatrix);
         node->Render(m_D3D->GetDeviceContext());
     }
 
@@ -165,7 +201,7 @@ void D3D11Renderer::CleanInstance()
     }
 }
 
-void D3D11Renderer::CreateInstance(HWND hwnd, uint32_t screenWidth, uint32_t screenHeight)
+void D3D11Renderer::CreateInstance(HWND hwnd, u32 screenWidth, u32 screenHeight)
 {
     if (s_Instance == nullptr)
     {

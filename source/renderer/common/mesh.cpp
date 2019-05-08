@@ -3,7 +3,6 @@
 #include "renderer/common/mesh.h"
 
 #include "system/modelloader.h"
-#include "system/error.h"
 #include "system/profiling/profilemanager.h"
 #include "system/commandline/commandlineoptions.h"
 
@@ -516,57 +515,6 @@ void Mesh::PostDeserialize()
     }
 }
 
-struct VertexType
-{
-    DirectX::XMFLOAT4 position;
-    DirectX::XMFLOAT2 uv;
-
-    //TODO istoilov : Investigate a way shader classes to communicate the vertex data layour
-    //Reflection?
-    DirectX::XMFLOAT3 normal;
-    DirectX::XMFLOAT4 tangent;
-};
-
-bool Mesh::InitializeVertexBuffer(ID3D11Device* device)
-{
-    VertexType* vertices = new VertexType[m_Vertices.size()];
-    memset(vertices, 0, m_Vertices.size() * sizeof(VertexType));
-
-    for (uint32_t i = 0; i < m_Vertices.size(); i++)
-    {
-        float x = m_Vertices[i].m_Position.x;
-        float y = m_Vertices[i].m_Position.y;
-        float z = m_Vertices[i].m_Position.z;
-
-        vertices[i].position = DirectX::XMFLOAT4(x, y, z, 0.f);
-        vertices[i].uv = DirectX::XMFLOAT2(m_Vertices[i].m_UV.x, m_Vertices[i].m_UV.y);
-        vertices[i].normal = DirectX::XMFLOAT3(m_Vertices[i].m_Normal.x, m_Vertices[i].m_Normal.y, m_Vertices[i].m_Normal.z);
-        vertices[i].tangent = DirectX::XMFLOAT4(m_Vertices[i].m_Tangent.x, m_Vertices[i].m_Tangent.y, m_Vertices[i].m_Tangent.z, m_Vertices[i].m_Tangent.w);
-
-        //if(m_DrawNormals)
-        //    g_DebugDisplay->AddLine(m_Vertices[i].m_Position, m_Vertices[i].m_Position + m_Vertices[i].m_Normal, vec4(0.f, 1.f, 0.f, 1.f));
-    }
-
-    D3D11_BUFFER_DESC vertexBufferDesc;
-    vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    vertexBufferDesc.ByteWidth = sizeof(VertexType) * m_Vertices.size();
-    vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    vertexBufferDesc.CPUAccessFlags = 0;
-    vertexBufferDesc.MiscFlags = 0;
-    vertexBufferDesc.StructureByteStride = 0;
-
-    D3D11_SUBRESOURCE_DATA vertexData;
-    vertexData.pSysMem = vertices;
-    vertexData.SysMemPitch = 0;
-    vertexData.SysMemSlicePitch = 0;
-
-    HRESULT result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &m_VertexBuffer);
-    popAssert(!FAILED(result), "Terrain Vertex Buffer creation failed");
-
-    delete[] vertices;
-    return !FAILED(result);
-}
-
 bool Mesh::InitializeIndexBuffer(ID3D11Device* device)
 {
     uint32_t* indices = nullptr;
@@ -624,16 +572,9 @@ void Mesh::SetupBuffersForSolid(uint32_t*& indexes, uint32_t& outArrSize)
     }
 }
 
-bool Mesh::InitializeBuffers(ID3D11Device* device)
-{
-    popAssert(InitializeVertexBuffer(device), "");
-    popAssert(InitializeIndexBuffer(device), "");
-    return true;
-}
-
 void Mesh::Render(ID3D11DeviceContext* deviceContext)
 {
-    uint32_t stride = sizeof(VertexType);
+    uint32_t stride = m_SizeOfElement;
     uint32_t offset = 0;
 
     deviceContext->IASetVertexBuffers(0, 1, &m_VertexBuffer, &stride, &offset);

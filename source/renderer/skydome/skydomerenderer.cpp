@@ -28,7 +28,7 @@ bool SkydomeRenderer::Initialize(ID3D11Device* device, ID3D11DeviceContext* devi
     m_SkydomeMesh = new Mesh();
     constexpr bool BUILD_HALFEDGE_LIST = false;
     popAssert(m_SkydomeMesh->InitializeMeshFromObjFile(SKYDOME_OBJ_PATH, BUILD_HALFEDGE_LIST), "");
-    popAssert(m_SkydomeMesh->InitializeBuffers(device),"");
+    popAssert(m_SkydomeMesh->InitializeBuffers<VertexTypePos>(device),"");
 
     return true;
 }
@@ -38,7 +38,9 @@ bool SkydomeRenderer::Render(D3D11* d3d)
     d3d->TurnDepthTestOff();
 
     const Camera* camera = g_Engine->GetCamera();
-    vec4 cameraPos = camera->GetPosition();
+    DirectX::XMMATRIX inverseView = m_ViewMatrix.ToXMMATRIX();
+    inverseView = DirectX::XMMatrixInverse(nullptr, inverseView);
+    vec4 cameraPos = inverseView.r[3];
     
     m_SkydomeMesh->Render(d3d->GetDeviceContext());
 

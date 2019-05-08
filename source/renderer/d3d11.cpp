@@ -635,3 +635,8 @@ void D3D11::TurnAlphaBlendingOff()
     // Turn off the alpha blending.
     m_DeviceContext->OMSetBlendState(m_AlphaBlendingStateDisable, blendFactor, 0xffffffff);
 }
+
+void D3D11::SetBackBufferRenderTarget()
+{
+    m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView);
+}

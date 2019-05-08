@@ -4,8 +4,10 @@
 
 struct TextureShaderParams : public ShaderParamsBase
 {
-    Array<SharedPtr<Texture>> m_PSTextures;
-    Array<SharedPtr<Texture>> m_VSTextures;
+    using TextureIndexPair = std::pair<SharedPtr<Texture>, u32>;
+
+    Array<TextureIndexPair> m_PSTextures;
+    Array<TextureIndexPair> m_VSTextures;
 
     static Array<ID3D11ShaderResourceView*> GetShaderResourceViewArray(const Array<SharedPtr<Texture>>& textures)
     {
@@ -26,6 +28,7 @@ protected:
 
     virtual bool InitializeInternal(ID3D11Device* device) override;
     virtual bool SetShaderParametersInternal(ID3D11DeviceContext* deviceContext, const ShaderParamsBase& shaderParams) override;
+    virtual void UnSetShaderParametersInternal(ID3D11DeviceContext* deviceContext, const ShaderParamsBase& shaderParams) override;
 
     virtual void AddPolygonLayout(Array<D3D11_INPUT_ELEMENT_DESC>& polygonLayoutsToAdd) override;
     virtual void ShutdownInternal() override;

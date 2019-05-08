@@ -12,6 +12,7 @@ bool BaseShader::Initialize(ID3D11Device* device)
 
     InitializeLayout(device, shaderBlobs.first, shaderBlobs.second);
     InitializeMatrixBuffer(device);
+    InitializeClipPlaneBuffer(device);
 
     bool result = InitializeInternal(device);
 
@@ -88,6 +89,20 @@ void BaseShader::InitializeMatrixBuffer(ID3D11Device* device)
     popAssert(!FAILED(result), "ColorShader::InitializeShader::CreateBuffer failed");
 }
 
+void BaseShader::InitializeClipPlaneBuffer(ID3D11Device* device)
+{
+    D3D11_BUFFER_DESC clipBufferDesc;
+    clipBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+    clipBufferDesc.ByteWidth = sizeof(ClipPlaneBufferType);
+    clipBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    clipBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    clipBufferDesc.MiscFlags = 0;
+    clipBufferDesc.StructureByteStride = 0;
+
+    HRESULT result = device->CreateBuffer(&clipBufferDesc, nullptr, &m_ClipPlaneBuffer);
+    popAssert(!FAILED(result), "ColorShader::InitializeShader::CreateBuffer failed");
+}
+
 void BaseShader::InitializeLayout(ID3D11Device* device, const UniquePtr<ID3D10Blob>& vsBlob, const UniquePtr<ID3D10Blob>& psBlob)
 {
     Array<D3D11_INPUT_ELEMENT_DESC> polygonLayouts;
@@ -102,12 +117,19 @@ void BaseShader::Render(ID3D11DeviceContext* deviceContext, uint32_t indexCount,
 {
     SetShaderParameters(deviceContext, shaderParams);
     RenderShader(deviceContext, indexCount);
+    UnSetShaderParameters(deviceContext, shaderParams);
 }
 
 void BaseShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, const ShaderParamsBase& shaderParams)
 {
     SetMatrixBuffer(deviceContext, shaderParams);
+    SetClipPlaneBuffer(deviceContext, shaderParams);
     SetShaderParametersInternal(deviceContext, shaderParams);
+}
+
+void BaseShader::UnSetShaderParameters(ID3D11DeviceContext* deviceContext, const ShaderParamsBase& shaderParams)
+{
+    UnSetShaderParametersInternal(deviceContext, shaderParams);
 }
 
 void BaseShader::SetMatrixBuffer(ID3D11DeviceContext* deviceContext, const ShaderParamsBase& shaderParams)
@@ -125,6 +147,21 @@ void BaseShader::SetMatrixBuffer(ID3D11DeviceContext* deviceContext, const Shade
 
     uint32_t bufferNumber = 0;
     deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_MatrixBuffer);
+}
+
+void BaseShader::SetClipPlaneBuffer(ID3D11DeviceContext* deviceContext, const ShaderParamsBase& shaderParams)
+{
+    D3D11_MAPPED_SUBRESOURCE mappedResource;
+    HRESULT result = deviceContext->Map(m_ClipPlaneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    popAssert(!FAILED(result), "BaseShader failed to set matrix buffer");
+
+    ClipPlaneBufferType* dataPtr = reinterpret_cast<ClipPlaneBufferType*>(mappedResource.pData);
+    dataPtr->clipPlane = shaderParams.m_ClipPlane;
+    
+    deviceContext->Unmap(m_ClipPlaneBuffer, 0);
+
+    uint32_t bufferNumber = 1;
+    deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_ClipPlaneBuffer);
 }
 
 void BaseShader::RenderShader(ID3D11DeviceContext* deviceContext, uint32_t indexCount)

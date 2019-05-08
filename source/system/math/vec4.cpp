@@ -1,8 +1,8 @@
+#include "precompile.h"
 #include "system/math/vec4.h"
 #include "system/math/mat4x4.h"
 
 #include <math.h>
-#include <string.h>
 
 #include <d3d11.h>
 #include <d3dx10math.h>
@@ -40,9 +40,22 @@ vec4::vec4(std::array<float, 3>& value)
     _data[3] = 0;
 }
 
+vec4::vec4(const DirectX::XMVECTOR& value)
+{
+    this->operator=(value);
+}
+
 void vec4::operator= (const vec4& rhs)
 {
    memcpy(_data, rhs._data, sizeof(rhs._data));
+}
+
+void vec4::operator=(const DirectX::XMVECTOR& value)
+{
+    _data[0] = value.m128_f32[0];
+    _data[1] = value.m128_f32[1];
+    _data[2] = value.m128_f32[2];
+    _data[3] = value.m128_f32[3];
 }
 
 bool vec4::operator==(const vec4& rhs) const

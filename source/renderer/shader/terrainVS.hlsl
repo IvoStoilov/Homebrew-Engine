@@ -1,9 +1,14 @@
-cbuffer MatrixBuffer
+cbuffer MatrixBuffer : register(b0)
 {
     matrix worldMatrix;
     matrix viewMatrix;
     matrix projectionMatrix;
 };
+
+cbuffer ClipBuffer : register(b1)
+{
+    float4 clipPlane;
+}
 
 Texture2D heightMap : register (t0);
 SamplerState sampleType;
@@ -23,6 +28,8 @@ struct PixelInputType
     float2 m_UV             : TEXCOORD0;
     float3 m_VertexNormal   : NORMAL;
     float4 m_Tangent        : TANGENT;
+
+    float m_Clip : SV_ClipDistance0;
 };
 
 PixelInputType main(VertexInputType input)
@@ -47,6 +54,8 @@ PixelInputType main(VertexInputType input)
 
     output.m_Tangent.xyz = mul(input.m_Tangent.xyz, (float3x3)worldMatrix);
     output.m_Tangent.xyz = normalize(output.m_Tangent.xyz);
+
+    output.m_Clip = dot(output.m_GlobalPosition, clipPlane);
 
     return output;
 }

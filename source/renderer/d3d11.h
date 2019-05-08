@@ -29,8 +29,11 @@ public:
     void TurnAlphaBlendingOn();
     void TurnAlphaBlendingOff();
 
+    void SetBackBufferRenderTarget();
+
     inline ID3D11Device* GetDevice() { return m_Device; }
     inline ID3D11DeviceContext* GetDeviceContext() { return m_DeviceContext; }
+    inline ID3D11DepthStencilView* GetDepthStencilView() { return m_DepthStencilView; }
 
     inline void GetProjectionMatrix(D3DXMATRIX& mat) { mat = m_ProjectionMatrix_DEPRECATED; }
     inline DirectX::XMMATRIX GetProjectionMatrix() const { return m_ProjectionMatrix; }

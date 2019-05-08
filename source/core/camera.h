@@ -13,6 +13,8 @@ public:
 
     inline float GetMoveSpeed() const { return m_MoveSpeed; }
 
+    DirectX::XMMATRIX ComputeReflectionMatrix(f32 planeHeight) const;
+
     vec4 GetPosition() const;
     vec4 GetRotation() const;
 
@@ -27,6 +29,6 @@ private:
     float m_positionX, m_positionY, m_positionZ;
     float m_rotationX, m_rotationY, m_rotationZ;
     mat4x4 m_ViewMatrix;
-
+    
     float m_MoveSpeed;
 };

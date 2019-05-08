@@ -1,6 +1,5 @@
 #pragma once
-#include <vector>
-#include <d3dx10math.h>
+#include "renderer/common/rendertexture.h"
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = false;
@@ -12,15 +11,17 @@ class GraphicsNode;
 class VisualComponent;
 class ISubRenderer;
 class DebugDisplayRenderer;
+class RenderTexture;
 class D3D11Renderer
 {
 private:
     enum SubRendererOrder
     {
-        Skydome = 0,
-        Terrain = 1,
-        Text = 2,
-        DebugDisplay = 3,
+        Skydome      = 0,
+        Terrain      = 1,
+        Water        = 2,
+        Text         = 3,
+        DebugDisplay = 4,
 
         COUNT,
         Invalid
@@ -30,14 +31,14 @@ private:
     D3D11Renderer();
     ~D3D11Renderer();
 
-    bool Initialize(HWND hwnd, uint32_t screenWidth, uint32_t screenHeight);
+    bool Initialize(HWND hwnd, u32 screenWidth, u32 screenHeight);
     void Shutdown();
 
 public:
     DebugDisplayRenderer* GetDebugDisplayRenderer() const;
 
     static D3D11Renderer* GetInstance();
-    static void CreateInstance(HWND hwnd, uint32_t screenWidth, uint32_t screenHeight);
+    static void CreateInstance(HWND hwnd, u32 screenWidth, u32 screenHeight);
     static void CleanInstance();
 
 public:
@@ -50,17 +51,18 @@ public:
     bool PreFrame();
     bool Frame();
 
+    inline const SharedPtr<RenderTexture>& GetReflectionTexture() const { return m_ReflectionTexture; }
+    inline SharedPtr<RenderTexture>& GetReflectionTexture() { return m_ReflectionTexture; }
+
 private:
     bool Render();
-
+    bool RenderReflection();
 private:
     D3D11* m_D3D;
 
-    std::vector<GraphicsNode*> m_Nodes;
-    std::vector<ISubRenderer*> m_SubRenderers;
-  
-    D3DXMATRIX m_ViewMatrix;
-    D3DXMATRIX m_ProjectionMatrix;
+    Array<GraphicsNode*> m_Nodes;
+    Array<ISubRenderer*> m_SubRenderers;
+    SharedPtr<RenderTexture> m_ReflectionTexture;
 };
 
 #define g_DebugDisplay D3D11Renderer::GetInstance()->GetDebugDisplayRenderer()

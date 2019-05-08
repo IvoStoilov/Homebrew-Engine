@@ -1,6 +1,8 @@
-#include "camera.h"
+#include "precompile.h"
+#include "core/camera.h"
 
 #include "system/inputmanager.h"
+#include "system/math/mathutil.h"
 
 #include <d3d11.h>
 #include <d3dx10math.h>
@@ -53,6 +55,31 @@ vec4 Camera::GetRotation() const
 vec4 Camera::GetUpAxis() const
 {
     return vec4((m_ViewMatrix[0][1]), (m_ViewMatrix[1][1]), (m_ViewMatrix[2][1]), 0.f);
+}
+
+DirectX::XMMATRIX Camera::ComputeReflectionMatrix(f32 planeHeight) const
+{
+    DirectX::XMVECTOR up = DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f);
+    f32 distance = 2.f * (m_positionY - planeHeight);
+    f32 cameraPosX = m_positionX;
+    f32 cameraPosY = m_positionY - distance;
+    f32 cameraPosZ = m_positionZ;
+    DirectX::XMVECTOR cameraPosition = DirectX::XMVectorSet(cameraPosX, cameraPosY, cameraPosZ, 1.f);
+    
+    // Set the yaw (Y axis), pitch (X axis), and roll (Z axis) rotations in radians.
+    f32 pitch = -1.f * MathUtil::ToRads(m_rotationX);
+    f32 yaw   =        MathUtil::ToRads(m_rotationY);
+    f32 roll  =        MathUtil::ToRads(m_rotationZ);
+
+    DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(pitch, yaw, roll);
+
+    DirectX::XMVECTOR lookAt = DirectX::XMVectorSet(0.f, 0.f, 1.f, 0.f);
+    lookAt = DirectX::XMVector3TransformCoord(lookAt, rotationMatrix);
+    up = DirectX::XMVector3TransformCoord(up, rotationMatrix);
+
+    lookAt = DirectX::XMVectorAdd(lookAt, cameraPosition);
+
+    return DirectX::XMMatrixLookAtLH(cameraPosition, lookAt, up);
 }
 
 void Camera::UpdateMovement()

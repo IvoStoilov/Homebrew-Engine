@@ -79,20 +79,40 @@ bool TextureShader::SetShaderParametersInternal(ID3D11DeviceContext* deviceConte
         return false;
     }
 
-    Array<ID3D11ShaderResourceView*> VSResourceViewArray = TextureShaderParams::GetShaderResourceViewArray(textureShaderParams->m_VSTextures);
-    for (u16 i = 0; i < VSResourceViewArray.size(); ++i)
+    for (const TextureShaderParams::TextureIndexPair& pair : textureShaderParams->m_VSTextures)
     {
-        deviceContext->VSSetShaderResources(i, 1, &(VSResourceViewArray[i]));
+        ID3D11ShaderResourceView* textureToPush = pair.first->GetTexture();
+        deviceContext->VSSetShaderResources(pair.second, 1, &textureToPush);
     }
 
-    Array<ID3D11ShaderResourceView*> PSResourceViewArray = TextureShaderParams::GetShaderResourceViewArray(textureShaderParams->m_PSTextures);
-    for (u16 i = 0; i < PSResourceViewArray.size(); ++i)
+    for (const TextureShaderParams::TextureIndexPair& pair : textureShaderParams->m_PSTextures)
     {
-        deviceContext->PSSetShaderResources(i, 1, &(PSResourceViewArray[i]));
+        ID3D11ShaderResourceView* textureToPush = pair.first->GetTexture();
+        deviceContext->PSSetShaderResources(pair.second, 1, &textureToPush);
     }
 
     deviceContext->VSSetSamplers(0, 1, &m_VSSampleState);
     deviceContext->PSSetSamplers(0, 1, &m_PSSampleState);
 
     return true;
+}
+
+void TextureShader::UnSetShaderParametersInternal(ID3D11DeviceContext* deviceContext, const ShaderParamsBase& shaderParams)
+{
+    /*const TextureShaderParams* textureShaderParams = shaderParams.GetAs<TextureShaderParams>();
+    if (!textureShaderParams)
+    {
+        popAssert(false, "Did not pass TextureShaderParams to skydome shader");
+        return;
+    }
+    ID3D11ShaderResourceView* clear = nullptr;
+    for (u16 i = 0; i < textureShaderParams->m_VSTextures.size(); ++i)
+    {
+        deviceContext->VSSetShaderResources(i, 1, &clear);
+    }
+
+    for (u16 i = 0; i < textureShaderParams->m_PSTextures.size(); ++i)
+    {
+        deviceContext->PSSetShaderResources(i, 1, &clear);
+    }*/
 }

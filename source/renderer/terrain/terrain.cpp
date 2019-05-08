@@ -33,7 +33,7 @@ bool Terrain::Initialize(ID3D11Device* device)
     if (!InitializeTerrainMesh())
         return false;
 
-    if (!m_Mesh->InitializeBuffers(device))
+    if (!m_Mesh->InitializeBuffers<VertexTypePosUVNormTan>(device))
         return false;
 
     return true;

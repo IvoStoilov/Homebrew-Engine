@@ -1,5 +1,6 @@
+#include "precompile.h"
 #include "system/math/mat4x4.h"
-#include <string.h>
+
 #include <algorithm>
 #include <xmmintrin.h>
 
@@ -39,10 +40,18 @@ mat4x4::mat4x4(const vec4& i, const vec4& j, const vec4& k, const vec4& w)
     _data[3] = w;
 }
 
-////vec4& mat4x4::operator[](const uint32_t row)
-////{
-////	return _data[row];
-////}
+mat4x4::mat4x4(const DirectX::XMMATRIX& value)
+{
+    this->operator=(value);
+}
+
+void mat4x4::operator=(const DirectX::XMMATRIX& value)
+{
+    _data[0] = value.r[0];
+    _data[1] = value.r[1];
+    _data[2] = value.r[2];
+    _data[3] = value.r[3];
+}
 
 const vec4 mat4x4::operator[](const uint32_t row) const
 {

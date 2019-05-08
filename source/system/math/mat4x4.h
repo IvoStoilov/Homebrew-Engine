@@ -20,7 +20,12 @@ public:
     mat4x4(const vec4& rowI, const vec4& rowJ, const vec4& rowK, const vec4& rowW);
     mat4x4(const mat4x4& value);
     mat4x4(const D3DXMATRIX& value);
+    mat4x4(const DirectX::XMMATRIX& value);
 
+    void operator=(const mat4x4& value);
+    void operator=(const D3DXMATRIX& value);
+    void operator=(const DirectX::XMMATRIX& value);
+    
     inline void SetRowI(const vec4& v) { _data[0] = v; }
     inline void SetRowJ(const vec4& v) { _data[1] = v; }
     inline void SetRowK(const vec4& v) { _data[2] = v; }
@@ -31,12 +36,11 @@ public:
     inline vec4 GetRowK() const { return _data[2]; };
     inline vec4 GetRowW() const { return _data[3]; };
 
-    void operator=(const mat4x4& value);
-    void operator=(const D3DXMATRIX& value);
-
     inline const vec4 operator[] (const uint32_t row) const;
-    //inline vec4& operator[] (const uint32_t row);
 
+    inline vec4 GetTranslate() const { return _data[3]; }
+    inline void SetTranslate(const vec4& translate) { _data[3] = translate; }
+    
     mat4x4 GetTranspose() const;
     static void Tranpose(mat4x4& mat);
 
@@ -102,8 +106,7 @@ public:
     Transform(const mat4x4& value);
 
     inline void SetTranslate(const vec4& translate) { _data[3] = translate; }
-    inline vec4 GetTranslate() const { return _data[3]; }
-
+    
     mat4x4 GetRotation() const;
     void SetRotation(const mat4x4& rotation);
 
