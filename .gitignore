@@ -19,6 +19,7 @@
 .vs
 bin/Debug
 bin/Release
+resource
 temp
 extern/DirectXTK/Bin
 ipch
