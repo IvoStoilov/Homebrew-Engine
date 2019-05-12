@@ -21,6 +21,7 @@ struct ShaderParamsBase
     DirectX::XMMATRIX m_View;
     DirectX::XMMATRIX m_Projection;
 
+    bool m_IsClipPlaneEnable = false;
     DirectX::XMVECTOR m_ClipPlane;
 
     template<class T>

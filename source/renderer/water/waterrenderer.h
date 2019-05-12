@@ -16,7 +16,12 @@ public:
     virtual void Shutdown()                                                             override;
 
 private:
+    void UpdateMoveFactor(f32 dt);
+
     UniquePtr<Mesh> m_Mesh;
     UniquePtr<ReflectionShader> m_ReflectionShader;
-    f32 m_WaterLevel;
+    SharedPtr<Texture> m_DuDvTexture;
+    SharedPtr<Texture> m_NormalMap;
+    f32 m_WaterLevel = 0.f;
+    f32 m_MoveFactor = 0.f;
 };

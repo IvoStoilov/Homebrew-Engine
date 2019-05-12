@@ -49,20 +49,30 @@ public:
     void UnregisterDrawable(VisualComponent* visComponent);
     
     bool PreFrame();
-    bool Frame();
+    bool Frame(f32 dt);
 
     inline const SharedPtr<RenderTexture>& GetReflectionTexture() const { return m_ReflectionTexture; }
     inline SharedPtr<RenderTexture>& GetReflectionTexture() { return m_ReflectionTexture; }
 
+    inline const SharedPtr<RenderTexture>& GetRefractionTexture() const { return m_RefractionTexture; }
+    inline SharedPtr<RenderTexture>& GetRefractionTexture() { return m_RefractionTexture; }
+
+    inline const f32 GetDT() const { return m_DT; }
+
 private:
     bool Render();
     bool RenderReflection();
+    bool RenderRefractionTexture();
 private:
+    //Do we really need DT in the Render Engine?
+    f32 m_DT;
+
     D3D11* m_D3D;
 
     Array<GraphicsNode*> m_Nodes;
     Array<ISubRenderer*> m_SubRenderers;
     SharedPtr<RenderTexture> m_ReflectionTexture;
+    SharedPtr<RenderTexture> m_RefractionTexture;
 };
 
 #define g_DebugDisplay D3D11Renderer::GetInstance()->GetDebugDisplayRenderer()

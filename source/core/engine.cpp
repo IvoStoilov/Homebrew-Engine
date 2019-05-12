@@ -91,7 +91,7 @@ void Engine::Update()
 
     
     g_RenderEngine->PreFrame();
-    g_RenderEngine->Frame();
+    g_RenderEngine->Frame(dt);
 
     float delta = m_WorldClock.GetDeltaTime();
     while (delta < 16.6666)

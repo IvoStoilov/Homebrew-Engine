@@ -7,9 +7,16 @@ struct ReflectionBufferType
     DirectX::XMMATRIX m_ProjectionMatrix;
 };
 
+struct DeltaTimeBufferType
+{
+    f32 m_MoveFactor;
+    f32 padding[3];
+};
+
 struct ReflectionShaderParams : public TextureShaderParams
 {
     DirectX::XMMATRIX m_ReflectionMatrix;
+    f32 m_MoveFactor;
 };
 
 class ReflectionShader : public TextureShader
@@ -24,5 +31,9 @@ protected:
 
     virtual void ShutdownInternal() override;
 private:
+    void UpdateMoveFactor(f32 dt);
+
+    f32 m_MoveFactor = 0.f;
     ID3D11Buffer* m_ReflectionMatrixBuffer = nullptr;
+    ID3D11Buffer* m_DeltaTImeBuffer = nullptr;
 };

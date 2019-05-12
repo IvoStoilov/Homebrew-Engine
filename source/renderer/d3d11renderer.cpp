@@ -38,6 +38,9 @@ bool D3D11Renderer::Initialize(HWND hwnd, u32 screenWidth, u32 screenHeight)
     m_ReflectionTexture = std::make_shared<RenderTexture>();
     m_ReflectionTexture->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight);
 
+    m_RefractionTexture = std::make_shared<RenderTexture>();
+    m_RefractionTexture->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight);
+
     m_SubRenderers.resize(SubRendererOrder::COUNT);
 
     ISubRenderer* skydomeRenderer = new SkydomeRenderer();
@@ -105,8 +108,9 @@ void D3D11Renderer::UnregisterDrawable(VisualComponent* visComponents)
 
 }
 
-bool D3D11Renderer::Frame()
+bool D3D11Renderer::Frame(f32 dt)
 {
+    m_DT = dt;
     return Render();
 }
 
@@ -132,8 +136,9 @@ bool D3D11Renderer::RenderReflection()
         {
             m_SubRenderers[i]->UpdateViewMatrix(reflectedViewMatrix);
             m_SubRenderers[i]->UpdateReflectionMatrix(reflectedViewMatrix);
-            m_SubRenderers[i]->SetClipPlane(vec4(0, 1, 0, -WATER_LEVEL));
+            m_SubRenderers[i]->SetClipPlane(vec4(0, 1.f, 0, -WATER_LEVEL));
             m_SubRenderers[i]->Render(m_D3D);
+            m_SubRenderers[i]->SetClipPlane(vec4::Zero);
         }
     }
 
@@ -142,21 +147,45 @@ bool D3D11Renderer::RenderReflection()
     return true;
 }
 
+bool D3D11Renderer::RenderRefractionTexture()
+{
+    m_RefractionTexture->SetRenderTarget(m_D3D->GetDeviceContext(), m_D3D->GetDepthStencilView());
+    m_RefractionTexture->ClearRenderTarget(m_D3D->GetDeviceContext(), m_D3D->GetDepthStencilView(), 0.f, 0.f, 0.f, 1.f );
+
+
+    mat4x4 viewMatrix;
+    g_Engine->GetCameraViewMatrix(viewMatrix);
+
+    ISubRenderer* terrainRenderer = m_SubRenderers[SubRendererOrder::Terrain];
+    terrainRenderer->UpdateViewMatrix(viewMatrix);
+    terrainRenderer->SetClipPlane(vec4(0, -1.f, 0, WATER_LEVEL));
+    terrainRenderer->Render(m_D3D);
+
+    m_D3D->SetBackBufferRenderTarget();
+    return true;
+}
+
 bool D3D11Renderer::Render()
 {
     RenderReflection();
+    RenderRefractionTexture();
 
     m_D3D->BeginScene(0.f, 0.f, 0.f, 0.f);
 
     mat4x4 viewMatrix;
     g_Engine->GetCameraViewMatrix(viewMatrix);
 
+    {
+        //istoilov : minor optimization on the rendering, because we are already drawing this on the refraction texture.
+        ISubRenderer* terrainRenderer = m_SubRenderers[SubRendererOrder::Terrain];
+        terrainRenderer->SetClipPlane(vec4(0, 1.f, 0, -WATER_LEVEL));
+    }
+
     for (ISubRenderer* subRenderer : m_SubRenderers)
     {
         if (subRenderer->IsEnabled())
         {
             subRenderer->UpdateViewMatrix(viewMatrix);
-            subRenderer->SetClipPlane(vec4::Zero);
             subRenderer->Render(m_D3D);
         }
     }

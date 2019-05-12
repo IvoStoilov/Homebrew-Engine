@@ -154,12 +154,12 @@ void BaseShader::SetClipPlaneBuffer(ID3D11DeviceContext* deviceContext, const Sh
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     HRESULT result = deviceContext->Map(m_ClipPlaneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
     popAssert(!FAILED(result), "BaseShader failed to set matrix buffer");
-
+    
     ClipPlaneBufferType* dataPtr = reinterpret_cast<ClipPlaneBufferType*>(mappedResource.pData);
     dataPtr->clipPlane = shaderParams.m_ClipPlane;
     
     deviceContext->Unmap(m_ClipPlaneBuffer, 0);
-
+    
     uint32_t bufferNumber = 1;
     deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_ClipPlaneBuffer);
 }

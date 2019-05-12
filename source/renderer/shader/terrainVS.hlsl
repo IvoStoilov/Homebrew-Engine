@@ -54,6 +54,7 @@ PixelInputType main(VertexInputType input)
 
     output.m_Tangent.xyz = mul(input.m_Tangent.xyz, (float3x3)worldMatrix);
     output.m_Tangent.xyz = normalize(output.m_Tangent.xyz);
+    output.m_Tangent.w = 1.f;
 
     output.m_Clip = dot(output.m_GlobalPosition, clipPlane);
 

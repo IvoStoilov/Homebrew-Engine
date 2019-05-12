@@ -20,8 +20,10 @@ struct VertexInputType
 struct PixelInputType
 {
     float4 position : SV_POSITION;
+    float3 globalPosition : POSITION0;
     float2 tex : TEXCOORD0;
     float4 reflectionPosition : TEXCOORD1;
+    float4 refractionPosition : TEXCOORD2;
 };
 
 PixelInputType main(VertexInputType input)
@@ -31,6 +33,7 @@ PixelInputType main(VertexInputType input)
     input.position.w = 1.0f;
 
     output.position = mul(input.position, worldMatrix);
+    output.globalPosition = output.position;
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
 
@@ -44,6 +47,13 @@ PixelInputType main(VertexInputType input)
 
     // Calculate the input position against the reflectProjectWorld matrix.
     output.reflectionPosition = mul(input.position, reflectProjectWorld);
+
+    matrix viewProjectWorld;
+    viewProjectWorld = mul(viewMatrix, projectionMatrix);
+    viewProjectWorld = mul(worldMatrix, viewProjectWorld);
+
+    // Calculate the input position against the reflectProjectWorld matrix.
+    output.refractionPosition = mul(input.position, viewProjectWorld);
     
     return output;
 }
