@@ -42,7 +42,7 @@
     <ClInclude Include="Src\Bezier.h" />
     <ClInclude Include="Src\BinaryReader.h" />
     <ClInclude Include="Src\ConstantBuffer.h" />
-    <ClInclude Include="Src\dds.h" />
+    <ClInclude Include="Src\DDS.h" />
     <ClInclude Include="Src\DemandCreate.h" />
     <ClInclude Include="Src\EffectCommon.h" />
     <ClInclude Include="Src\Geometry.h" />
@@ -68,6 +68,7 @@
     <ClCompile Include="Src\BinaryReader.cpp" />
     <ClCompile Include="Src\CommonStates.cpp" />
     <ClCompile Include="Src\DDSTextureLoader.cpp" />
+    <ClCompile Include="Src\DebugEffect.cpp" />
     <ClCompile Include="Src\DGSLEffect.cpp" />
     <ClCompile Include="Src\DGSLEffectFactory.cpp" />
     <ClCompile Include="Src\DualPostProcess.cpp" />
@@ -87,6 +88,7 @@
     <ClCompile Include="Src\Mouse.cpp" />
     <ClCompile Include="Src\NormalMapEffect.cpp" />
     <ClCompile Include="Src\PBREffect.cpp" />
+    <ClCompile Include="Src\PBREffectFactory.cpp" />
     <ClCompile Include="Src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Durango'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Durango'">Create</PrecompiledHeader>
@@ -206,6 +208,22 @@
     <None Include="Src\Shaders\Compiled\XboxOneBasicEffect_VSBasicVertexLightingVc.pdb" />
     <None Include="Src\Shaders\Compiled\XboxOneBasicEffect_VSBasicVertexLightingVcBn.inc" />
     <None Include="Src\Shaders\Compiled\XboxOneBasicEffect_VSBasicVertexLightingVcBn.pdb" />
+    <None Include="Src\Shaders\Compiled\XboxOneDebugEffect_PSHemiAmbient.inc" />
+    <None Include="Src\Shaders\Compiled\XboxOneDebugEffect_PSHemiAmbient.pdb" />
+    <None Include="Src\Shaders\Compiled\XboxOneDebugEffect_PSRGBBiTangents.inc" />
+    <None Include="Src\Shaders\Compiled\XboxOneDebugEffect_PSRGBBiTangents.pdb" />
+    <None Include="Src\Shaders\Compiled\XboxOneDebugEffect_PSRGBNormals.inc" />
+    <None Include="Src\Shaders\Compiled\XboxOneDebugEffect_PSRGBNormals.pdb" />
+    <None Include="Src\Shaders\Compiled\XboxOneDebugEffect_PSRGBTangents.inc" />
+    <None Include="Src\Shaders\Compiled\XboxOneDebugEffect_PSRGBTangents.pdb" />
+    <None Include="Src\Shaders\Compiled\XboxOneDebugEffect_VSDebug.inc" />
+    <None Include="Src\Shaders\Compiled\XboxOneDebugEffect_VSDebug.pdb" />
+    <None Include="Src\Shaders\Compiled\XboxOneDebugEffect_VSDebugBn.inc" />
+    <None Include="Src\Shaders\Compiled\XboxOneDebugEffect_VSDebugBn.pdb" />
+    <None Include="Src\Shaders\Compiled\XboxOneDebugEffect_VSDebugVc.inc" />
+    <None Include="Src\Shaders\Compiled\XboxOneDebugEffect_VSDebugVc.pdb" />
+    <None Include="Src\Shaders\Compiled\XboxOneDebugEffect_VSDebugVcBn.inc" />
+    <None Include="Src\Shaders\Compiled\XboxOneDebugEffect_VSDebugVcBn.pdb" />
     <None Include="Src\Shaders\Compiled\XboxOneDGSLEffect_main.inc" />
     <None Include="Src\Shaders\Compiled\XboxOneDGSLEffect_main.pdb" />
     <None Include="Src\Shaders\Compiled\XboxOneDGSLEffect_main1Bones.inc" />
@@ -431,6 +449,7 @@
     <None Include="Src\Shaders\CompileShaders.cmd" />
     <None Include="Src\Shaders\Lighting.fxh" />
     <None Include="Src\Shaders\PBRCommon.fxh" />
+    <None Include="Src\Shaders\PixelPacking_Velocity.hlsli" />
     <None Include="Src\Shaders\Structures.fxh" />
     <None Include="Src\Shaders\Utilities.fxh" />
     <None Include="Src\TeapotData.inc" />
@@ -485,6 +504,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Src\Shaders\PBREffect.fx">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Src\Shaders\DebugEffect.fx">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>
@@ -581,7 +605,8 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalUsingDirectories>$(Console_SdkPackagesRoot);$(Console_SdkWindowsMetadataPath);%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <AdditionalUsingDirectories />
+      <ForcedUsingFiles />
       <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>NDEBUG;__WRL_NO_DEFAULT_LIB__;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>EnableAllWarnings</WarningLevel>
@@ -606,7 +631,8 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalUsingDirectories>$(Console_SdkPackagesRoot);$(Console_SdkWindowsMetadataPath);%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <AdditionalUsingDirectories />
+      <ForcedUsingFiles />
       <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>NDEBUG;__WRL_NO_DEFAULT_LIB__;_LIB;PROFILE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>EnableAllWarnings</WarningLevel>
@@ -628,7 +654,8 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <MinimalRebuild>false</MinimalRebuild>
-      <AdditionalUsingDirectories>$(Console_SdkPackagesRoot);$(Console_SdkWindowsMetadataPath);%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <AdditionalUsingDirectories />
+      <ForcedUsingFiles />
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;__WRL_NO_DEFAULT_LIB__;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>

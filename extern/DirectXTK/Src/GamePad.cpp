@@ -1,14 +1,11 @@
 //--------------------------------------------------------------------------------------
 // File: GamePad.cpp
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkId=248929
+// http://go.microsoft.com/fwlink/?LinkID=615561
 //--------------------------------------------------------------------------------------
 
 #include "pch.h"
@@ -22,6 +19,8 @@ using Microsoft::WRL::ComPtr;
 
 namespace
 {
+    const float c_XboxOneThumbDeadZone = .24f;  // Recommended Xbox One controller deadzone
+
     float ApplyLinearDeadZone(float value, float maxValue, float deadZoneSize)
     {
         if (value < -deadZoneSize)
@@ -46,31 +45,31 @@ namespace
     }
 
     void ApplyStickDeadZone(float x, float y, GamePad::DeadZone deadZoneMode, float maxValue, float deadZoneSize,
-        _Out_ float& resultX, _Out_ float& resultY)
+                            _Out_ float& resultX, _Out_ float& resultY)
     {
         switch (deadZoneMode)
         {
-        case GamePad::DEAD_ZONE_INDEPENDENT_AXES:
-            resultX = ApplyLinearDeadZone(x, maxValue, deadZoneSize);
-            resultY = ApplyLinearDeadZone(y, maxValue, deadZoneSize);
+            case GamePad::DEAD_ZONE_INDEPENDENT_AXES:
+                resultX = ApplyLinearDeadZone(x, maxValue, deadZoneSize);
+                resultY = ApplyLinearDeadZone(y, maxValue, deadZoneSize);
+                break;
+
+            case GamePad::DEAD_ZONE_CIRCULAR:
+            {
+                float dist = sqrtf(x*x + y * y);
+                float wanted = ApplyLinearDeadZone(dist, maxValue, deadZoneSize);
+
+                float scale = (wanted > 0.f) ? (wanted / dist) : 0.f;
+
+                resultX = std::max(-1.f, std::min(x * scale, 1.f));
+                resultY = std::max(-1.f, std::min(y * scale, 1.f));
+            }
             break;
 
-        case GamePad::DEAD_ZONE_CIRCULAR:
-        {
-            float dist = sqrtf(x*x + y*y);
-            float wanted = ApplyLinearDeadZone(dist, maxValue, deadZoneSize);
-
-            float scale = (wanted > 0.f) ? (wanted / dist) : 0.f;
-
-            resultX = std::max(-1.f, std::min(x * scale, 1.f));
-            resultY = std::max(-1.f, std::min(y * scale, 1.f));
-        }
-        break;
-
-        default: // GamePad::DEAD_ZONE_NONE
-            resultX = ApplyLinearDeadZone(x, maxValue, 0);
-            resultY = ApplyLinearDeadZone(y, maxValue, 0);
-            break;
+            default: // GamePad::DEAD_ZONE_NONE
+                resultX = ApplyLinearDeadZone(x, maxValue, 0);
+                resultY = ApplyLinearDeadZone(y, maxValue, 0);
+                break;
         }
     }
 }
@@ -84,7 +83,7 @@ namespace
 
 #pragma warning(push)
 #pragma warning(disable : 4471)
-#include <Windows.Gaming.Input.h>
+#include <windows.gaming.input.h>
 #pragma warning(pop)
 
 class GamePad::Impl
@@ -94,16 +93,17 @@ public:
         mOwner(owner),
         mCtrlChanged(INVALID_HANDLE_VALUE),
         mUserChanged(INVALID_HANDLE_VALUE),
-        mMostRecentGamepad(0)
+        mMostRecentGamepad(0),
+        mStatics{},
+        mGamePad{},
+        mUserChangeToken{},
+        mAddedToken{},
+        mRemovedToken{},
+        mChanged{}
     {
         using namespace Microsoft::WRL;
         using namespace Microsoft::WRL::Wrappers;
         using namespace ABI::Windows::Foundation;
-
-        mAddedToken.value = 0;
-        mRemovedToken.value = 0;
-
-        memset(&mUserChangeToken, 0, sizeof(mUserChangeToken));
 
         if (s_gamePad)
         {
@@ -207,12 +207,12 @@ public:
                     state.dpad.left = (reading.Buttons & GamepadButtons::GamepadButtons_DPadLeft) != 0;
 
                     ApplyStickDeadZone(static_cast<float>(reading.LeftThumbstickX), static_cast<float>(reading.LeftThumbstickY),
-                        deadZoneMode, 1.f, .24f /* Recommended Xbox One deadzone */,
-                        state.thumbSticks.leftX, state.thumbSticks.leftY);
+                                       deadZoneMode, 1.f, c_XboxOneThumbDeadZone,
+                                       state.thumbSticks.leftX, state.thumbSticks.leftY);
 
                     ApplyStickDeadZone(static_cast<float>(reading.RightThumbstickX), static_cast<float>(reading.RightThumbstickY),
-                        deadZoneMode, 1.f, .24f /* Recommended Xbox One deadzone */,
-                        state.thumbSticks.rightX, state.thumbSticks.rightY);
+                                       deadZoneMode, 1.f, c_XboxOneThumbDeadZone,
+                                       state.thumbSticks.rightX, state.thumbSticks.rightY);
 
                     state.triggers.left = static_cast<float>(reading.LeftTrigger);
                     state.triggers.right = static_cast<float>(reading.RightTrigger);
@@ -283,10 +283,10 @@ public:
             if (mGamePad[player])
             {
                 GamepadVibration vib;
-                vib.LeftMotor = leftMotor;
-                vib.RightMotor = rightMotor;
-                vib.LeftTrigger = leftTrigger;
-                vib.RightTrigger = rightTrigger;
+                vib.LeftMotor = double(leftMotor);
+                vib.RightMotor = double(rightMotor);
+                vib.LeftTrigger = double(leftTrigger);
+                vib.RightTrigger = double(rightTrigger);
                 HRESULT hr = mGamePad[player]->put_Vibration(vib);
 
                 if (SUCCEEDED(hr))
@@ -529,7 +529,7 @@ public:
         Microsoft::WRL::FtmBase>
     {
     public:
-        UserPairingListener() {}
+        UserPairingListener() noexcept {}
 
         STDMETHOD(Invoke)(_In_ IInspectable *, _In_ ABI::Windows::Xbox::Input::IControllerPairingChangedEventArgs *) override
         {
@@ -547,15 +547,18 @@ public:
         mOwner(owner),
         mCtrlChanged(INVALID_HANDLE_VALUE),
         mUserChanged(INVALID_HANDLE_VALUE),
-        mMostRecentGamepad(0)
+        mMostRecentGamepad(0),
+        mStatics{},
+        mStaticsCtrl{},
+        mGamePad{},
+        mAddedToken{},
+        mRemovedToken{},
+        mUserParingToken{},
+        mChanged{}
     {
         using namespace Microsoft::WRL;
         using namespace Microsoft::WRL::Wrappers;
         using namespace ABI::Windows::Foundation;
-
-        mAddedToken.value = 0;
-        mRemovedToken.value = 0;
-        mUserParingToken.value = 0;
 
         if (s_gamePad)
         {
@@ -651,12 +654,12 @@ public:
                     state.dpad.left = (reading.Buttons & GamepadButtons::GamepadButtons_DPadLeft) != 0;
 
                     ApplyStickDeadZone(reading.LeftThumbstickX, reading.LeftThumbstickY,
-                        deadZoneMode, 1.f, .24f /* Recommended Xbox One deadzone */,
-                        state.thumbSticks.leftX, state.thumbSticks.leftY);
+                                       deadZoneMode, 1.f, c_XboxOneThumbDeadZone,
+                                       state.thumbSticks.leftX, state.thumbSticks.leftY);
 
                     ApplyStickDeadZone(reading.RightThumbstickX, reading.RightThumbstickY,
-                        deadZoneMode, 1.f, .24f /* Recommended Xbox One deadzone */,
-                        state.thumbSticks.rightX, state.thumbSticks.rightY);
+                                       deadZoneMode, 1.f, c_XboxOneThumbDeadZone,
+                                       state.thumbSticks.rightX, state.thumbSticks.rightY);
 
                     state.triggers.left = reading.LeftTrigger;
                     state.triggers.right = reading.RightTrigger;
@@ -871,80 +874,13 @@ private:
 
 GamePad::Impl* GamePad::Impl::s_gamePad = nullptr;
 
-
-#elif defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
-
-//======================================================================================
-// Null device for Windows Phone
-//======================================================================================
-
-class GamePad::Impl
-{
-public:
-    Impl(GamePad* owner) :
-        mOwner(owner)
-    {
-        if (s_gamePad)
-        {
-            throw std::exception("GamePad is a singleton");
-        }
-
-        s_gamePad = this;
-    }
-
-    ~Impl()
-    {
-        s_gamePad = nullptr;
-    }
-
-    void GetState(int player, _Out_ State& state, DeadZone)
-    {
-        UNREFERENCED_PARAMETER(player);
-
-        memset(&state, 0, sizeof(State));
-    }
-
-    void GetCapabilities(int player, _Out_ Capabilities& caps)
-    {
-        UNREFERENCED_PARAMETER(player);
-
-        memset(&caps, 0, sizeof(Capabilities));
-    }
-
-    bool SetVibration(int player, float leftMotor, float rightMotor, float leftTrigger, float rightTrigger)
-    {
-        UNREFERENCED_PARAMETER(player);
-        UNREFERENCED_PARAMETER(leftMotor);
-        UNREFERENCED_PARAMETER(rightMotor);
-        UNREFERENCED_PARAMETER(leftTrigger);
-        UNREFERENCED_PARAMETER(rightTrigger);
-
-        return false;
-    }
-
-    void Suspend()
-    {
-    }
-
-    void Resume()
-    {
-    }
-
-    GamePad*    mOwner;
-
-    static GamePad::Impl* s_gamePad;
-};
-
-GamePad::Impl* GamePad::Impl::s_gamePad = nullptr;
-
-
 #else
 
 //======================================================================================
 // XInput
 //======================================================================================
 
-#include <xinput.h>
+#include <Xinput.h>
 
 static_assert(GamePad::MAX_PLAYER_COUNT == XUSER_MAX_COUNT, "xinput.h mismatch");
 
@@ -952,16 +888,19 @@ class GamePad::Impl
 {
 public:
     Impl(GamePad* owner) :
-        mOwner(owner)
+        mOwner(owner),
+        mConnected{},
+        mLastReadTime{}
+    #if (_WIN32_WINNT < _WIN32_WINNT_WIN8)
+        , mLeftMotor{}
+        , mRightMotor{}
+        , mSuspended(false)
+    #endif
     {
         for (int j = 0; j < XUSER_MAX_COUNT; ++j)
         {
             ClearSlot(j, 0);
         }
-
-#if (_WIN32_WINNT < _WIN32_WINNT_WIN8)
-        mSuspended = false;
-#endif
 
         if (s_gamePad)
         {
@@ -985,14 +924,14 @@ public:
 
         if (!ThrottleRetry(player, time))
         {
-#if (_WIN32_WINNT < _WIN32_WINNT_WIN8)
+        #if (_WIN32_WINNT < _WIN32_WINNT_WIN8)
             if (mSuspended)
             {
                 memset(&state, 0, sizeof(State));
                 state.connected = mConnected[player];
                 return;
             }
-#endif
+        #endif
 
             XINPUT_STATE xstate;
             DWORD result = XInputGetState(DWORD(player), &xstate);
@@ -1039,12 +978,12 @@ public:
                 }
 
                 ApplyStickDeadZone(float(xstate.Gamepad.sThumbLX), float(xstate.Gamepad.sThumbLY),
-                    deadZoneMode, 32767.f, float(XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE),
-                    state.thumbSticks.leftX, state.thumbSticks.leftY);
+                                   deadZoneMode, 32767.f, float(XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE),
+                                   state.thumbSticks.leftX, state.thumbSticks.leftY);
 
                 ApplyStickDeadZone(float(xstate.Gamepad.sThumbRX), float(xstate.Gamepad.sThumbRY),
-                    deadZoneMode, 32767.f, float(XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE),
-                    state.thumbSticks.rightX, state.thumbSticks.rightY);
+                                   deadZoneMode, 32767.f, float(XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE),
+                                   state.thumbSticks.rightX, state.thumbSticks.rightY);
 
                 return;
             }
@@ -1080,7 +1019,7 @@ public:
                 if (xcaps.Type == XINPUT_DEVTYPE_GAMEPAD)
                 {
                     static_assert(Capabilities::GAMEPAD == XINPUT_DEVSUBTYPE_GAMEPAD, "xinput.h mismatch");
-#if (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
+                #if (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
                     static_assert(XINPUT_DEVSUBTYPE_WHEEL == Capabilities::WHEEL, "xinput.h mismatch");
                     static_assert(XINPUT_DEVSUBTYPE_ARCADE_STICK == Capabilities::ARCADE_STICK, "xinput.h mismatch");
                     static_assert(XINPUT_DEVSUBTYPE_FLIGHT_STICK == Capabilities::FLIGHT_STICK, "xinput.h mismatch");
@@ -1090,7 +1029,7 @@ public:
                     static_assert(XINPUT_DEVSUBTYPE_DRUM_KIT == Capabilities::DRUM_KIT, "xinput.h mismatch");
                     static_assert(XINPUT_DEVSUBTYPE_GUITAR_BASS == Capabilities::GUITAR_BASS, "xinput.h mismatch");
                     static_assert(XINPUT_DEVSUBTYPE_ARCADE_PAD == Capabilities::ARCADE_PAD, "xinput.h mismatch");
-#endif
+                #endif
 
                     caps.gamepadType = Capabilities::Type(xcaps.SubType);
                 }
@@ -1119,13 +1058,13 @@ public:
         UNREFERENCED_PARAMETER(leftTrigger);
         UNREFERENCED_PARAMETER(rightTrigger);
 
-#if (_WIN32_WINNT < _WIN32_WINNT_WIN8)
+    #if (_WIN32_WINNT < _WIN32_WINNT_WIN8)
         mLeftMotor[player] = leftMotor;
         mRightMotor[player] = rightMotor;
 
         if (mSuspended)
             return mConnected[player];
-#endif
+    #endif
 
         XINPUT_VIBRATION xvibration;
         xvibration.wLeftMotorSpeed = WORD(leftMotor * 0xFFFF);
@@ -1148,10 +1087,10 @@ public:
 
     void Suspend()
     {
-#if (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
+    #if (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
         XInputEnable(FALSE);
-#else
-        // For XInput 9.1.0, we have to emulate the behavior of XInputEnable( FALSE )
+    #else
+            // For XInput 9.1.0, we have to emulate the behavior of XInputEnable( FALSE )
         if (!mSuspended)
         {
             for (size_t j = 0; j < XUSER_MAX_COUNT; ++j)
@@ -1166,15 +1105,15 @@ public:
 
             mSuspended = true;
         }
-#endif
+    #endif
     }
 
     void Resume()
     {
-#if (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
+    #if (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
         XInputEnable(TRUE);
-#else
-        // For XInput 9.1.0, we have to emulate the behavior of XInputEnable( TRUE )
+    #else
+            // For XInput 9.1.0, we have to emulate the behavior of XInputEnable( TRUE )
         if (mSuspended)
         {
             ULONGLONG time = GetTickCount64();
@@ -1196,7 +1135,7 @@ public:
 
             mSuspended = false;
         }
-#endif
+    #endif
     }
 
     GamePad*    mOwner;
@@ -1226,14 +1165,14 @@ private:
         if (mConnected[player])
             return false;
 
-        for (size_t j = 0; j < XUSER_MAX_COUNT; ++j)
+        for (int j = 0; j < XUSER_MAX_COUNT; ++j)
         {
             if (!mConnected[j])
             {
-                LONGLONG delta = time - mLastReadTime[j];
+                LONGLONG delta = LONGLONG(time) - LONGLONG(mLastReadTime[j]);
 
                 LONGLONG interval = 1000;
-                if ((int)j != player)
+                if (j != player)
                     interval /= 4;
 
                 if ((delta >= 0) && (delta < interval))
@@ -1248,9 +1187,9 @@ private:
     {
         mConnected[player] = false;
         mLastReadTime[player] = time;
-#if (_WIN32_WINNT < _WIN32_WINNT_WIN8)
+    #if (_WIN32_WINNT < _WIN32_WINNT_WIN8)
         mLeftMotor[player] = mRightMotor[player] = 0.f;
-#endif
+    #endif
     }
 
     int GetMostRecent()
@@ -1278,14 +1217,14 @@ GamePad::Impl* GamePad::Impl::s_gamePad = nullptr;
 #pragma warning( disable : 4355 )
 
 // Public constructor.
-GamePad::GamePad()
-    : pImpl(new Impl(this))
+GamePad::GamePad() noexcept(false)
+    : pImpl(std::make_unique<Impl>(this))
 {
 }
 
 
 // Move constructor.
-GamePad::GamePad(GamePad&& moveFrom)
+GamePad::GamePad(GamePad&& moveFrom) noexcept
     : pImpl(std::move(moveFrom.pImpl))
 {
     pImpl->mOwner = this;
@@ -1293,7 +1232,7 @@ GamePad::GamePad(GamePad&& moveFrom)
 
 
 // Move assignment.
-GamePad& GamePad::operator= (GamePad&& moveFrom)
+GamePad& GamePad::operator= (GamePad&& moveFrom) noexcept
 {
     pImpl = std::move(moveFrom.pImpl);
     pImpl->mOwner = this;
@@ -1368,25 +1307,25 @@ GamePad& GamePad::Get()
 
 void GamePad::ButtonStateTracker::Update(const GamePad::State& state)
 {
-    UPDATE_BUTTON_STATE(a);
+    UPDATE_BUTTON_STATE(a)
 
     assert((!state.buttons.a && !lastState.buttons.a) == (a == UP));
     assert((state.buttons.a && lastState.buttons.a) == (a == HELD));
     assert((!state.buttons.a && lastState.buttons.a) == (a == RELEASED));
     assert((state.buttons.a && !lastState.buttons.a) == (a == PRESSED));
 
-    UPDATE_BUTTON_STATE(b);
-    UPDATE_BUTTON_STATE(x);
-    UPDATE_BUTTON_STATE(y);
+    UPDATE_BUTTON_STATE(b)
+    UPDATE_BUTTON_STATE(x)
+    UPDATE_BUTTON_STATE(y)
 
-    UPDATE_BUTTON_STATE(leftStick);
-    UPDATE_BUTTON_STATE(rightStick);
+    UPDATE_BUTTON_STATE(leftStick)
+    UPDATE_BUTTON_STATE(rightStick)
 
-    UPDATE_BUTTON_STATE(leftShoulder);
-    UPDATE_BUTTON_STATE(rightShoulder);
+    UPDATE_BUTTON_STATE(leftShoulder)
+    UPDATE_BUTTON_STATE(rightShoulder)
 
-    UPDATE_BUTTON_STATE(back);
-    UPDATE_BUTTON_STATE(start);
+    UPDATE_BUTTON_STATE(back)
+    UPDATE_BUTTON_STATE(start)
 
     dpadUp = static_cast<ButtonState>((!!state.dpad.up) | ((!!state.dpad.up ^ !!lastState.dpad.up) << 1));
     dpadDown = static_cast<ButtonState>((!!state.dpad.down) | ((!!state.dpad.down ^ !!lastState.dpad.down) << 1));
@@ -1436,7 +1375,7 @@ void GamePad::ButtonStateTracker::Update(const GamePad::State& state)
 #undef UPDATE_BUTTON_STATE
 
 
-void GamePad::ButtonStateTracker::Reset()
+void GamePad::ButtonStateTracker::Reset() noexcept
 {
     memset(this, 0, sizeof(ButtonStateTracker));
 }

@@ -1,14 +1,11 @@
 //--------------------------------------------------------------------------------------
 // File: Geometry.cpp
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkId=248929
+// http://go.microsoft.com/fwlink/?LinkID=615561
 //--------------------------------------------------------------------------------------
 
 #include "pch.h"
@@ -35,7 +32,7 @@ namespace
     inline void index_push_back(IndexCollection& indices, size_t value)
     {
         CheckIndexOverflow(value);
-        indices.push_back((uint16_t)value);
+        indices.push_back(static_cast<uint16_t>(value));
     }
 
 
@@ -122,10 +119,17 @@ void DirectX::ComputeBox(VertexCollection& vertices, IndexCollection& indices, c
         index_push_back(indices, vbase + 3);
 
         // Four vertices per face.
-        vertices.push_back(VertexPositionNormalTexture((normal - side1 - side2) * tsize, normal, textureCoordinates[0]));
-        vertices.push_back(VertexPositionNormalTexture((normal - side1 + side2) * tsize, normal, textureCoordinates[1]));
-        vertices.push_back(VertexPositionNormalTexture((normal + side1 + side2) * tsize, normal, textureCoordinates[2]));
-        vertices.push_back(VertexPositionNormalTexture((normal + side1 - side2) * tsize, normal, textureCoordinates[3]));
+        // (normal - side1 - side2) * tsize // normal // t0
+        vertices.push_back(VertexPositionNormalTexture(XMVectorMultiply(XMVectorSubtract(XMVectorSubtract(normal, side1), side2), tsize), normal, textureCoordinates[0]));
+
+        // (normal - side1 + side2) * tsize // normal // t1
+        vertices.push_back(VertexPositionNormalTexture(XMVectorMultiply(XMVectorAdd(XMVectorSubtract(normal, side1), side2), tsize), normal, textureCoordinates[1]));
+
+        // (normal + side1 + side2) * tsize // normal // t2
+        vertices.push_back(VertexPositionNormalTexture(XMVectorMultiply(XMVectorAdd(normal, XMVectorAdd(side1, side2)), tsize), normal, textureCoordinates[2]));
+
+        // (normal + side1 - side2) * tsize // normal // t3
+        vertices.push_back(VertexPositionNormalTexture(XMVectorMultiply(XMVectorSubtract(XMVectorAdd(normal, side1), side2), tsize), normal, textureCoordinates[3]));
     }
 
     // Build RH above
@@ -156,7 +160,7 @@ void DirectX::ComputeSphere(VertexCollection& vertices, IndexCollection& indices
     // Create rings of vertices at progressively higher latitudes.
     for (size_t i = 0; i <= verticalSegments; i++)
     {
-        float v = 1 - (float)i / verticalSegments;
+        float v = 1 - float(i) / verticalSegments;
 
         float latitude = (i * XM_PI / verticalSegments) - XM_PIDIV2;
         float dy, dxz;
@@ -166,7 +170,7 @@ void DirectX::ComputeSphere(VertexCollection& vertices, IndexCollection& indices
         // Create a single ring of vertices at this latitude.
         for (size_t j = 0; j <= horizontalSegments; j++)
         {
-            float u = (float)j / horizontalSegments;
+            float u = float(j) / horizontalSegments;
 
             float longitude = j * XM_2PI / horizontalSegments;
             float dx, dz;
@@ -179,7 +183,7 @@ void DirectX::ComputeSphere(VertexCollection& vertices, IndexCollection& indices
             XMVECTOR normal = XMVectorSet(dx, dy, dz, 0);
             XMVECTOR textureCoordinate = XMVectorSet(u, v, 0, 0);
 
-            vertices.push_back(VertexPositionNormalTexture(normal * radius, normal, textureCoordinate));
+            vertices.push_back(VertexPositionNormalTexture(XMVectorScale(normal, radius), normal, textureCoordinate));
         }
     }
 
@@ -323,9 +327,9 @@ void DirectX::ComputeGeoSphere(VertexCollection& vertices, IndexCollection& indi
                     XMStoreFloat3(
                         &outVertex,
                         XMVectorScale(
-                            XMVectorAdd(XMLoadFloat3(&vertexPositions[i0]), XMLoadFloat3(&vertexPositions[i1])),
-                            0.5f
-                        )
+                        XMVectorAdd(XMLoadFloat3(&vertexPositions[i0]), XMLoadFloat3(&vertexPositions[i1])),
+                        0.5f
+                    )
                     );
 
                     outIndex = static_cast<uint16_t>(vertexPositions.size());
@@ -333,7 +337,8 @@ void DirectX::ComputeGeoSphere(VertexCollection& vertices, IndexCollection& indi
                     vertexPositions.push_back(outVertex);
 
                     // Now add it to the map.
-                    subdividedEdges.insert(std::make_pair(edge, outIndex));
+                    auto entry = std::make_pair(edge, outIndex);
+                    subdividedEdges.insert(entry);
                 }
             };
 
@@ -588,8 +593,8 @@ namespace
 
         if (!isTop)
         {
-            normal = -normal;
-            textureScale *= g_XMNegateX;
+            normal = XMVectorNegate(normal);
+            textureScale = XMVectorMultiply(textureScale, g_XMNegateX);
         }
 
         // Create cap vertices.
@@ -597,7 +602,7 @@ namespace
         {
             XMVECTOR circleVector = GetCircleVector(i, tessellation);
 
-            XMVECTOR position = (circleVector * radius) + (normal * height);
+            XMVECTOR position = XMVectorAdd(XMVectorScale(circleVector, radius), XMVectorScale(normal, height));
 
             XMVECTOR textureCoordinate = XMVectorMultiplyAdd(XMVectorSwizzle<0, 2, 3, 3>(circleVector), textureScale, g_XMOneHalf);
 
@@ -616,7 +621,7 @@ void DirectX::ComputeCylinder(VertexCollection& vertices, IndexCollection& indic
 
     height /= 2;
 
-    XMVECTOR topOffset = g_XMIdentityR1 * height;
+    XMVECTOR topOffset = XMVectorScale(g_XMIdentityR1, height);
 
     float radius = diameter / 2;
     size_t stride = tessellation + 1;
@@ -626,14 +631,14 @@ void DirectX::ComputeCylinder(VertexCollection& vertices, IndexCollection& indic
     {
         XMVECTOR normal = GetCircleVector(i, tessellation);
 
-        XMVECTOR sideOffset = normal * radius;
+        XMVECTOR sideOffset = XMVectorScale(normal, radius);
 
-        float u = (float)i / tessellation;
+        float u = float(i) / tessellation;
 
         XMVECTOR textureCoordinate = XMLoadFloat(&u);
 
-        vertices.push_back(VertexPositionNormalTexture(sideOffset + topOffset, normal, textureCoordinate));
-        vertices.push_back(VertexPositionNormalTexture(sideOffset - topOffset, normal, textureCoordinate + g_XMIdentityR1));
+        vertices.push_back(VertexPositionNormalTexture(XMVectorAdd(sideOffset, topOffset), normal, textureCoordinate));
+        vertices.push_back(VertexPositionNormalTexture(XMVectorSubtract(sideOffset, topOffset), normal, XMVectorAdd(textureCoordinate, g_XMIdentityR1)));
 
         index_push_back(indices, i * 2);
         index_push_back(indices, (i * 2 + 2) % (stride * 2));
@@ -665,7 +670,7 @@ void DirectX::ComputeCone(VertexCollection& vertices, IndexCollection& indices, 
 
     height /= 2;
 
-    XMVECTOR topOffset = g_XMIdentityR1 * height;
+    XMVECTOR topOffset = XMVectorScale(g_XMIdentityR1, height);
 
     float radius = diameter / 2;
     size_t stride = tessellation + 1;
@@ -675,20 +680,22 @@ void DirectX::ComputeCone(VertexCollection& vertices, IndexCollection& indices, 
     {
         XMVECTOR circlevec = GetCircleVector(i, tessellation);
 
-        XMVECTOR sideOffset = circlevec * radius;
+        XMVECTOR sideOffset = XMVectorScale(circlevec, radius);
 
-        float u = (float)i / tessellation;
+        float u = float(i) / tessellation;
 
         XMVECTOR textureCoordinate = XMLoadFloat(&u);
 
-        XMVECTOR pt = sideOffset - topOffset;
+        XMVECTOR pt = XMVectorSubtract(sideOffset, topOffset);
 
-        XMVECTOR normal = XMVector3Cross(GetCircleTangent(i, tessellation), topOffset - pt);
+        XMVECTOR normal = XMVector3Cross(
+            GetCircleTangent(i, tessellation),
+            XMVectorSubtract(topOffset, pt));
         normal = XMVector3Normalize(normal);
 
         // Duplicate the top vertex for distinct normals
         vertices.push_back(VertexPositionNormalTexture(topOffset, normal, g_XMZero));
-        vertices.push_back(VertexPositionNormalTexture(pt, normal, textureCoordinate + g_XMIdentityR1));
+        vertices.push_back(VertexPositionNormalTexture(pt, normal, XMVectorAdd(textureCoordinate, g_XMIdentityR1)));
 
         index_push_back(indices, i * 2);
         index_push_back(indices, (i * 2 + 3) % (stride * 2));
@@ -720,7 +727,7 @@ void DirectX::ComputeTorus(VertexCollection& vertices, IndexCollection& indices,
     // First we loop around the main ring of the torus.
     for (size_t i = 0; i <= tessellation; i++)
     {
-        float u = (float)i / tessellation;
+        float u = float(i) / tessellation;
 
         float outerAngle = i * XM_2PI / tessellation - XM_PIDIV2;
 
@@ -731,7 +738,7 @@ void DirectX::ComputeTorus(VertexCollection& vertices, IndexCollection& indices,
         // Now we loop along the other axis, around the side of the tube.
         for (size_t j = 0; j <= tessellation; j++)
         {
-            float v = 1 - (float)j / tessellation;
+            float v = 1 - float(j) / tessellation;
 
             float innerAngle = j * XM_2PI / tessellation + XM_PI;
             float dx, dy;
@@ -740,7 +747,7 @@ void DirectX::ComputeTorus(VertexCollection& vertices, IndexCollection& indices,
 
             // Create a vertex.
             XMVECTOR normal = XMVectorSet(dx, dy, 0, 0);
-            XMVECTOR position = normal * thickness / 2;
+            XMVECTOR position = XMVectorScale(normal, thickness / 2);
             XMVECTOR textureCoordinate = XMVectorSet(u, v, 0, 0);
 
             position = XMVector3Transform(position, transform);
@@ -798,8 +805,9 @@ void DirectX::ComputeTetrahedron(VertexCollection& vertices, IndexCollection& in
         uint32_t v1 = faces[j + 1];
         uint32_t v2 = faces[j + 2];
 
-        XMVECTOR normal = XMVector3Cross(verts[v1].v - verts[v0].v,
-            verts[v2].v - verts[v0].v);
+        XMVECTOR normal = XMVector3Cross(
+            XMVectorSubtract(verts[v1].v, verts[v0].v),
+            XMVectorSubtract(verts[v2].v, verts[v0].v));
         normal = XMVector3Normalize(normal);
 
         size_t base = vertices.size();
@@ -863,8 +871,9 @@ void DirectX::ComputeOctahedron(VertexCollection& vertices, IndexCollection& ind
         uint32_t v1 = faces[j + 1];
         uint32_t v2 = faces[j + 2];
 
-        XMVECTOR normal = XMVector3Cross(verts[v1].v - verts[v0].v,
-            verts[v2].v - verts[v0].v);
+        XMVECTOR normal = XMVector3Cross(
+            XMVectorSubtract(verts[v1].v, verts[v0].v),
+            XMVectorSubtract(verts[v2].v, verts[v0].v));
         normal = XMVector3Normalize(normal);
 
         size_t base = vertices.size();
@@ -978,8 +987,9 @@ void DirectX::ComputeDodecahedron(VertexCollection& vertices, IndexCollection& i
         uint32_t v3 = faces[j + 3];
         uint32_t v4 = faces[j + 4];
 
-        XMVECTOR normal = XMVector3Cross(verts[v1].v - verts[v0].v,
-            verts[v2].v - verts[v0].v);
+        XMVECTOR normal = XMVector3Cross(
+            XMVectorSubtract(verts[v1].v, verts[v0].v),
+            XMVectorSubtract(verts[v2].v, verts[v0].v));
         normal = XMVector3Normalize(normal);
 
         size_t base = vertices.size();
@@ -1079,8 +1089,9 @@ void DirectX::ComputeIcosahedron(VertexCollection& vertices, IndexCollection& in
         uint32_t v1 = faces[j + 1];
         uint32_t v2 = faces[j + 2];
 
-        XMVECTOR normal = XMVector3Cross(verts[v1].v - verts[v0].v,
-            verts[v2].v - verts[v0].v);
+        XMVECTOR normal = XMVector3Cross(
+            XMVectorSubtract(verts[v1].v, verts[v0].v),
+            XMVectorSubtract(verts[v2].v, verts[v0].v));
         normal = XMVector3Normalize(normal);
 
         size_t base = vertices.size();
@@ -1125,25 +1136,25 @@ namespace
 
         for (int i = 0; i < 16; i++)
         {
-            controlPoints[i] = TeapotControlPoints[patch.indices[i]] * scale;
+            controlPoints[i] = XMVectorMultiply(TeapotControlPoints[patch.indices[i]], scale);
         }
 
         // Create the index data.
         size_t vbase = vertices.size();
         Bezier::CreatePatchIndices(tessellation, isMirrored, [&](size_t index)
-        {
-            index_push_back(indices, vbase + index);
-        });
+                                   {
+                                       index_push_back(indices, vbase + index);
+                                   });
 
-        // Create the vertex data.
+                                   // Create the vertex data.
         Bezier::CreatePatchVertices(controlPoints, tessellation, isMirrored, [&](FXMVECTOR position, FXMVECTOR normal, FXMVECTOR textureCoordinate)
-        {
-            vertices.push_back(VertexPositionNormalTexture(position, normal, textureCoordinate));
-        });
+                                    {
+                                        vertices.push_back(VertexPositionNormalTexture(position, normal, textureCoordinate));
+                                    });
     }
 }
 
-        
+
 // Creates a teapot primitive.
 void DirectX::ComputeTeapot(VertexCollection& vertices, IndexCollection& indices, float size, size_t tessellation, bool rhcoords)
 {
@@ -1155,11 +1166,11 @@ void DirectX::ComputeTeapot(VertexCollection& vertices, IndexCollection& indices
 
     XMVECTOR scaleVector = XMVectorReplicate(size);
 
-    XMVECTOR scaleNegateX = scaleVector * g_XMNegateX;
-    XMVECTOR scaleNegateZ = scaleVector * g_XMNegateZ;
-    XMVECTOR scaleNegateXZ = scaleVector * g_XMNegateX * g_XMNegateZ;
+    XMVECTOR scaleNegateX = XMVectorMultiply(scaleVector, g_XMNegateX);
+    XMVECTOR scaleNegateZ = XMVectorMultiply(scaleVector, g_XMNegateZ);
+    XMVECTOR scaleNegateXZ = XMVectorMultiply(scaleVector, XMVectorMultiply(g_XMNegateX, g_XMNegateZ));
 
-    for (int i = 0; i < sizeof(TeapotPatches) / sizeof(TeapotPatches[0]); i++)
+    for (size_t i = 0; i < _countof(TeapotPatches); i++)
     {
         TeapotPatch const& patch = TeapotPatches[i];
 

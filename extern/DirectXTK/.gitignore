@@ -16,6 +16,7 @@
 *.lastbuildstate
 *.ilk
 *.VC.db
+*.nupkg
 .vs
 Bin
 /Src/Shaders/Compiled/XboxOne*.inc
@@ -24,3 +25,4 @@ Bin
 /MakeSpriteFont/obj
 /Tests
 /wiki
+/out

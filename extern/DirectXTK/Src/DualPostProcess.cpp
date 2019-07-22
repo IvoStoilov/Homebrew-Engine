@@ -1,12 +1,8 @@
 //--------------------------------------------------------------------------------------
 // File: DualPostProcess.cpp
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkId=248929
 //--------------------------------------------------------------------------------------
@@ -80,7 +76,10 @@ namespace
     public:
         DeviceResources(_In_ ID3D11Device* device)
             : stateObjects(device),
-            mDevice(device)
+            mDevice(device),
+            mVertexShader{},
+            mPixelShaders{},
+            mMutex{}
         { }
 
         // Gets or lazily creates the vertex shader.
@@ -134,8 +133,8 @@ public:
     void SetDirtyFlag() { mDirtyFlags = INT_MAX; }
 
     // Fields.
-    DualPostProcess::Effect                 fx;
     PostProcessConstants                    constants;
+    DualPostProcess::Effect                 fx;
     ComPtr<ID3D11ShaderResourceView>        texture;
     ComPtr<ID3D11ShaderResourceView>        texture2;
     float                                   mergeWeight1;
@@ -163,7 +162,8 @@ SharedResourcePool<ID3D11Device*, DeviceResources> DualPostProcess::Impl::device
 
 // Constructor.
 DualPostProcess::Impl::Impl(_In_ ID3D11Device* device)
-    : fx(DualPostProcess::Merge),
+    : constants{},
+    fx(DualPostProcess::Merge),
     mergeWeight1(0.5f),
     mergeWeight2(0.5f),
     bloomIntensity(1.25f),
@@ -172,8 +172,7 @@ DualPostProcess::Impl::Impl(_In_ ID3D11Device* device)
     bloomBaseSaturation(1.f),
     mDirtyFlags(INT_MAX),
     mConstantBuffer(device),
-    mDeviceResources(deviceResourcesPool.DemandCreate(device)),
-    constants{}
+    mDeviceResources(deviceResourcesPool.DemandCreate(device))
 {
     if (device->GetFeatureLevel() < D3D_FEATURE_LEVEL_10_0)
     {
@@ -257,28 +256,29 @@ void DualPostProcess::Impl::Process(_In_ ID3D11DeviceContext* deviceContext, std
     }
 
     // Draw quad.
-    deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+    deviceContext->IASetInputLayout(nullptr);
+    deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    deviceContext->Draw(4, 0);
+    deviceContext->Draw(3, 0);
 }
 
 
 // Public constructor.
 DualPostProcess::DualPostProcess(_In_ ID3D11Device* device)
-  : pImpl(new Impl(device))
+  : pImpl(std::make_unique<Impl>(device))
 {
 }
 
 
 // Move constructor.
-DualPostProcess::DualPostProcess(DualPostProcess&& moveFrom)
+DualPostProcess::DualPostProcess(DualPostProcess&& moveFrom) noexcept
   : pImpl(std::move(moveFrom.pImpl))
 {
 }
 
 
 // Move assignment.
-DualPostProcess& DualPostProcess::operator= (DualPostProcess&& moveFrom)
+DualPostProcess& DualPostProcess::operator= (DualPostProcess&& moveFrom) noexcept
 {
     pImpl = std::move(moveFrom.pImpl);
     return *this;
@@ -301,7 +301,7 @@ void DualPostProcess::Process(_In_ ID3D11DeviceContext* deviceContext, _In_opt_ 
 // Shader control.
 void DualPostProcess::SetEffect(Effect fx)
 {
-    if (fx < 0 || fx >= Effect_Max)
+    if (fx >= Effect_Max)
         throw std::out_of_range("Effect not defined");
 
     pImpl->fx = fx;

@@ -6,11 +6,11 @@ struct CommandLineArg;
 class CommandLineOptions
 {
 public:
-    bool m_Binarize;
-    bool m_Fullscreen;
-    bool m_ShowCursor;
-    bool m_QuitAfterInit;
-    bool m_DrawWireframe;
+    bool m_Binarize      = false;
+    bool m_Fullscreen    = false;
+    bool m_ShowCursor    = false;
+    bool m_QuitAfterInit = false;
+    bool m_DrawWireframe = false;
 
     String m_BinarizeOutputFile;
     Array<String> m_BinarizeInputFiles;

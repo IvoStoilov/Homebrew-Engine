@@ -30,3 +30,4 @@ using Array = std::vector<T>;
 
 #define popObjectDynamicCast(ToType, ObjPtr) dynamic_cast<ToType*>(ObjPtr)
 #define popObjectCast(ToType, ObjPtr) static_cast<ToType*>(ObjPtr)
+

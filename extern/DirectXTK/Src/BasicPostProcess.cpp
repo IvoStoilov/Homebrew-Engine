@@ -1,12 +1,8 @@
 //--------------------------------------------------------------------------------------
 // File: BasicPostProcess.cpp
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkId=248929
 //--------------------------------------------------------------------------------------
@@ -104,7 +100,10 @@ namespace
     public:
         DeviceResources(_In_ ID3D11Device* device)
             : stateObjects(device),
-            mDevice(device)
+            mDevice(device),
+            mVertexShader{},
+            mPixelShaders{},
+            mMutex{}
         { }
 
         // Gets or lazily creates the vertex shader.
@@ -159,8 +158,8 @@ public:
     void SetDirtyFlag() { mDirtyFlags = INT_MAX; }
 
     // Fields.
-    BasicPostProcess::Effect                fx;
     PostProcessConstants                    constants;
+    BasicPostProcess::Effect                fx;
     ComPtr<ID3D11ShaderResourceView>        texture;
     unsigned                                texWidth;
     unsigned                                texHeight;
@@ -194,7 +193,8 @@ SharedResourcePool<ID3D11Device*, DeviceResources> BasicPostProcess::Impl::devic
 
 // Constructor.
 BasicPostProcess::Impl::Impl(_In_ ID3D11Device* device)
-    : fx(BasicPostProcess::Copy),
+    : constants{},
+    fx(BasicPostProcess::Copy),
     texWidth(0),
     texHeight(0),
     guassianMultiplier(1.f),
@@ -205,8 +205,7 @@ BasicPostProcess::Impl::Impl(_In_ ID3D11Device* device)
     mUseConstants(false),
     mDirtyFlags(INT_MAX),
     mConstantBuffer(device),
-    mDeviceResources(deviceResourcesPool.DemandCreate(device)),
-    constants{}
+    mDeviceResources(deviceResourcesPool.DemandCreate(device))
 {
     if (device->GetFeatureLevel() < D3D_FEATURE_LEVEL_10_0)
     {
@@ -302,9 +301,10 @@ void BasicPostProcess::Impl::Process(_In_ ID3D11DeviceContext* deviceContext, st
     }
 
     // Draw quad.
-    deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+    deviceContext->IASetInputLayout(nullptr);
+    deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    deviceContext->Draw(4, 0);
+    deviceContext->Draw(3, 0);
 }
 
 
@@ -312,7 +312,7 @@ void BasicPostProcess::Impl::DownScale2x2()
 {
     mUseConstants = true;
 
-    if ( !texWidth || !texHeight)
+    if (!texWidth || !texHeight)
     {
         throw std::exception("Call SetSourceTexture before setting post-process effect");
     }
@@ -332,7 +332,6 @@ void BasicPostProcess::Impl::DownScale2x2()
             ++ptr;
         }
     }
-
 }
 
 
@@ -410,10 +409,12 @@ void BasicPostProcess::Impl::GaussianBlur5x5(float multiplier)
     // blur kernels add to 1.0f to ensure that the intensity of the image isn't
     // changed when the blur occurs. An optional multiplier variable is used to
     // add or remove image intensity during the blur.
+    XMVECTOR vtw = XMVectorReplicate(totalWeight);
+    XMVECTOR vm = XMVectorReplicate(multiplier);
     for (size_t i = 0; i < index; ++i)
     {
-        weights[i] /= totalWeight;
-        weights[i] *= multiplier;
+        weights[i] = XMVectorDivide(weights[i], vtw);
+        weights[i] = XMVectorMultiply(weights[i], vm);
     }
 }
 
@@ -466,20 +467,20 @@ void  BasicPostProcess::Impl::Bloom(bool horizontal, float size, float brightnes
 
 // Public constructor.
 BasicPostProcess::BasicPostProcess(_In_ ID3D11Device* device)
-  : pImpl(new Impl(device))
+  : pImpl(std::make_unique<Impl>(device))
 {
 }
 
 
 // Move constructor.
-BasicPostProcess::BasicPostProcess(BasicPostProcess&& moveFrom)
+BasicPostProcess::BasicPostProcess(BasicPostProcess&& moveFrom) noexcept
   : pImpl(std::move(moveFrom.pImpl))
 {
 }
 
 
 // Move assignment.
-BasicPostProcess& BasicPostProcess::operator= (BasicPostProcess&& moveFrom)
+BasicPostProcess& BasicPostProcess::operator= (BasicPostProcess&& moveFrom) noexcept
 {
     pImpl = std::move(moveFrom.pImpl);
     return *this;
@@ -502,7 +503,7 @@ void BasicPostProcess::Process(_In_ ID3D11DeviceContext* deviceContext, _In_opt_
 // Shader control.
 void BasicPostProcess::SetEffect(Effect fx)
 {
-    if (fx < 0 || fx >= Effect_Max)
+    if (fx >= Effect_Max)
         throw std::out_of_range("Effect not defined");
 
     pImpl->fx = fx;
@@ -562,6 +563,9 @@ void BasicPostProcess::SetSourceTexture(_In_opt_ ID3D11ShaderResourceView* value
             break;
         }
 
+        case D3D11_RESOURCE_DIMENSION_UNKNOWN:
+        case D3D11_RESOURCE_DIMENSION_BUFFER:
+        case D3D11_RESOURCE_DIMENSION_TEXTURE3D:
         default:
             throw std::exception("Unsupported texture type");
         }

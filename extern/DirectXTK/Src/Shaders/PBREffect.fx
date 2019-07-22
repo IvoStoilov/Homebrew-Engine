@@ -1,9 +1,5 @@
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkId=248929
 
@@ -50,9 +46,9 @@ cbuffer Constants : register(b0)
 
 
 // Vertex shader: pbr
-VSOutputPixelLightingTxTangent VSConstant(VSInputNmTxTangent vin)
+VSOutputPixelLightingTx VSConstant(VSInputNmTx vin)
 {
-    VSOutputPixelLightingTxTangent vout;
+    VSOutputPixelLightingTx vout;
 
     CommonVSOutputPixelLighting cout = ComputeCommonVSOutputPixelLighting(vin.Position, vin.Normal);
     
@@ -61,14 +57,13 @@ VSOutputPixelLightingTxTangent VSConstant(VSInputNmTxTangent vin)
     vout.NormalWS = cout.Normal_ws;
     vout.Diffuse = float4(ConstantAlbedo, Alpha);
     vout.TexCoord = vin.TexCoord;
-    vout.TangentWS = normalize(mul(vin.Tangent.xyz, WorldInverseTranspose));
 
     return vout;
 }
 
 
 // Vertex shader: pbr + velocity
-VSOut_Velocity VSConstantVelocity(VSInputNmTxTangent vin)
+VSOut_Velocity VSConstantVelocity(VSInputNmTx vin)
 {
     VSOut_Velocity vout;
 
@@ -79,7 +74,6 @@ VSOut_Velocity VSConstantVelocity(VSInputNmTxTangent vin)
     vout.current.NormalWS = cout.Normal_ws;
     vout.current.Diffuse = float4(ConstantAlbedo, Alpha);
     vout.current.TexCoord = vin.TexCoord;
-    vout.current.TangentWS = normalize(mul(vin.Tangent.xyz, WorldInverseTranspose));
     vout.prevPosition = mul(vin.Position, PrevWorldViewProj);
 
     return vout;
@@ -87,9 +81,9 @@ VSOut_Velocity VSConstantVelocity(VSInputNmTxTangent vin)
 
 
 // Vertex shader: pbr (biased normal)
-VSOutputPixelLightingTxTangent VSConstantBn(VSInputNmTxTangent vin)
+VSOutputPixelLightingTx VSConstantBn(VSInputNmTx vin)
 {
-    VSOutputPixelLightingTxTangent vout;
+    VSOutputPixelLightingTx vout;
 
     float3 normal = BiasX2(vin.Normal);
 
@@ -101,15 +95,12 @@ VSOutputPixelLightingTxTangent VSConstantBn(VSInputNmTxTangent vin)
     vout.Diffuse = float4(ConstantAlbedo, Alpha);
     vout.TexCoord = vin.TexCoord;
 
-    float3 tangent = BiasX2(vin.Tangent.xyz);
-    vout.TangentWS = normalize(mul(tangent, WorldInverseTranspose));
-
     return vout;
 }
 
 
 // Vertex shader: pbr + velocity (biased normal)
-VSOut_Velocity VSConstantVelocityBn(VSInputNmTxTangent vin)
+VSOut_Velocity VSConstantVelocityBn(VSInputNmTx vin)
 {
     VSOut_Velocity vout;
 
@@ -122,9 +113,6 @@ VSOut_Velocity VSConstantVelocityBn(VSInputNmTxTangent vin)
     vout.current.NormalWS = cout.Normal_ws;
     vout.current.Diffuse = float4(ConstantAlbedo, Alpha);
     vout.current.TexCoord = vin.TexCoord;
-
-    float3 tangent = BiasX2(vin.Tangent.xyz);
-    vout.current.TangentWS = normalize(mul(tangent, WorldInverseTranspose));
 
     vout.prevPosition = mul(vin.Position, PrevWorldViewProj);
 
@@ -133,7 +121,7 @@ VSOut_Velocity VSConstantVelocityBn(VSInputNmTxTangent vin)
 
 
 // Pixel shader: pbr (constants) + image-based lighting
-float4 PSConstant(PSInputPixelLightingTxTangent pin) : SV_Target0
+float4 PSConstant(PSInputPixelLightingTx pin) : SV_Target0
 {
     // vectors
     const float3 V = normalize(EyePosition - pin.PositionWS.xyz);   // view vector
@@ -149,14 +137,14 @@ float4 PSConstant(PSInputPixelLightingTxTangent pin) : SV_Target0
 
 
 // Pixel shader: pbr (textures) + image-based lighting
-float4 PSTextured(PSInputPixelLightingTxTangent pin) : SV_Target0
+float4 PSTextured(PSInputPixelLightingTx pin) : SV_Target0
 {
     const float3 V = normalize(EyePosition - pin.PositionWS.xyz); // view vector
     const float3 L = normalize(-LightDirection[0]);               // light vector ("to light" opposite of light's direction)
 
     // Before lighting, peturb the surface's normal by the one given in normal map.
-    float3 localNormal = BiasX2(NormalTexture.Sample(SurfaceSampler, pin.TexCoord).xyz);
-    float3 N = PeturbNormal(localNormal, pin.NormalWS, pin.TangentWS);
+    float3 localNormal = TwoChannelNormalX2(NormalTexture.Sample(SurfaceSampler, pin.TexCoord).xy);
+    float3 N = PeturbNormal(localNormal, pin.PositionWS.xyz, pin.NormalWS, pin.TexCoord);
 
     // Get albedo
     float4 albedo = AlbedoTexture.Sample(SurfaceSampler, pin.TexCoord);
@@ -174,14 +162,14 @@ float4 PSTextured(PSInputPixelLightingTxTangent pin) : SV_Target0
 
 
 // Pixel shader: pbr (textures) + emissive + image-based lighting
-float4 PSTexturedEmissive(PSInputPixelLightingTxTangent pin) : SV_Target0
+float4 PSTexturedEmissive(PSInputPixelLightingTx pin) : SV_Target0
 {
     const float3 V = normalize(EyePosition - pin.PositionWS.xyz); // view vector
     const float3 L = normalize(-LightDirection[0]);               // light vector ("to light" opposite of light's direction)
 
     // Before lighting, peturb the surface's normal by the one given in normal map.
-    float3 localNormal = BiasX2(NormalTexture.Sample(SurfaceSampler, pin.TexCoord).xyz);
-    float3 N = PeturbNormal(localNormal, pin.NormalWS, pin.TangentWS);
+    float3 localNormal = TwoChannelNormalX2(NormalTexture.Sample(SurfaceSampler, pin.TexCoord).xy);
+    float3 N = PeturbNormal(localNormal, pin.PositionWS.xyz, pin.NormalWS, pin.TexCoord);
 
     // Get albedo
     float4 albedo = AlbedoTexture.Sample(SurfaceSampler, pin.TexCoord);
@@ -217,8 +205,8 @@ PSOut_Velocity PSTexturedVelocity(VSOut_Velocity pin)
     const float3 L = normalize(-LightDirection[0]);                       // light vector ("to light" opposite of light's direction)
 
     // Before lighting, peturb the surface's normal by the one given in normal map.
-    float3 localNormal = BiasX2(NormalTexture.Sample(SurfaceSampler, pin.current.TexCoord).xyz);
-    float3 N = PeturbNormal(localNormal, pin.current.NormalWS, pin.current.TangentWS);
+    float3 localNormal = TwoChannelNormalX2(NormalTexture.Sample(SurfaceSampler, pin.current.TexCoord).xy);
+    float3 N = PeturbNormal(localNormal, pin.current.PositionWS.xyz, pin.current.NormalWS, pin.current.TexCoord);
 
     // Get albedo
     float4 albedo = AlbedoTexture.Sample(SurfaceSampler, pin.current.TexCoord);
@@ -253,8 +241,8 @@ PSOut_Velocity PSTexturedEmissiveVelocity(VSOut_Velocity pin)
     const float3 L = normalize(-LightDirection[0]);                       // light vector ("to light" opposite of light's direction)
 
     // Before lighting, peturb the surface's normal by the one given in normal map.
-    float3 localNormal = BiasX2(NormalTexture.Sample(SurfaceSampler, pin.current.TexCoord).xyz);
-    float3 N = PeturbNormal(localNormal, pin.current.NormalWS, pin.current.TangentWS);
+    float3 localNormal = TwoChannelNormalX2(NormalTexture.Sample(SurfaceSampler, pin.current.TexCoord).xy);
+    float3 N = PeturbNormal(localNormal, pin.current.PositionWS.xyz, pin.current.NormalWS, pin.current.TexCoord);
 
     // Get albedo
     float4 albedo = AlbedoTexture.Sample(SurfaceSampler, pin.current.TexCoord);

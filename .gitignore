@@ -15,7 +15,12 @@
 *.tlog
 *.lastbuildstate
 *.ilk
+
 *.VC.db
+*.sln
+*.vcxprj
+*.vcxprj.filters
+
 .vs
 bin/Debug
 bin/Release

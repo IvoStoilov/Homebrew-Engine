@@ -1,12 +1,8 @@
 //--------------------------------------------------------------------------------------
 // File: EnvironmentMapEffect.cpp
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkId=248929
 //--------------------------------------------------------------------------------------
@@ -42,13 +38,13 @@ struct EnvironmentMapEffectConstants
     XMMATRIX worldViewProj;
 };
 
-static_assert( ( sizeof(EnvironmentMapEffectConstants) % 16 ) == 0, "CB size not padded correctly" );
+static_assert((sizeof(EnvironmentMapEffectConstants) % 16) == 0, "CB size not padded correctly");
 
 
 // Traits type describes our characteristics to the EffectBase template.
 struct EnvironmentMapEffectTraits
 {
-    typedef EnvironmentMapEffectConstants ConstantBufferType;
+    using ConstantBufferType = EnvironmentMapEffectConstants;
 
     static const int VertexShaderCount = 10;
     static const int PixelShaderCount = 8;
@@ -260,21 +256,22 @@ const int EffectBase<EnvironmentMapEffectTraits>::PixelShaderIndices[] =
 
 
 // Global pool of per-device EnvironmentMapEffect resources.
-SharedResourcePool<ID3D11Device*, EffectBase<EnvironmentMapEffectTraits>::DeviceResources> EffectBase<EnvironmentMapEffectTraits>::deviceResourcesPool;
+template<>
+SharedResourcePool<ID3D11Device*, EffectBase<EnvironmentMapEffectTraits>::DeviceResources> EffectBase<EnvironmentMapEffectTraits>::deviceResourcesPool = {};
 
 
 // Constructor.
 EnvironmentMapEffect::Impl::Impl(_In_ ID3D11Device* device)
-  : EffectBase(device),
+    : EffectBase(device),
     preferPerPixelLighting(false),
     fresnelEnabled(true),
     specularEnabled(false),
     biasedVertexNormals(false)
 {
-    static_assert( _countof(EffectBase<EnvironmentMapEffectTraits>::VertexShaderIndices) == EnvironmentMapEffectTraits::ShaderPermutationCount, "array/max mismatch" );
-    static_assert( _countof(EffectBase<EnvironmentMapEffectTraits>::VertexShaderBytecode) == EnvironmentMapEffectTraits::VertexShaderCount, "array/max mismatch" );
-    static_assert( _countof(EffectBase<EnvironmentMapEffectTraits>::PixelShaderBytecode) == EnvironmentMapEffectTraits::PixelShaderCount, "array/max mismatch" );
-    static_assert( _countof(EffectBase<EnvironmentMapEffectTraits>::PixelShaderIndices) == EnvironmentMapEffectTraits::ShaderPermutationCount, "array/max mismatch" );
+    static_assert(_countof(EffectBase<EnvironmentMapEffectTraits>::VertexShaderIndices) == EnvironmentMapEffectTraits::ShaderPermutationCount, "array/max mismatch");
+    static_assert(_countof(EffectBase<EnvironmentMapEffectTraits>::VertexShaderBytecode) == EnvironmentMapEffectTraits::VertexShaderCount, "array/max mismatch");
+    static_assert(_countof(EffectBase<EnvironmentMapEffectTraits>::PixelShaderBytecode) == EnvironmentMapEffectTraits::PixelShaderCount, "array/max mismatch");
+    static_assert(_countof(EffectBase<EnvironmentMapEffectTraits>::PixelShaderIndices) == EnvironmentMapEffectTraits::ShaderPermutationCount, "array/max mismatch");
 
     constants.environmentMapAmount = 1;
     constants.fresnelFactor = 1;
@@ -356,20 +353,20 @@ void EnvironmentMapEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 
 // Public constructor.
 EnvironmentMapEffect::EnvironmentMapEffect(_In_ ID3D11Device* device)
-  : pImpl(new Impl(device))
+  : pImpl(std::make_unique<Impl>(device))
 {
 }
 
 
 // Move constructor.
-EnvironmentMapEffect::EnvironmentMapEffect(EnvironmentMapEffect&& moveFrom)
+EnvironmentMapEffect::EnvironmentMapEffect(EnvironmentMapEffect&& moveFrom) noexcept
   : pImpl(std::move(moveFrom.pImpl))
 {
 }
 
 
 // Move assignment.
-EnvironmentMapEffect& EnvironmentMapEffect::operator= (EnvironmentMapEffect&& moveFrom)
+EnvironmentMapEffect& EnvironmentMapEffect::operator= (EnvironmentMapEffect&& moveFrom) noexcept
 {
     pImpl = std::move(moveFrom.pImpl);
     return *this;

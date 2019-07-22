@@ -1,12 +1,8 @@
 //--------------------------------------------------------------------------------------
 // File: PBREffect.cpp
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkID=615561
 //--------------------------------------------------------------------------------------
@@ -40,13 +36,13 @@ struct PBREffectConstants
     float   targetHeight;
 };
 
-static_assert( ( sizeof(PBREffectConstants) % 16 ) == 0, "CB size not padded correctly" );
+static_assert((sizeof(PBREffectConstants) % 16) == 0, "CB size not padded correctly");
 
 
 // Traits type describes our characteristics to the EffectBase template.
 struct PBREffectTraits
 {
-    typedef PBREffectConstants ConstantBufferType;
+    using ConstantBufferType = PBREffectConstants;
 
     static const int VertexShaderCount = 4;
     static const int PixelShaderCount = 5;
@@ -165,26 +161,27 @@ const int EffectBase<PBREffectTraits>::PixelShaderIndices[] =
 
 // Global pool of per-device PBREffect resources. Required by EffectBase<>, but not used.
 template<>
-SharedResourcePool<ID3D11Device*, EffectBase<PBREffectTraits>::DeviceResources> EffectBase<PBREffectTraits>::deviceResourcesPool;
+SharedResourcePool<ID3D11Device*, EffectBase<PBREffectTraits>::DeviceResources> EffectBase<PBREffectTraits>::deviceResourcesPool = {};
 
 // Constructor.
 PBREffect::Impl::Impl(_In_ ID3D11Device* device)
     : EffectBase(device),
     biasedVertexNormals(false),
-    velocityEnabled(false)
+    velocityEnabled(false),
+    lightColor{}
 {
     if (device->GetFeatureLevel() < D3D_FEATURE_LEVEL_10_0)
     {
         throw std::exception("PBREffect requires Feature Level 10.0 or later");
     }
 
-    static_assert( _countof(EffectBase<PBREffectTraits>::VertexShaderIndices) == PBREffectTraits::ShaderPermutationCount, "array/max mismatch" );
-    static_assert( _countof(EffectBase<PBREffectTraits>::VertexShaderBytecode) == PBREffectTraits::VertexShaderCount, "array/max mismatch" );
-    static_assert( _countof(EffectBase<PBREffectTraits>::PixelShaderBytecode) == PBREffectTraits::PixelShaderCount, "array/max mismatch" );
-    static_assert( _countof(EffectBase<PBREffectTraits>::PixelShaderIndices) == PBREffectTraits::ShaderPermutationCount, "array/max mismatch" );
+    static_assert(_countof(EffectBase<PBREffectTraits>::VertexShaderIndices) == PBREffectTraits::ShaderPermutationCount, "array/max mismatch");
+    static_assert(_countof(EffectBase<PBREffectTraits>::VertexShaderBytecode) == PBREffectTraits::VertexShaderCount, "array/max mismatch");
+    static_assert(_countof(EffectBase<PBREffectTraits>::PixelShaderBytecode) == PBREffectTraits::PixelShaderCount, "array/max mismatch");
+    static_assert(_countof(EffectBase<PBREffectTraits>::PixelShaderIndices) == PBREffectTraits::ShaderPermutationCount, "array/max mismatch");
 
     // Lighting
-    static const XMVECTORF32 defaultLightDirection = { 0, -1, 0, 0 };
+    static const XMVECTORF32 defaultLightDirection = { { { 0, -1, 0, 0 } } };
     for (int i = 0; i < MaxDirectionalLights; i++)
     {
         lightColor[i] = g_XMOne;
@@ -204,8 +201,10 @@ int PBREffect::Impl::GetCurrentShaderPermutation() const
 {
     int permutation = 0;
 
+    // Textured RMA vs. constant albedo/roughness/metalness?
     if (velocityEnabled)
     {
+        // Optional velocity buffer (implies textured RMA)?
         permutation = 3;
     }
     else if (albedoTexture)
@@ -213,6 +212,7 @@ int PBREffect::Impl::GetCurrentShaderPermutation() const
         permutation = 1;
     }
 
+    // Using an emissive texture?
     if (emissiveTexture)
     {
         permutation += 1;
@@ -220,6 +220,7 @@ int PBREffect::Impl::GetCurrentShaderPermutation() const
 
     if (biasedVertexNormals)
     {
+        // Compressed normals need to be scaled and biased in the vertex shader.
         permutation += 5;
     }
 
@@ -286,20 +287,20 @@ void PBREffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 
 // Public constructor.
 PBREffect::PBREffect(_In_ ID3D11Device* device)
-    : pImpl(new Impl(device))
+    : pImpl(std::make_unique<Impl>(device))
 {
 }
 
 
 // Move constructor.
-PBREffect::PBREffect(PBREffect&& moveFrom)
+PBREffect::PBREffect(PBREffect&& moveFrom) noexcept
   : pImpl(std::move(moveFrom.pImpl))
 {
 }
 
 
 // Move assignment.
-PBREffect& PBREffect::operator= (PBREffect&& moveFrom)
+PBREffect& PBREffect::operator= (PBREffect&& moveFrom) noexcept
 {
     pImpl = std::move(moveFrom.pImpl);
     return *this;
@@ -461,6 +462,29 @@ void PBREffect::SetConstantRoughness(float value)
 
 
 // Texture settings.
+void PBREffect::SetAlbedoTexture(_In_opt_ ID3D11ShaderResourceView* value)
+{
+    pImpl->albedoTexture = value;
+}
+
+
+void PBREffect::SetNormalTexture(_In_opt_ ID3D11ShaderResourceView* value)
+{
+    pImpl->normalTexture = value;
+}
+
+
+void PBREffect::SetRMATexture(_In_opt_ ID3D11ShaderResourceView* value)
+{
+    pImpl->rmaTexture = value;
+}
+
+void PBREffect::SetEmissiveTexture(_In_opt_ ID3D11ShaderResourceView* value)
+{
+    pImpl->emissiveTexture = value;
+}
+
+
 void PBREffect::SetSurfaceTextures(
     _In_opt_ ID3D11ShaderResourceView* albedo,
     _In_opt_ ID3D11ShaderResourceView* normal,
@@ -485,14 +509,8 @@ void PBREffect::SetIBLTextures(
 }
 
 
-void PBREffect::SetEmissiveTexture(_In_opt_ ID3D11ShaderResourceView* emissive)
-{
-    pImpl->emissiveTexture = emissive;
-}
-
-
 // Normal compression settings.
-void PBREffect::SetBiasedVertexNormalsAndTangents(bool value)
+void PBREffect::SetBiasedVertexNormals(bool value)
 {
     pImpl->biasedVertexNormals = value;
 }

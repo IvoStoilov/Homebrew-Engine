@@ -1,5 +1,4 @@
 #include "system/profiling/profilemanager.h"
-#include <string>
 #include <fstream>
 
 std::string PROFILE_TEXTFILE_PATH = "Homebrew_ProfileInfo_dump.txt";

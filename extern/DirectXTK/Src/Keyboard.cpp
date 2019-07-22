@@ -1,14 +1,11 @@
-﻿//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
 // File: Keyboard.cpp
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkId=248929
+// http://go.microsoft.com/fwlink/?LinkID=615561
 //--------------------------------------------------------------------------------------
 
 #include "pch.h"
@@ -80,6 +77,7 @@ class Keyboard::Impl
 {
 public:
     Impl(Keyboard* owner) :
+        mState{},
         mOwner(owner)
     {
         if (s_keyboard)
@@ -88,8 +86,6 @@ public:
         }
 
         s_keyboard = this;
-
-        memset(&mState, 0, sizeof(State));
     }
 
     ~Impl()
@@ -133,43 +129,45 @@ void Keyboard::ProcessMessage(UINT message, WPARAM wParam, LPARAM lParam)
 
     switch (message)
     {
-    case WM_ACTIVATEAPP:
-        pImpl->Reset();
-        return;
+        case WM_ACTIVATEAPP:
+            pImpl->Reset();
+            return;
 
-    case WM_KEYDOWN:
-    case WM_SYSKEYDOWN:
-        down = true;
-        break;
+        case WM_KEYDOWN:
+        case WM_SYSKEYDOWN:
+            down = true;
+            break;
 
-    case WM_KEYUP:
-    case WM_SYSKEYUP:
-        break;
+        case WM_KEYUP:
+        case WM_SYSKEYUP:
+            break;
 
-    default:
-        return;
+        default:
+            return;
     }
 
     int vk = static_cast<int>(wParam);
     switch (vk)
     {
-    case VK_SHIFT:
-        vk = MapVirtualKey((lParam & 0x00ff0000) >> 16, MAPVK_VSC_TO_VK_EX);
-        if (!down)
-        {
-            // Workaround to ensure left vs. right shift get cleared when both were pressed at same time
-            KeyUp(VK_LSHIFT, pImpl->mState);
-            KeyUp(VK_RSHIFT, pImpl->mState);
-        }
-        break;
+        case VK_SHIFT:
+            vk = static_cast<int>(
+                MapVirtualKey((static_cast<UINT>(lParam) & 0x00ff0000) >> 16u,
+                    MAPVK_VSC_TO_VK_EX));
+            if (!down)
+            {
+                // Workaround to ensure left vs. right shift get cleared when both were pressed at same time
+                KeyUp(VK_LSHIFT, pImpl->mState);
+                KeyUp(VK_RSHIFT, pImpl->mState);
+            }
+            break;
 
-    case VK_CONTROL:
-        vk = (lParam & 0x01000000) ? VK_RCONTROL : VK_LCONTROL;
-        break;
+        case VK_CONTROL:
+            vk = (static_cast<UINT>(lParam) & 0x01000000) ? VK_RCONTROL : VK_LCONTROL;
+            break;
 
-    case VK_MENU:
-        vk = (lParam & 0x01000000) ? VK_RMENU : VK_LMENU;
-        break;
+        case VK_MENU:
+            vk = (static_cast<UINT>(lParam) & 0x01000000) ? VK_RMENU : VK_LMENU;
+            break;
     }
 
     if (down)
@@ -181,54 +179,6 @@ void Keyboard::ProcessMessage(UINT message, WPARAM wParam, LPARAM lParam)
         KeyUp(vk, pImpl->mState);
     }
 }
-
-
-#elif defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
-
-//======================================================================================
-// Null device for Windows Phone
-//======================================================================================
-
-class Keyboard::Impl
-{
-public:
-    Impl(Keyboard* owner) :
-        mOwner(owner)
-    {
-        if (s_keyboard)
-        {
-            throw std::exception("Keyboard is a singleton");
-        }
-
-        s_keyboard = this;
-    }
-
-    ~Impl()
-    {
-        s_keyboard = nullptr;
-    }
-
-    void GetState(State& state) const
-    {
-        memset(&state, 0, sizeof(State));
-    }
-
-    void Reset()
-    {
-    }
-
-    bool IsConnected() const
-    {
-        return false;
-    }
-
-    Keyboard*   mOwner;
-
-    static Keyboard::Impl* s_keyboard;
-};
-
-Keyboard::Impl* Keyboard::Impl::s_keyboard = nullptr;
-
 
 #else
 
@@ -251,19 +201,17 @@ class Keyboard::Impl
 {
 public:
     Impl(Keyboard* owner) :
-        mOwner(owner)
+        mState{},
+        mOwner(owner),
+        mAcceleratorKeyToken{},
+        mActivatedToken{}
     {
-        mAcceleratorKeyToken.value = 0;
-        mActivatedToken.value = 0;
-
         if (s_keyboard)
         {
             throw std::exception("Keyboard is a singleton");
         }
 
         s_keyboard = this;
-
-        memset(&mState, 0, sizeof(State));
     }
 
     ~Impl()
@@ -399,17 +347,17 @@ private:
 
         switch (evtType)
         {
-        case CoreAcceleratorKeyEventType_KeyDown:
-        case CoreAcceleratorKeyEventType_SystemKeyDown:
-            down = true;
-            break;
+            case CoreAcceleratorKeyEventType_KeyDown:
+            case CoreAcceleratorKeyEventType_SystemKeyDown:
+                down = true;
+                break;
 
-        case CoreAcceleratorKeyEventType_KeyUp:
-        case CoreAcceleratorKeyEventType_SystemKeyUp:
-            break;
+            case CoreAcceleratorKeyEventType_KeyUp:
+            case CoreAcceleratorKeyEventType_SystemKeyUp:
+                break;
 
-        default:
-            return S_OK;
+            default:
+                return S_OK;
         }
 
         CorePhysicalKeyStatus status;
@@ -424,23 +372,23 @@ private:
 
         switch (vk)
         {
-        case VK_SHIFT:
-            vk = (status.ScanCode == 0x36) ? VK_RSHIFT : VK_LSHIFT;
-            if (!down)
-            {
-                // Workaround to ensure left vs. right shift get cleared when both were pressed at same time
-                KeyUp(VK_LSHIFT, pImpl->mState);
-                KeyUp(VK_RSHIFT, pImpl->mState);
-            }
-            break;
+            case VK_SHIFT:
+                vk = (status.ScanCode == 0x36) ? VK_RSHIFT : VK_LSHIFT;
+                if (!down)
+                {
+                    // Workaround to ensure left vs. right shift get cleared when both were pressed at same time
+                    KeyUp(VK_LSHIFT, pImpl->mState);
+                    KeyUp(VK_RSHIFT, pImpl->mState);
+                }
+                break;
 
-        case VK_CONTROL:
-            vk = (status.IsExtendedKey) ? VK_RCONTROL : VK_LCONTROL;
-            break;
+            case VK_CONTROL:
+                vk = (status.IsExtendedKey) ? VK_RCONTROL : VK_LCONTROL;
+                break;
 
-        case VK_MENU:
-            vk = (status.IsExtendedKey) ? VK_RMENU : VK_LMENU;
-            break;
+            case VK_MENU:
+                vk = (status.IsExtendedKey) ? VK_RMENU : VK_LMENU;
+                break;
         }
 
         if (down)
@@ -470,14 +418,14 @@ void Keyboard::SetWindow(ABI::Windows::UI::Core::ICoreWindow* window)
 #pragma warning( disable : 4355 )
 
 // Public constructor.
-Keyboard::Keyboard()
-    : pImpl(new Impl(this))
+Keyboard::Keyboard() noexcept(false)
+    : pImpl(std::make_unique<Impl>(this))
 {
 }
 
 
 // Move constructor.
-Keyboard::Keyboard(Keyboard&& moveFrom)
+Keyboard::Keyboard(Keyboard&& moveFrom) noexcept
     : pImpl(std::move(moveFrom.pImpl))
 {
     pImpl->mOwner = this;
@@ -485,7 +433,7 @@ Keyboard::Keyboard(Keyboard&& moveFrom)
 
 
 // Move assignment.
-Keyboard& Keyboard::operator= (Keyboard&& moveFrom)
+Keyboard& Keyboard::operator= (Keyboard&& moveFrom) noexcept
 {
     pImpl = std::move(moveFrom.pImpl);
     pImpl->mOwner = this;
@@ -553,7 +501,7 @@ void Keyboard::KeyboardStateTracker::Update(const State& state)
 }
 
 
-void Keyboard::KeyboardStateTracker::Reset()
+void Keyboard::KeyboardStateTracker::Reset() noexcept
 {
     memset(this, 0, sizeof(KeyboardStateTracker));
 }

@@ -52,10 +52,10 @@ void vec4::operator= (const vec4& rhs)
 
 void vec4::operator=(const DirectX::XMVECTOR& value)
 {
-    _data[0] = value.m128_f32[0];
-    _data[1] = value.m128_f32[1];
-    _data[2] = value.m128_f32[2];
-    _data[3] = value.m128_f32[3];
+    _data[0] = value.vector4_f32[0];
+    _data[1] = value.vector4_f32[1];
+    _data[2] = value.vector4_f32[2];
+    _data[3] = value.vector4_f32[3];
 }
 
 bool vec4::operator==(const vec4& rhs) const

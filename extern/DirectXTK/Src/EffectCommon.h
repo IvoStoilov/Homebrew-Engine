@@ -1,12 +1,8 @@
 //--------------------------------------------------------------------------------------
 // File: EffectCommon.h
 //
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
 // Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkId=248929
 //--------------------------------------------------------------------------------------
@@ -47,7 +43,7 @@ namespace DirectX
     // Helper stores matrix parameter values, and computes derived matrices.
     struct EffectMatrices
     {
-        EffectMatrices();
+        EffectMatrices() noexcept;
 
         XMMATRIX world;
         XMMATRIX view;
@@ -61,7 +57,7 @@ namespace DirectX
     // Helper stores the current fog settings, and computes derived shader parameters.
     struct EffectFog
     {
-        EffectFog();
+        EffectFog() noexcept;
 
         bool enabled;
         float start;
@@ -74,7 +70,7 @@ namespace DirectX
     // Helper stores material color settings, and computes derived parameters for shaders that do not support realtime lighting.
     struct EffectColor
     {
-        EffectColor();
+        EffectColor() noexcept;
 
         XMVECTOR diffuseColor;
         float alpha;
@@ -86,7 +82,7 @@ namespace DirectX
     // Helper stores the current light settings, and computes derived shader parameters.
     struct EffectLights : public EffectColor
     {
-        EffectLights();
+        EffectLights() noexcept;
 
         static const int MaxDirectionalLights = IEffectLights::MaxDirectionalLights;
 
@@ -126,7 +122,7 @@ namespace DirectX
     class EffectDeviceResources
     {
     public:
-        EffectDeviceResources(_In_ ID3D11Device* device)
+        EffectDeviceResources(_In_ ID3D11Device* device) noexcept
           : mDevice(device)
         { }
 
@@ -149,10 +145,10 @@ namespace DirectX
     public:
         // Constructor.
         EffectBase(_In_ ID3D11Device* device)
-          : dirtyFlags(INT_MAX),
+          : constants{},
+            dirtyFlags(INT_MAX),
             mConstantBuffer(device),
-            mDeviceResources(deviceResourcesPool.DemandCreate(device)),
-            constants{}
+            mDeviceResources(deviceResourcesPool.DemandCreate(device))
         {
         }
 
@@ -244,8 +240,10 @@ namespace DirectX
         class DeviceResources : protected EffectDeviceResources
         {
         public:
-            DeviceResources(_In_ ID3D11Device* device)
-              : EffectDeviceResources(device)
+            DeviceResources(_In_ ID3D11Device* device) noexcept
+              : EffectDeviceResources(device),
+                mVertexShaders{},
+                mPixelShaders{}
             { }
 
         
