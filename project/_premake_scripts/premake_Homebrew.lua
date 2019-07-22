@@ -49,7 +49,7 @@ group ""
 -- ****************
 project "Gameplay"
 	location(PROJECT_DIR .. "/gameplay")
-	kind "ConsoleApp"
+	kind "WindowedApp"
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "on"
