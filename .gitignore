@@ -18,8 +18,8 @@
 
 *.VC.db
 *.sln
-*.vcxprj
-*.vcxprj.filters
+*.vcxproj
+*.vcxproj.filters
 
 .vs
 bin/Debug
