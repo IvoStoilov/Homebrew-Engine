@@ -6,9 +6,10 @@ MAIN_DIR    = "../.."
 OUTPUT_DIR  = MAIN_DIR .. "/bin/%{cfg.buildcfg}"
 TEMP_DIR    = MAIN_DIR .. "temp/%{cfg.buildcfg}"
 
+include "premake_SystemSandbox"
 workspace "HomebrewEngine"
-	filename "HomebrewEngine_%{_ACTION}"
-	location(PROJECT_DIR)
+    filename "HomebrewEngine_%{_ACTION}"
+    location(PROJECT_DIR)
 
     architecture "x64"
     startproject "Gameplay"
@@ -20,72 +21,72 @@ workspace "HomebrewEngine"
         "Final"
     }
 
-	defines
-	{
-		"_CRT_SECURE_NO_WARNINGS",
-		"_XM_NO_INTRINSICS_"
-	}
+    defines
+    {
+        "_CRT_SECURE_NO_WARNINGS",
+        "_XM_NO_INTRINSICS_"
+    }
 
-	includedirs
-	{
-		MAIN_DIR,
-		MAIN_DIR .. "/source"
-	}
+    includedirs
+    {
+        MAIN_DIR,
+        MAIN_DIR .. "/source"
+    }
 
-	disablewarnings 
-	{
-		"4005",
-		"4530",
-		"4577",
-		"4996"
-	}
+    disablewarnings 
+    {
+        "4005",
+        "4530",
+        "4577",
+        "4996"
+    }
 
 group "Extern"
-	include "premake_DirectXTK"
+    include "premake_DirectXTK"
 group ""
 
 -- ****************
 -- *** Gameplay ***
 -- ****************
 project "Gameplay"
-	location(PROJECT_DIR .. "/gameplay")
-	kind "WindowedApp"
-	language "C++"
-	cppdialect "C++17"
-	staticruntime "on"
+    location(PROJECT_DIR .. "/gameplay")
+    kind "WindowedApp"
+    language "C++"
+    cppdialect "C++17"
+    staticruntime "on"
 
- 	targetdir(OUTPUT_DIR);
+    targetdir(OUTPUT_DIR);
     objdir(TEMP_DIR);
     
-	files
+    files
     {
         MAIN_DIR .. "/source/gameplay/**.h",
         MAIN_DIR .. "/source/gameplay/**.cpp",
     }
 
-	links
-	{
-		"Engine"
-	}
+    links
+    {
+        "Engine"
+    }
 
-	filter "system:windows"
-		systemversion "latest"
+    filter "system:windows"
+        systemversion "latest"
 
-	filter "configurations:Debug"
-    	defines "POP_DEBUG"
-	    runtime "Debug"
-    	symbols "on"
+    filter "configurations:Debug"
+        defines "POP_DEBUG"
+        runtime "Debug"
+        symbols "on"
 
-	filter "configurations:Release"
-    	defines "POP_RELEASE"
-    	runtime "Release"
-    	optimize "on"
+    filter "configurations:Release"
+        defines "POP_RELEASE"
+        runtime "Release"
+        optimize "on"
 
 filter "configurations:Final"
     defines
     {
-    	"POP_RELEASE",
-    	"POP_FINAL"
+        "POP_RELEASE",
+        "POP_FINAL"
     }
     runtime "Release"
     optimize "on"
@@ -111,8 +112,8 @@ project "Engine"
 
     links 
     {
-    	"Graphics", 
-    	"System"
+        "Graphics", 
+        "System"
     }
 
     includedirs
@@ -120,28 +121,28 @@ project "Engine"
         os.getenv("DXSDK_DIR") .. "/Include"
     }
     
-	filter "system:windows"
-		systemversion "latest"
+    filter "system:windows"
+        systemversion "latest"
 
-	filter "configurations:Debug"
-    	defines "POP_DEBUG"
-	    runtime "Debug"
-    	symbols "on"
+    filter "configurations:Debug"
+        defines "POP_DEBUG"
+        runtime "Debug"
+        symbols "on"
 
-	filter "configurations:Release"
-	    defines "POP_RELEASE"
-	    runtime "Release"
-	    optimize "on"
+    filter "configurations:Release"
+        defines "POP_RELEASE"
+        runtime "Release"
+        optimize "on"
 
-	filter "configurations:Final"
-    	defines
-	    {
-    		"POP_RELEASE",
-    		"POP_FINAL"
-    	}
+    filter "configurations:Final"
+        defines
+        {
+            "POP_RELEASE",
+            "POP_FINAL"
+        }
     
-    	runtime "Release"
-    	optimize "on"
+        runtime "Release"
+        optimize "on"
 
 -- ****************
 -- *** Graphics ***
@@ -158,7 +159,7 @@ project "Graphics"
 
     links
     {
-    	"System"
+        "System"
     }
     --pchheader precompile
     --pchsource source/ ..... / precompile.cpp
@@ -176,91 +177,41 @@ project "Graphics"
 
     links
     {
-    	"System",
-    	"DirectXTK",
-    	"d3dx11",
-    	"d3dx10"
+        "System",
+        "DirectXTK",
+        "d3dx11",
+        "d3dx10"
     }
 
     libdirs
     {
-    	os.getenv("DXSDK_DIR") .. "/Lib/x64",
-    	OUTPUT_DIR -- because it is missing the xcopy libs
-	}
+        os.getenv("DXSDK_DIR") .. "/Lib/x64",
+        OUTPUT_DIR -- because it is missing the xcopy libs
+    }
 
-	filter "system:windows"
-		systemversion "latest"
+    filter "system:windows"
+        systemversion "latest"
 
-	filter "configurations:Debug"
-	    defines "POP_DEBUG"
-	    runtime "Debug"
-    	symbols "on"
+    filter "configurations:Debug"
+        defines "POP_DEBUG"
+        runtime "Debug"
+        symbols "on"
 
-	filter "configurations:Release"
-	    defines "POP_RELEASE"
-	    runtime "Release"
-    	optimize "on"
+    filter "configurations:Release"
+        defines "POP_RELEASE"
+        runtime "Release"
+        optimize "on"
 
-	filter "configurations:Final"
-    	defines
-    	{
-    		"POP_RELEASE",
-    		"POP_FINAL"
-    	}
-    	runtime "Release"
-    	optimize "on"
+    filter "configurations:Final"
+        defines
+        {
+            "POP_RELEASE",
+            "POP_FINAL"
+        }
+        runtime "Release"
+        optimize "on"
 
 -- **************
 -- *** System ***
 -- **************
-project "System"
-    location(PROJECT_DIR .. "/system");
-    kind "StaticLib"
-    language "C++"
-    cppdialect "C++17"
-    staticruntime "on"
-    
-    targetdir(OUTPUT_DIR);
-    objdir(TEMP_DIR);
-
-    --pchheader precompile
-    --pchsource source/ ..... / precompile.cpp
-
-    files
-    {
-        MAIN_DIR .. "/source/system/**.h",
-        MAIN_DIR .. "/source/system/**.cpp"
-    }
-
-	includedirs
-    {
-        os.getenv("DXSDK_DIR") .. "/Include"
-    }
-
-	libdirs
-    {
-    	os.getenv("DXSDK_DIR") .. "/Lib/x64"
-    }
-
-	filter "system:windows"
-		systemversion "latest"
-
-	filter "configurations:Debug"
-    	defines "POP_DEBUG"
-    	runtime "Debug"
-    	symbols "on"
-
-	filter "configurations:Release"
-	    defines "POP_RELEASE"
-	    runtime "Release"
-	    optimize "on"
-
-	filter "configurations:Final"
-    	defines
-    	{
-	    	"POP_RELEASE",
-    		"POP_FINAL"
-    	}
-
-    	runtime "Release"
-    	optimize "on"
+    include "premake_System"
