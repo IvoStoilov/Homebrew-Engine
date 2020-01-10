@@ -17,7 +17,7 @@ public:
     D3D11();
     ~D3D11();
 
-    bool Initialize(uint32_t screenWidth, uint32_t screenHeight, HWND hwnd, bool vsync, bool fullscreen, float screenDepth, float screenNear);
+    bool Initialize(uint32_t screenWidth, uint32_t screenHeight, WindowHandle& windowHandle, bool vsync, bool fullscreen, float screenDepth, float screenNear);
     void Shutdown();
 
     void BeginScene(float r, float g, float b, float a);
@@ -46,7 +46,7 @@ public:
 
 private:
     bool InitGraphicsCardProperties(uint32_t screenWidth, uint32_t screenHeight, uint32_t& outNumerator, uint32_t& outDenominator);
-    bool InitDeviceAndSwapchain(uint32_t screenWidth, uint32_t screenHeight, HWND hwnd, bool fullscreen, uint32_t numerator, uint32_t denominator);
+    bool InitDeviceAndSwapchain(uint32_t screenWidth, uint32_t screenHeight, WindowHandle& windowHandle, bool fullscreen, uint32_t numerator, uint32_t denominator);
     bool InitDepthStencilView(uint32_t screenWidth, uint32_t screenHeight);
     bool InitDepthStencilState();
     bool InitDepthDisabledStencilState();

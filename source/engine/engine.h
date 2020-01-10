@@ -3,12 +3,12 @@
 #include <stdint.h>
 #include <windows.h>
 
-#include "engine/input/inputhandler.h"
+#include <engine/input/inputhandler.h>
+#include <engine/entitymodel/entity.h>
 
-#include "entitymodel/entity.h"
-#include "system/fpscounter.h"
-#include "system/cpuinfo.h"
-#include "system/clock.h"
+#include <system/fpscounter.h>
+#include <system/cpuinfo.h>
+#include <system/clock.h>
 
 class Camera;
 class Engine
@@ -20,11 +20,11 @@ private:
 
 public:
     static Engine* GetInstance();
-    static void CreateInstance(HINSTANCE hInstance, HWND hwnd, uint32_t width, uint32_t height, int32_t windowPosX, int32_t windowPosY);
+    static void CreateInstance();
     static void CleanInstnace();
 
 public:
-    bool Initialize(HINSTANCE hInstance, HWND hwnd, uint32_t width, uint32_t height, int32_t windowPosX, int32_t windowPosY);
+    bool Initialize();
     void Shutdown();
 
     inline bool          HasRequestedQuit() const { return m_HasRequestedQuit; }

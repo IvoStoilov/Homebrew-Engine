@@ -1,5 +1,10 @@
-#include "precompile.h"
-#include "graphics/d3d11.h"
+#include <precompile.h>
+#include <graphics/d3d11.h>
+
+#include <system/viewprovider/viewprovider.h>
+#ifdef POP_PLATFORM_WINDOWS
+#include <system/viewprovider/win64/win64viewprovider.h>
+#endif //POP_PLATFORM_WINDOWS
 
 D3D11::D3D11() :
     m_SwapChain(nullptr),
@@ -20,7 +25,7 @@ D3D11::~D3D11()
 {
 }
 
-bool D3D11::Initialize(uint32_t screenWidth, uint32_t screenHeight, HWND hwnd, bool vsync, bool fullscreen, float screenDepth, float screenNear)
+bool D3D11::Initialize(uint32_t screenWidth, uint32_t screenHeight, WindowHandle& windowHandle, bool vsync, bool fullscreen, float screenDepth, float screenNear)
 {
     uint32_t numerator, denominator;
     
@@ -29,7 +34,7 @@ bool D3D11::Initialize(uint32_t screenWidth, uint32_t screenHeight, HWND hwnd, b
     if (!InitGraphicsCardProperties(screenWidth, screenHeight, numerator, denominator))
         return false;
 
-    if (!InitDeviceAndSwapchain(screenWidth, screenHeight, hwnd, fullscreen, numerator, denominator))
+    if (!InitDeviceAndSwapchain(screenWidth, screenHeight, windowHandle, fullscreen, numerator, denominator))
         return false;
 
     if (!InitDepthStencilView(screenWidth, screenHeight))
@@ -160,7 +165,7 @@ bool D3D11::InitGraphicsCardProperties(uint32_t screenWidth, uint32_t screenHeig
     return true;
 }
 
-bool D3D11::InitDeviceAndSwapchain(uint32_t screenWidth, uint32_t screenHeight, HWND hwnd, bool fullscreen, uint32_t numerator, uint32_t denominator)
+bool D3D11::InitDeviceAndSwapchain(uint32_t screenWidth, uint32_t screenHeight, WindowHandle& windowHandle, bool fullscreen, uint32_t numerator, uint32_t denominator)
 {
     DXGI_SWAP_CHAIN_DESC swapChainDesc;
     D3D_FEATURE_LEVEL featureLevel;
@@ -194,7 +199,11 @@ bool D3D11::InitDeviceAndSwapchain(uint32_t screenWidth, uint32_t screenHeight, 
     swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 
     // Set the handle for the window to render to.
-    swapChainDesc.OutputWindow = hwnd;
+#ifdef POP_PLATFORM_WINDOWS
+    swapChainDesc.OutputWindow = static_cast<Win64WindowHandle*>(&windowHandle)->GetWin64WindowHandle();
+#else
+#error Platform not supported!
+#endif//POP_PLATFORM_WINDOWS
 
     // Turn multisampling off.
     swapChainDesc.SampleDesc.Count = 1;

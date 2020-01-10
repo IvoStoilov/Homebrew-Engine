@@ -13,6 +13,6 @@ tools/
 *.user
 
 [SearchableFiles.include]
-*.h
-*.cpp
+*.h*
+*.c*
 *.hlsl

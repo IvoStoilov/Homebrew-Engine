@@ -41,6 +41,8 @@ workspace "HomebrewEngine"
         "4996"
     }
 
+	characterset("ASCII");
+
 group "Extern"
     include "premake_DirectXTK"
 group ""
@@ -69,8 +71,12 @@ project "Gameplay"
         "Engine"
     }
 
-    filter "system:windows"
-        systemversion "latest"
+	filter "system:windows"
+		systemversion "latest"
+		defines
+		{
+			"POP_PLATFORM_WINDOWS"
+		}
 
     filter "configurations:Debug"
         defines "POP_DEBUG"
@@ -121,8 +127,13 @@ project "Engine"
         os.getenv("DXSDK_DIR") .. "/Include"
     }
     
-    filter "system:windows"
-        systemversion "latest"
+	filter "system:windows"
+		systemversion "latest"
+		
+		defines
+		{
+			"POP_PLATFORM_WINDOWS"
+		}
 
     filter "configurations:Debug"
         defines "POP_DEBUG"
@@ -192,10 +203,15 @@ project "Graphics"
     filter "system:windows"
         systemversion "latest"
 
-    filter "configurations:Debug"
-        defines "POP_DEBUG"
-        runtime "Debug"
-        symbols "on"
+		defines
+		{
+			"POP_PLATFORM_WINDOWS"
+		}
+
+	filter "configurations:Debug"
+	    defines "POP_DEBUG"
+	    runtime "Debug"
+    	symbols "on"
 
     filter "configurations:Release"
         defines "POP_RELEASE"
@@ -214,4 +230,4 @@ project "Graphics"
 -- **************
 -- *** System ***
 -- **************
-    include "premake_System"
+	include "premake_System"

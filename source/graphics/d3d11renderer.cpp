@@ -1,39 +1,36 @@
 #include "precompile.h"
+#include <graphics/d3d11renderer.h>
 //TODO istoilov: remove the include of #include <d3dx10math.h> in d3d11renderer
-#include "graphics/d3d11.h"
-#include "graphics/d3d11renderer.h"
+#include <graphics/d3d11.h>
+#include <graphics/graphicsnode.h>
+#include <graphics/isubrenderer.h>
+#include <graphics/terrain/terrainrenderer.h>
+#include <graphics/debugdisplay/debugdisplayrenderer.h>
+#include <graphics/skydome/skydomerenderer.h>
+#include <graphics/textrendering/textrenderer.h>
+#include <graphics/water/waterrenderer.h>
+#include <graphics/textrendering/text.h>
 
-#include "graphics/graphicsnode.h"
+#include <engine/camera.h>
+#include <engine/engine.h>
+#include <engine/entitymodel/entity.h>
+#include <engine/entitymodel/components/visualcomponent.h>
 
-#include "graphics/isubrenderer.h"
-#include "graphics/terrain/terrainrenderer.h"
-#include "graphics/debugdisplay/debugdisplayrenderer.h"
-#include "graphics/skydome/skydomerenderer.h"
-#include "graphics/textrendering/textrenderer.h"
-#include "graphics/water/waterrenderer.h"
-
-#include "graphics/textrendering/text.h"
-
-#include "engine/entitymodel/entity.h"
-#include "engine/entitymodel/components/visualcomponent.h"
-
-#include "engine/camera.h"
-#include "engine/engine.h"
-
-#include "system/error.h"
-
-#include <windows.h>
+#include <system/viewprovider/viewprovider.h>
+#include <system/error.h>
 
 std::string path = "../../resource/ink-splatter-texture.png";
 constexpr f32 WATER_LEVEL = 3.f;
 
 D3D11Renderer* D3D11Renderer::s_Instance = nullptr;
 
-bool D3D11Renderer::Initialize(HWND hwnd, u32 screenWidth, u32 screenHeight)
+bool D3D11Renderer::Initialize(WindowHandle& windowHandle, u32 screenWidth, u32 screenHeight)
 {
     m_D3D = new D3D11();
     popAssert(m_D3D != nullptr, "Memory Alloc Failed");
-    popAssert(m_D3D->Initialize(screenWidth, screenHeight, hwnd, VSYNC_ENABLED, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR), "D3D Init Failed");
+
+    bool success = m_D3D->Initialize(screenWidth, screenHeight, windowHandle, VSYNC_ENABLED, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+    popAssert(success, "D3D Init Failed");
 
     m_ReflectionTexture = std::make_shared<RenderTexture>();
     m_ReflectionTexture->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight);
@@ -230,12 +227,12 @@ void D3D11Renderer::CleanInstance()
     }
 }
 
-void D3D11Renderer::CreateInstance(HWND hwnd, u32 screenWidth, u32 screenHeight)
+void D3D11Renderer::CreateInstance(WindowHandle& windowHandle, u32 screenWidth, u32 screenHeight)
 {
     if (s_Instance == nullptr)
     {
         s_Instance = new D3D11Renderer();
-        s_Instance->Initialize(hwnd, screenWidth, screenHeight);
+        s_Instance->Initialize(windowHandle, screenWidth, screenHeight);
     }
 }
 

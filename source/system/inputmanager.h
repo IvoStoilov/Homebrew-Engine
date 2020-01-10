@@ -11,6 +11,7 @@
 #include <dinput.h>
 #include <stdint.h>
 
+class ViewProvider;
 class InputManager
 {
 public:
@@ -30,12 +31,12 @@ private:
     InputManager();
     ~InputManager();
 
-    bool Initialize(HINSTANCE hInstance, HWND hwnd, uint32_t width, uint32_t height, int32_t windowPosX, int32_t windowPosY);
+    bool Initialize(ViewProvider& viewProvider);
     void Shutdown();
 
 public:
     static InputManager* GetInstance();
-    static void CreateInstance(HINSTANCE hInstance, HWND hwnd, uint32_t width, uint32_t height, int32_t windowPosX, int32_t windowPosY);
+    static void CreateInstance(ViewProvider& viewProvider);
     static void CleanInstance();
 
     bool Update();

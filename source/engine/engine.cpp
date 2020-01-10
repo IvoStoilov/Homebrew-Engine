@@ -1,14 +1,15 @@
 #include "precompile.h"
 #include "engine/engine.h"
 #include "engine/camera.h"
+#include "engine/entitymodel/components/visualcomponent.h"
 
+#include <system/viewprovider/viewprovider.h>
 #include "system/inputmanager.h"
 #include "system/profiling/profilemanager.h"
 #include "system/commandline/commandlineoptions.h"
-
 #include "system/error.h"
+
 #include "graphics/d3d11renderer.h"
-#include "entitymodel/components/visualcomponent.h"
 
 //Temp Hack
 #include "graphics/terrain/terrain.h"
@@ -18,7 +19,7 @@
 
 Engine* Engine::s_Instance = nullptr;
 
-bool Engine::Initialize(HINSTANCE hInstance, HWND hwnd, uint32_t width, uint32_t height, int32_t windowPosX, int32_t windowPosY)
+bool Engine::Initialize()
 {
     ProfileManager::CreateInstance();
 
@@ -33,9 +34,11 @@ bool Engine::Initialize(HINSTANCE hInstance, HWND hwnd, uint32_t width, uint32_t
             return true;
     }
 
-    InputManager::CreateInstance(hInstance, hwnd, width, height, windowPosX, windowPosY);
+    ViewProvider::CreateInstance();
+    ViewProvider& viewProvider = ViewProvider::GetInstance();
 
-    D3D11Renderer::CreateInstance(hwnd, width, height);
+    InputManager::CreateInstance(viewProvider);
+    D3D11Renderer::CreateInstance(*viewProvider.GetWindowHandle(), viewProvider.GetWindowWidth(), viewProvider.GetWindowHeight());
 
     m_Camera = new Camera();
     popAssert(m_Camera != nullptr, "Memory Alloc Failed");
@@ -69,8 +72,13 @@ bool Engine::Initialize(HINSTANCE hInstance, HWND hwnd, uint32_t width, uint32_t
 //----Main Update loop----
 void Engine::Update()
 {
+    if (g_CommandLineOptions->m_QuitAfterInit)
+        return;
+
     m_WorldClock.Update();
     float dt = GetFrameTimeInS();
+
+    ViewProvider::GetInstance().Update();
 
     g_InputManager->Update();
 
@@ -136,12 +144,12 @@ void Engine::GetCameraViewMatrix(mat4x4& outMatrix)
     m_Camera->GetViewMatrix(outMatrix); 
 }
 
-void Engine::CreateInstance(HINSTANCE hInstance, HWND hwnd, uint32_t width, uint32_t height, int32_t windowPosX, int32_t windowPosY)
+void Engine::CreateInstance()
 {
     if (s_Instance == nullptr)
     {
         s_Instance = new Engine();
-        popAssert(s_Instance->Initialize(hInstance, hwnd, width, height, windowPosX, windowPosY), "Engine::Initialize failed.");
+        popAssert(s_Instance->Initialize(), "Engine::Initialize failed.");
     }
 }
 

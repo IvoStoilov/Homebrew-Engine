@@ -12,6 +12,7 @@ class VisualComponent;
 class ISubRenderer;
 class DebugDisplayRenderer;
 class RenderTexture;
+class WindowHandle;
 class D3D11Renderer
 {
 private:
@@ -31,14 +32,14 @@ private:
     D3D11Renderer();
     ~D3D11Renderer();
 
-    bool Initialize(HWND hwnd, u32 screenWidth, u32 screenHeight);
+    bool Initialize(WindowHandle& windowHandle, u32 screenWidth, u32 screenHeight);
     void Shutdown();
 
 public:
     DebugDisplayRenderer* GetDebugDisplayRenderer() const;
 
     static D3D11Renderer* GetInstance();
-    static void CreateInstance(HWND hwnd, u32 screenWidth, u32 screenHeight);
+    static void CreateInstance(WindowHandle& windowHandle, u32 screenWidth, u32 screenHeight);
     static void CleanInstance();
 
 public:
