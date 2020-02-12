@@ -28,7 +28,11 @@ project "System"
     }
 
     filter "system:windows"
-        systemversion "latest"
+		systemversion "latest"
+		defines
+		{
+			"POP_PLATFORM_WINDOWS"
+		}
 
     filter "configurations:Debug"
         defines "POP_DEBUG"

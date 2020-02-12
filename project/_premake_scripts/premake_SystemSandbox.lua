@@ -1,3 +1,5 @@
+include "premake_Global"
+
 workspace "SystemSandbox"
     filename "SystemSandbox_%{_ACTION}"
     location(PROJECT_DIR)
@@ -14,7 +16,7 @@ workspace "SystemSandbox"
     defines
     {
         "_CRT_SECURE_NO_WARNINGS",
-        "_XM_NO_INTRINSICS_"
+        "_XM_NO_INTRINSICS_",
     }
 
     includedirs
@@ -30,6 +32,8 @@ workspace "SystemSandbox"
         "4577",
         "4996"
     }
+
+    characterset("ASCII");
 
 project "Sandbox"
     location(PROJECT_DIR .. "/sandbox")
@@ -53,7 +57,11 @@ project "Sandbox"
     }
 
     filter "system:windows"
-        systemversion "latest"
+		systemversion "latest"
+		defines
+		{
+			"POP_PLATFORM_WINDOWS"
+		}
 
     filter "configurations:Debug"
         defines "POP_DEBUG"

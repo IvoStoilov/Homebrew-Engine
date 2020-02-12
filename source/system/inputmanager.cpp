@@ -1,9 +1,7 @@
+#include <precompile.h>
 #include <system/inputmanager.h>
+#include <system/viewprovider/viewprovider.h>
 #include <system/error.h>
-
-#ifdef POP_PLATFORM_WINDOWS
-#include <system/viewprovider/win64/win64viewprovider.h>
-#endif
 
 InputManager* InputManager::s_Instance = nullptr;
 
@@ -53,10 +51,8 @@ bool InputManager::Initialize(ViewProvider& viewProvider)
     m_MouseY = 0;
 
 #ifdef POP_PLATFORM_WINDOWS
-    Win64ViewProvider* win64ViewProvider = static_cast<Win64ViewProvider*>(&viewProvider);
-
     HRESULT result;
-    result = DirectInput8Create(win64ViewProvider->GetWin64hInstance(), DIRECT_INPUTVERSION, IID_IDirectInput8, (void**)& m_DirectInput, nullptr);
+    result = DirectInput8Create(viewProvider.GetHInstnace(), DIRECT_INPUTVERSION, IID_IDirectInput8, (void**)& m_DirectInput, nullptr);
     popAssert(!FAILED(result), "InputManager::Initialize Failed.");
 
     //Keyboard setup
@@ -66,7 +62,7 @@ bool InputManager::Initialize(ViewProvider& viewProvider)
     result = m_Keyboard->SetDataFormat(&c_dfDIKeyboard);
     popAssert(!FAILED(result), "InputManager::SetDataFormat Failed.");
 
-    result = m_Keyboard->SetCooperativeLevel(win64ViewProvider->GetWin64WindowHandle(), DISCL_FOREGROUND | DISCL_EXCLUSIVE);
+    result = m_Keyboard->SetCooperativeLevel(viewProvider.GetWindowHandle(), DISCL_FOREGROUND | DISCL_EXCLUSIVE);
     popAssert(!FAILED(result), "InputManager::SetCooperativeLevel Failed.");
 
     result = m_Keyboard->Acquire();
@@ -79,7 +75,7 @@ bool InputManager::Initialize(ViewProvider& viewProvider)
     result = m_Mouse->SetDataFormat(&c_dfDIMouse);
     popAssert(!FAILED(result), "InputManager::SetDataFormat Failed.");
 
-    result = m_Mouse->SetCooperativeLevel(win64ViewProvider->GetWin64WindowHandle(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+    result = m_Mouse->SetCooperativeLevel(viewProvider.GetWindowHandle(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
     popAssert(!FAILED(result), "InputManager::SetCooperativeLevel Failed.");
 
     result = m_Mouse->Acquire();

@@ -1,9 +1,7 @@
 #pragma once
-class WindowHandle
-{
-public:
-    virtual void ReleaseHandle() = 0;
-};
+#ifdef POP_PLATFORM_WINDOWS
+#include <windows.h>
+#endif //POP_PLATFORM_WINDOWS
 
 class ViewProvider
 {
@@ -20,38 +18,45 @@ public:
 public:
     static ViewProvider& GetInstance();
     static void CreateInstance();
-    static void CleanInstnace();
+    static void DestroyInstnace();
+
 public:
     ViewProvider();
-    virtual ~ViewProvider();
+    ~ViewProvider();
 
     bool Initialize();
     void Shutdown();
+    void Update();
 
-    virtual bool InitializeInternal() = 0;
-    virtual void ShutdownInternal() = 0;
-    virtual void Update() = 0;
-
-    inline WindowHandle* GetWindowHandle() { return m_WindowHandle; }
     inline const WindowResolution& GetWindowResolution() const { return m_WindowResolution; }
     inline u32 GetWindowWidth() const { return m_WindowResolution.m_Width; }
     inline u32 GetWindowHeight() const { return m_WindowResolution.m_Height; }
     inline u32 GetWindowPosX() const { return m_WindowPosX; }
     inline u32 GetWindowPosY() const { return m_WindowPosY; }
 
-    virtual void ActivateFullscreen() = 0;
-    virtual void DeactivateFullscreen() = 0;
+    void ActivateFullscreen();
+    void DeactivateFullscreen();
+
+#ifdef POP_PLATFORM_WINDOWS
+    HWND GetWindowHandle() { return m_Win64_HWND; }
+    HINSTANCE GetHInstnace() { return m_Win64_hInstnace; }
+private:
+    HWND m_Win64_HWND;
+    HINSTANCE m_Win64_hInstnace;
+#else //POP_PLATFORM_WINDOWS
+    #error Platform Not Supported!
+#endif
 
 protected:
-    virtual WindowResolution GetMonitorResolution() = 0;
+    WindowResolution GetMonitorResolution();
+    bool InitializeInternal();
+    void ShutdownInternal();
 
-    void InitializeWindowHandle();
     void SetDefaultPositionAndResolution();
 
 protected:
     String m_ApplicationName;
-    WindowHandle* m_WindowHandle = nullptr;
-
+    
     u32 m_WindowPosX = 0;
     u32 m_WindowPosY = 0;
 

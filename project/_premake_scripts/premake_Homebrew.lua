@@ -1,12 +1,5 @@
--- *****************
--- *** Constants ***
--- *****************
-PROJECT_DIR = "../"
-MAIN_DIR    = "../.."
-OUTPUT_DIR  = MAIN_DIR .. "/bin/%{cfg.buildcfg}"
-TEMP_DIR    = MAIN_DIR .. "temp/%{cfg.buildcfg}"
+include "premake_Global"
 
-include "premake_SystemSandbox"
 workspace "HomebrewEngine"
     filename "HomebrewEngine_%{_ACTION}"
     location(PROJECT_DIR)
@@ -230,4 +223,4 @@ project "Graphics"
 -- **************
 -- *** System ***
 -- **************
-	include "premake_System"
+    include "premake_System"

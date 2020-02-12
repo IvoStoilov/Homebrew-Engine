@@ -1,15 +1,15 @@
-#include <precompile.h>
-#include <system/viewprovider/viewprovider.h>
-#include <system/commandline/commandlineoptions.h>
+#include "system/precompile.h"
+#include "system/viewprovider/viewprovider.h"
+#include "system/commandline/commandlineoptions.h"
 
-#include <system/error.h>
-
-#ifdef POP_PLATFORM_WINDOWS
-#include <system/viewprovider/win64/win64viewprovider.h>
-#endif //POP_PLATFORM_WINDOWS
+#include "system/error.h"
 
 constexpr u32 WINDOWED_SCREEN_WIDTH = 1024;
 constexpr u32 WINDOWED_SCREEN_HEIGHT = 720;
+
+// **************************************
+// *** Start Singleton Implementation ***
+// **************************************
 
 ViewProvider* ViewProvider::sm_ViewProviderInstance = nullptr;
 
@@ -23,15 +23,13 @@ void ViewProvider::CreateInstance()
 {
     if (!sm_ViewProviderInstance)
     {
-#ifdef POP_PLATFORM_WINDOWS
-        sm_ViewProviderInstance = new Win64ViewProvider();
-#endif //POP_PLATFORM_WINDOWS
+        sm_ViewProviderInstance = new ViewProvider();
         bool success = sm_ViewProviderInstance->Initialize();
         popAssert(success, "ViewProvider::Initialize failed.");
     }
 }
-    
-void ViewProvider::CleanInstnace()
+
+void ViewProvider::DestroyInstnace()
 {
     if (sm_ViewProviderInstance != nullptr)
     {
@@ -40,9 +38,12 @@ void ViewProvider::CleanInstnace()
     }
 }
 
+// ************************************
+// *** End Singleton Implementation ***
+// ************************************
+
 ViewProvider::ViewProvider()
     : m_ApplicationName("Homebrew_Engine")
-    , m_WindowHandle(nullptr)
     , m_WindowPosX(0)
     , m_WindowPosY(0)
     , m_WindowResolution()
@@ -50,10 +51,6 @@ ViewProvider::ViewProvider()
 
 ViewProvider::~ViewProvider()
 {
-    if (m_WindowHandle)
-    {
-        delete m_WindowHandle;
-    }
 }
 
 bool ViewProvider::Initialize()
@@ -69,8 +66,6 @@ bool ViewProvider::Initialize()
         SetDefaultPositionAndResolution();
     }
 
-    InitializeWindowHandle();
-
     if (!InitializeInternal())
         return false;
 
@@ -80,15 +75,6 @@ bool ViewProvider::Initialize()
 void ViewProvider::Shutdown()
 {
     ShutdownInternal();
-}
-
-void ViewProvider::InitializeWindowHandle()
-{
-#ifdef POP_PLATFORM_WINDOWS
-    m_WindowHandle = new Win64WindowHandle();
-#else
-    #error Platform Not Supported!
-#endif
 }
 
 void ViewProvider::SetDefaultPositionAndResolution()
