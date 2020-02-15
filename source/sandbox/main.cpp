@@ -10,9 +10,6 @@ int main()
 {
     CommandLineOptions::CreateInstance();
     ViewProvider::CreateInstance();
-    while (true)
-    {
-
-    }
+    g_ViewProvider.Update();
     ViewProvider::DestroyInstnace();
 }

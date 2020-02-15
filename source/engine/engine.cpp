@@ -35,10 +35,8 @@ bool Engine::Initialize()
     }
 
     ViewProvider::CreateInstance();
-    ViewProvider& viewProvider = ViewProvider::GetInstance();
-
-    InputManager::CreateInstance(viewProvider);
-    D3D11Renderer::CreateInstance(*viewProvider.GetWindowHandle(), viewProvider.GetWindowWidth(), viewProvider.GetWindowHeight());
+    InputManager::CreateInstance(g_ViewProvider);
+    D3D11Renderer::CreateInstance();
 
     m_Camera = new Camera();
     popAssert(m_Camera != nullptr, "Memory Alloc Failed");

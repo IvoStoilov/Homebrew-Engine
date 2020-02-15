@@ -24,19 +24,21 @@ constexpr f32 WATER_LEVEL = 3.f;
 
 D3D11Renderer* D3D11Renderer::s_Instance = nullptr;
 
-bool D3D11Renderer::Initialize(WindowHandle& windowHandle, u32 screenWidth, u32 screenHeight)
+bool D3D11Renderer::Initialize()
 {
     m_D3D = new D3D11();
     popAssert(m_D3D != nullptr, "Memory Alloc Failed");
 
-    bool success = m_D3D->Initialize(screenWidth, screenHeight, windowHandle, VSYNC_ENABLED, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+    u32 windowWidth = g_ViewProvider.GetWindowWidth();
+    u32 windowHeight = g_ViewProvider.GetWindowHeight();
+    bool success = m_D3D->Initialize(windowWidth, windowHeight, VSYNC_ENABLED, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
     popAssert(success, "D3D Init Failed");
 
     m_ReflectionTexture = std::make_shared<RenderTexture>();
-    m_ReflectionTexture->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight);
+    m_ReflectionTexture->Initialize(m_D3D->GetDevice(), windowWidth, windowHeight);
 
     m_RefractionTexture = std::make_shared<RenderTexture>();
-    m_RefractionTexture->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight);
+    m_RefractionTexture->Initialize(m_D3D->GetDevice(), windowWidth, windowHeight);
 
     m_SubRenderers.resize(SubRendererOrder::COUNT);
 
@@ -49,7 +51,7 @@ bool D3D11Renderer::Initialize(WindowHandle& windowHandle, u32 screenWidth, u32 
     ISubRenderer* waterRenderer = new WaterRenderer(WATER_LEVEL);
     m_SubRenderers[SubRendererOrder::Water] = waterRenderer;
 
-    ISubRenderer* textRenderer = new TextRenderer(screenWidth, screenHeight);
+    ISubRenderer* textRenderer = new TextRenderer(windowWidth, windowHeight);
     m_SubRenderers[SubRendererOrder::Text] = textRenderer;
 
     ISubRenderer* debugDisplayRenderer = new DebugDisplayRenderer();
@@ -227,12 +229,12 @@ void D3D11Renderer::CleanInstance()
     }
 }
 
-void D3D11Renderer::CreateInstance(WindowHandle& windowHandle, u32 screenWidth, u32 screenHeight)
+void D3D11Renderer::CreateInstance()
 {
     if (s_Instance == nullptr)
     {
         s_Instance = new D3D11Renderer();
-        s_Instance->Initialize(windowHandle, screenWidth, screenHeight);
+        s_Instance->Initialize();
     }
 }
 

@@ -64,14 +64,12 @@ bool FontShader::InitializeShader(ID3D11Device* device, const std::string& vsPat
 
 
     // Compile the vertex shader code.
-    wstring unicodeVSPath(vsPath.begin(), vsPath.end());
-    result = D3DX11CompileFromFile(unicodeVSPath.c_str(), NULL, NULL, "main", "vs_5_0", (D3D10_SHADER_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG), 0, NULL,
+    result = D3DX11CompileFromFile(vsPath.c_str(), NULL, NULL, "main", "vs_5_0", (D3D10_SHADER_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG), 0, NULL,
         &vertexShaderBuffer, &errorMessage, NULL);
     popAssert(!FAILED(result), "Texture Shader VS compilation failed.");
 
     // Compile the pixel shader code.
-    wstring unicodePSPath(psPath.begin(), psPath.end());
-    result = D3DX11CompileFromFile(unicodePSPath.c_str(), NULL, NULL, "main", "ps_5_0", (D3D10_SHADER_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG), 0, NULL,
+    result = D3DX11CompileFromFile(psPath.c_str(), NULL, NULL, "main", "ps_5_0", (D3D10_SHADER_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG), 0, NULL,
         &pixelShaderBuffer, &errorMessage, NULL);
     popAssert(!FAILED(result), "Texture Shader PS compilation failed.")
 

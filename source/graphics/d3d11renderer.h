@@ -32,14 +32,14 @@ private:
     D3D11Renderer();
     ~D3D11Renderer();
 
-    bool Initialize(WindowHandle& windowHandle, u32 screenWidth, u32 screenHeight);
+    bool Initialize();
     void Shutdown();
 
 public:
     DebugDisplayRenderer* GetDebugDisplayRenderer() const;
 
     static D3D11Renderer* GetInstance();
-    static void CreateInstance(WindowHandle& windowHandle, u32 screenWidth, u32 screenHeight);
+    static void CreateInstance();
     static void CleanInstance();
 
 public:

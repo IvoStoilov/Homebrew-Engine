@@ -55,7 +55,7 @@ bool ViewProvider::InitializeInternal()
 
     // Create the window with the screen settings and get the handle to it.
     m_Win64_HWND = CreateWindowEx(WS_EX_APPWINDOW, m_ApplicationName.c_str(), m_ApplicationName.c_str(),
-        WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
+        WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP | WS_CAPTION | WS_BORDER | WS_SYSMENU,
         m_WindowPosX, m_WindowPosY, m_WindowResolution.m_Width, m_WindowResolution.m_Height, NULL, NULL, m_Win64_hInstnace, NULL);
 
     // Bring the window up on the screen and set it as main focus.

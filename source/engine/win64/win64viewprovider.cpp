@@ -1,6 +1,6 @@
 #include "precompile.h"
 #include "engine/win64/win64viewprovider.h"
-#include "system/inputmanager.h"
+/*#include "system/inputmanager.h"
 #include "engine/engine.h"
 
 #include "system/commandline/commandlineoptions.h"
@@ -189,3 +189,4 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
     }
     }
 }
+*/

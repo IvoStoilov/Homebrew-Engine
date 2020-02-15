@@ -8,7 +8,7 @@ CommandLineOptions* CommandLineOptions::s_Instance = nullptr;
 CommandLineOptions::CommandLineOptions() :
     m_Fullscreen(false),
     m_Binarize(false),
-    m_ShowCursor(false),
+    m_ShowCursor(true),
     m_QuitAfterInit(false)
 {}
 

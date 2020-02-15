@@ -3,6 +3,8 @@
 #include <windows.h>
 #endif //POP_PLATFORM_WINDOWS
 
+#define g_ViewProvider ViewProvider::GetInstance()
+
 class ViewProvider
 {
 public:

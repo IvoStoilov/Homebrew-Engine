@@ -38,8 +38,7 @@ BaseShader::VS_PS_Blobs BaseShader::CompileShaders(ID3D11Device* device, const S
     u32 shaderCompileFlags = (D3D10_SHADER_ENABLE_STRICTNESS | D3DCOMPILE_OPTIMIZATION_LEVEL3);
 #endif
 
-    std::wstring unicodeVSPath(vsPath.begin(), vsPath.end());
-    result = D3DX11CompileFromFile(unicodeVSPath.c_str(), NULL, NULL, "main", "vs_5_0", shaderCompileFlags, 0, NULL,
+    result = D3DX11CompileFromFile(vsPath.c_str(), NULL, NULL, "main", "vs_5_0", shaderCompileFlags, 0, NULL,
         &vertexShaderBuffer, &errorMessage, NULL);
     popAssert(!FAILED(result), "Vertex Compilation Failed.");
 
@@ -56,8 +55,7 @@ BaseShader::VS_PS_Blobs BaseShader::CompileShaders(ID3D11Device* device, const S
     popAssert(!FAILED(result), "BaseShader::InitializeShader::CreateVertexShader failed");
 
     ID3D10Blob* pixelShaderBuffer = nullptr;
-    std::wstring unicodePSPath(psPath.begin(), psPath.end());
-    result = D3DX11CompileFromFile(unicodePSPath.c_str(), NULL, NULL, "main", "ps_5_0", shaderCompileFlags, 0, NULL,
+    result = D3DX11CompileFromFile(psPath.c_str(), NULL, NULL, "main", "ps_5_0", shaderCompileFlags, 0, NULL,
         &pixelShaderBuffer, &errorMessage, NULL);
     popAssert(!FAILED(result), "Pixel Shader Compilation Failed.");
 

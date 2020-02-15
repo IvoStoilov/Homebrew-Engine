@@ -8,7 +8,7 @@ class CommandLineOptions
 public:
     bool m_Binarize      = false;
     bool m_Fullscreen    = false;
-    bool m_ShowCursor    = false;
+    bool m_ShowCursor    = true;
     bool m_QuitAfterInit = false;
     bool m_DrawWireframe = false;
 

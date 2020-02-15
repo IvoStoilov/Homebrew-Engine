@@ -205,7 +205,7 @@ bool Mesh::InitializeVertexBuffer(ID3D11Device* device)
 
     D3D11_BUFFER_DESC vertexBufferDesc;
     vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    vertexBufferDesc.ByteWidth = sizeof(T) * m_Vertices.size();
+    vertexBufferDesc.ByteWidth = sizeof(T) * static_cast<u32>(m_Vertices.size());
     vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vertexBufferDesc.CPUAccessFlags = 0;
     vertexBufferDesc.MiscFlags = 0;
