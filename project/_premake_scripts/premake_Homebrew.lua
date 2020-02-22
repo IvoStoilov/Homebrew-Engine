@@ -1,4 +1,4 @@
-include "premake_Global"
+include "premake_GlobalVars"
 
 workspace "HomebrewEngine"
     filename "HomebrewEngine_%{_ACTION}"

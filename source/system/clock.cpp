@@ -1,3 +1,4 @@
+#include <system/precompile.h>
 #include "system/clock.h"
 
 Clock::Clock()

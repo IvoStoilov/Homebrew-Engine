@@ -1,4 +1,4 @@
-include "premake_Global"
+include "premake_GlobalVars"
 
 workspace "SystemSandbox"
     filename "SystemSandbox_%{_ACTION}"
@@ -7,17 +7,33 @@ workspace "SystemSandbox"
     architecture "x64"
     startproject "Sandbox"
 
+    targetdir(OUTPUT_DIR .. "/sandbox")
+    objdir(TEMP_DIR .. "/sandbox")
+    characterset("ASCII");
+
     configurations
     {
         "Debug",
         "Release"
     }
 
-    defines
-    {
-        "_CRT_SECURE_NO_WARNINGS",
-        "_XM_NO_INTRINSICS_",
-    }
+    filter "configurations:Debug"
+        targetsuffix "_d"
+        defines "POP_DEBUG"
+        runtime "Debug"
+        symbols "on"
+
+    filter "configurations:Release"
+        targetsuffix "_r"
+        defines "POP_RELEASE"
+        runtime "Release"
+        optimize "on"
+        defines 
+        {
+            "_CRT_SECURE_NO_WARNINGS",
+            "_XM_NO_INTRINSICS_",
+        }
+    filter {} -- end filter "configurations:Release"
 
     includedirs
     {
@@ -33,17 +49,12 @@ workspace "SystemSandbox"
         "4996"
     }
 
-    characterset("ASCII");
-
 project "Sandbox"
     location(PROJECT_DIR .. "/sandbox")
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++17"
     staticruntime "on"
-
-    targetdir(OUTPUT_DIR)
-    objdir(TEMP_DIR)
 
     files
     {
@@ -63,17 +74,10 @@ project "Sandbox"
 			"POP_PLATFORM_WINDOWS"
 		}
 
-    filter "configurations:Debug"
-        defines "POP_DEBUG"
-        runtime "Debug"
-        symbols "on"
-
-    filter "configurations:Release"
-        defines "POP_RELEASE"
-        runtime "Release"
-        optimize "on"
-
 -- **************
 -- *** System ***
 -- **************
-    include "premake_System"
+ include "premake_System"
+ project "System"
+    targetdir(OUTPUT_DIR .. "/sandbox")
+    objdir(TEMP_DIR .. "/sandbox")

@@ -1,3 +1,4 @@
+#include <system/precompile.h>
 #include "system/math/vec2.h"
 #include "system/error.h"
 

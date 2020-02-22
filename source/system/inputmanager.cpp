@@ -1,7 +1,9 @@
-#include <precompile.h>
+#include <system/precompile.h>
 #include <system/inputmanager.h>
 #include <system/viewprovider/viewprovider.h>
 #include <system/error.h>
+
+#define DIRECT_INPUTVERSION 0x0800
 
 InputManager* InputManager::s_Instance = nullptr;
 
@@ -187,8 +189,8 @@ void InputManager::ProcessInput()
     if (m_MouseX < 0) { m_MouseX = 0; }
     if (m_MouseY < 0) { m_MouseY = 0; }
 
-    if (m_MouseX > m_Width) { m_MouseX = m_Width; }
-    if (m_MouseY > m_Height) { m_MouseY = m_Height; }
+    if (m_MouseX > static_cast<s32>(m_Width)) { m_MouseX = m_Width; }
+    if (m_MouseY > static_cast<s32>(m_Height)) { m_MouseY = m_Height; }
 }
 
 bool InputManager::IsEscapePressed()

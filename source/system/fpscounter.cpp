@@ -1,3 +1,4 @@
+#include <system/precompile.h>
 #pragma comment(lib, "winmm.lib")
 
 #include "system/fpscounter.h"

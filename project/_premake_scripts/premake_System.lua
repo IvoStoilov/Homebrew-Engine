@@ -1,20 +1,26 @@
+group "Extern"
+    include "premake_DirectXTK"
+group ""
+
 project "System"
     location(PROJECT_DIR .. "/system");
     kind "StaticLib"
     language "C++"
     cppdialect "C++17"
     staticruntime "on"
-    
-    targetdir(OUTPUT_DIR);
-    objdir(TEMP_DIR);
 
-    --pchheader precompile
-    --pchsource source/ ..... / precompile.cpp
+    pchheader ("system/precompile.h")
+    pchsource (MAIN_DIR .. "/source/system/precompile.cpp")
 
     files
     {
         MAIN_DIR .. "/source/system/**.h",
         MAIN_DIR .. "/source/system/**.cpp"
+    }
+
+    links
+    {
+        "DirectXTK"
     }
 
     includedirs
@@ -27,6 +33,7 @@ project "System"
         os.getenv("DXSDK_DIR") .. "/Lib/x64"
     }
 
+   
     filter "system:windows"
 		systemversion "latest"
 		defines

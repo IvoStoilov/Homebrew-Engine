@@ -1,3 +1,4 @@
+#include <system/precompile.h>
 #include "system/cpuinfo.h"
 
 CPUInfo::CPUInfo()

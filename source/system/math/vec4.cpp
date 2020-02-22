@@ -1,4 +1,4 @@
-#include "precompile.h"
+#include <system/precompile.h>
 #include "system/math/vec4.h"
 #include "system/math/mat4x4.h"
 
@@ -52,10 +52,12 @@ void vec4::operator= (const vec4& rhs)
 
 void vec4::operator=(const DirectX::XMVECTOR& value)
 {
-    _data[0] = value.vector4_f32[0];
-    _data[1] = value.vector4_f32[1];
-    _data[2] = value.vector4_f32[2];
-    _data[3] = value.vector4_f32[3];
+    DirectX::XMFLOAT4 v;
+    DirectX::XMStoreFloat4(&v, value);
+    _data[0] = v.x;
+    _data[1] = v.y;
+    _data[2] = v.z;
+    _data[3] = v.w;
 }
 
 bool vec4::operator==(const vec4& rhs) const

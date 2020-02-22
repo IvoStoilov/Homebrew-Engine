@@ -1,7 +1,5 @@
 #pragma once
 
-#define DIRECT_INPUTVERSION 0x0800
-
 /////////////
 // LINKING //
 /////////////

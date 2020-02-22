@@ -9,8 +9,9 @@
 class MathUtil
 {
 public:
-   static uint32_t Clamp(const uint32_t min, const uint32_t max, uint32_t x);
-   static float Clamp(const float min, const float max, const float x);
+   template <class T>
+   static T Clamp(const T& a, const T& b, const T& x);
+
    static inline float ToRads(float degrees) { return degrees * PI / 180.0f; }
    static inline float ToDegrees(float rads) { return rads * 180.f / PI; }
    static inline float Sqr(float value)      { return value * value; }
@@ -18,6 +19,12 @@ public:
    template<class T>
    static inline T Lerp(T& min, T& max, float ratio) { return min * (1 - ratio) + max * ratio; }
 };
+
+template <class T>
+T MathUtil::Clamp(const T& min, const T& max, const T& x)
+{
+    return std::max(std::min(x, min), max);
+}
 
 #define popLesserOrEqualWithEpsilon (lhs, rhs)                      \
    (lhs - rhs < EPSILON)
