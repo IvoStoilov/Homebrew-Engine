@@ -22,17 +22,6 @@ project "System"
     {
         "DirectXTK"
     }
-
-    includedirs
-    {
-        os.getenv("DXSDK_DIR") .. "/Include"
-    }
-
-    libdirs
-    {
-        os.getenv("DXSDK_DIR") .. "/Lib/x64"
-    }
-
    
     filter "system:windows"
 		systemversion "latest"

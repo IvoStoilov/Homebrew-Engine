@@ -1,8 +1,5 @@
 #pragma once
-#include "system/math/vec4.h"
-#include "system/math/vec2.h"
-#include <string.h>
-#include <vector>
+#include <system/math/vec.h>
 /*
 .bgd (Basic Geometry Data file) - data structure : x, y, z, tu, tv, nx, ny, nz / Starts with vertex count / each 3 lines from a triangle
 .bmp - now supports bmp loading. Consider changing the class name to LoaderHelper

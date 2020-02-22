@@ -7,8 +7,6 @@
 #include <fstream>
 #include <algorithm>
 
-#include <d3d11.h> //maybe?
-
 template<class T>
 using UniquePtr = std::unique_ptr<T>;
 
