@@ -1,9 +1,4 @@
 #pragma once
-#include <d3d11.h>
-#include <d3dx10math.h>
-#include <stdint.h>
-#include <vector>
-
 class Font;
 class FontShader;
 class Text
@@ -26,8 +21,8 @@ private:
 
     struct VertexType
     {
-        D3DXVECTOR4 position;
-        D3DXVECTOR2 texture;
+        vec4 position;
+        vec2 texture;
     };
 
 public:
@@ -36,7 +31,7 @@ public:
 
     bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, uint16_t screenWidth, uint16_t screenHeight, int16_t posX = 0, int16_t posY = 0);
     void Shutdown();
-    bool Render(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX orthoMatrix);
+    bool Render(ID3D11DeviceContext* deviceContext, mat4x4 worldMatrix, mat4x4 orthoMatrix);
 
     bool SetText(char* text, uint16_t slot);
     bool AppendLine(char* text, uint32_t maxLength, uint8_t r = 255, uint8_t g = 255, uint8_t b = 255);
@@ -44,7 +39,7 @@ private:
     bool InitializeSentence(SentenceType** sentence, int maxLength, ID3D11Device* device);
     bool UpdateSentence(SentenceType* sentence, char* text, int posX, int posY, float r, float g, float b);
     void ReleaseSentence(SentenceType**);
-    bool RenderSentence(ID3D11DeviceContext* deviceContext, SentenceType*, D3DXMATRIX, D3DXMATRIX);
+    bool RenderSentence(ID3D11DeviceContext* deviceContext, SentenceType*, mat4x4, mat4x4);
 
 private:
     Font* m_Font;

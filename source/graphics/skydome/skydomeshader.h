@@ -4,8 +4,8 @@
 
 struct SkydomeShaderParams : public ShaderParamsBase
 {
-    DirectX::XMFLOAT4 m_ApexColor;
-    DirectX::XMFLOAT4 m_CenterColor;
+    vec4 m_ApexColor;
+    vec4 m_CenterColor;
 };
 
 class SkydomeShader : public BaseShader
@@ -13,8 +13,8 @@ class SkydomeShader : public BaseShader
 private:
     struct ColorBufferType
     {
-        DirectX::XMFLOAT4 apexColor;
-        DirectX::XMFLOAT4 centerColor;
+        vec4 apexColor;
+        vec4 centerColor;
     };
 
 protected:

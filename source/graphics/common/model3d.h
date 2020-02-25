@@ -1,13 +1,5 @@
 #pragma once
-#include <dxgi.h>
-#include <d3dcommon.h>
-#include <d3d11.h>
-#include <d3dx10math.h>
-#include <stdint.h>
-
-#include <string>
-#include <vector>
-#include "system\modelloader.h"
+#include <system\modelloader.h>
 
 class Texture;
 class Model3D
@@ -15,9 +7,9 @@ class Model3D
 private:
     struct VertexType
     {
-        D3DXVECTOR4 m_Position;
-        D3DXVECTOR3 m_Normal;
-        D3DXVECTOR2 m_UV;
+        vec4 m_Position;
+        vec3 m_Normal;
+        vec2 m_UV;
     };
 
 public:

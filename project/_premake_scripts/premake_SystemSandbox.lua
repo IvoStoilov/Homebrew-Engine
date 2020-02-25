@@ -28,13 +28,13 @@ workspace "SystemSandbox"
         defines "POP_RELEASE"
         runtime "Release"
         optimize "on"
-        defines 
-        {
-            "_CRT_SECURE_NO_WARNINGS",
-            "_XM_NO_INTRINSICS_",
-        }
     filter {} -- end filter "configurations:Release"
 
+    defines 
+    {
+        "_CRT_SECURE_NO_WARNINGS",
+    }
+    
     includedirs
     {
         MAIN_DIR,

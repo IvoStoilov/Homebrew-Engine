@@ -1,4 +1,4 @@
-#include <precompile.h>
+#include <graphics/precompile.h>
 #include <graphics/d3d11.h>
 
 #include <system/viewprovider/viewprovider.h>
@@ -475,15 +475,15 @@ void D3D11::InitMatrices(uint32_t screenWidth, uint32_t screenHeight, float scre
     screenAspect = (float)screenWidth / (float)screenHeight;
 
     // Create the projection matrix for 3D rendering.
-    D3DXMatrixPerspectiveFovLH(&m_ProjectionMatrix_DEPRECATED, fieldOfView, screenAspect, screenNear, screenDepth);
-    m_ProjectionMatrix = DirectX::XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, screenNear, screenDepth);
+    mat4x4PerspectiveFovLH(&m_ProjectionMatrix_DEPRECATED, fieldOfView, screenAspect, screenNear, screenDepth);
+    m_ProjectionMatrix = mat4x4PerspectiveFovLH(fieldOfView, screenAspect, screenNear, screenDepth);
 
     // Initialize the world matrix to the identity matrix.
-    D3DXMatrixIdentity(&m_WorldMatrix);
+    mat4x4Identity(&m_WorldMatrix);
 
     // Create an orthographic projection matrix for 2D rendering.
-    D3DXMatrixOrthoLH(&m_OrthoMatrix_DEPRECATED, (float)screenWidth, (float)screenHeight, screenNear, screenDepth);
-    m_OrthoMatrix = DirectX::XMMatrixOrthographicOffCenterLH(0.f, (float)screenWidth, 0.f, (float)screenHeight, screenNear, screenDepth);
+    mat4x4OrthoLH(&m_OrthoMatrix_DEPRECATED, (float)screenWidth, (float)screenHeight, screenNear, screenDepth);
+    m_OrthoMatrix = mat4x4OrthographicOffCenterLH(0.f, (float)screenWidth, 0.f, (float)screenHeight, screenNear, screenDepth);
 }
 
 void D3D11::Shutdown()

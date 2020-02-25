@@ -1,11 +1,4 @@
 #pragma once
-#include "system/math/mat4x4.h"
-#include "system/math/vec4.h"
-
-struct ID3D11Device;
-struct ID3D11DeviceContext;
-class D3D11;
-class mat4x4;
 class ISubRenderer
 {
 public:

@@ -1,4 +1,4 @@
-#include "precompile.h"
+#include <graphics/precompile.h>
 
 #include "graphics/common/mesh.h"
 
@@ -48,7 +48,7 @@ void Mesh::InitializeVertexList(const std::string& filepath)
     popAssert(fileRead, "Mesh::InitializeVertexList failed to read file");
     if (fileRead)
     {
-        u32 indexListSize = rawData.m_PosIndexes.size();
+        u32 indexListSize = static_cast<u32>(rawData.m_PosIndexes.size());
         for (u32 i = 0; i < indexListSize; i++)
         {
             Key current = std::make_tuple(rawData.m_PosIndexes[i], rawData.m_NormIndexes[i], rawData.m_UVIndexes[i]);
@@ -82,7 +82,7 @@ void Mesh::InitializeVertexList(const std::string& filepath)
             std::vector<uint32_t>& indexList = std::get<1>(v);
             for (uint32_t i : indexList)
             {
-                m_Indexes[i] = m_Vertices.size() - 1;
+                m_Indexes[i] = static_cast<u32>(m_Vertices.size() - 1);
             }
         }
     }
@@ -108,11 +108,11 @@ void Mesh::InitializeEdgeListIndexes()
 
         m_Edges.push_back(Edge());
         Edge* edgeUV = &m_Edges.back();
-        edgeUV->m_SelfIndex = m_Edges.size() - 1;
+        edgeUV->m_SelfIndex = static_cast<s32>(m_Edges.size() - 1);
 
         m_Edges.push_back(Edge());
         Edge* edgeVT = &m_Edges.back();
-        edgeVT->m_SelfIndex = m_Edges.size() - 1;
+        edgeVT->m_SelfIndex = static_cast<s32>(m_Edges.size() - 1);
 
         m_Edges.push_back(Edge());
         Edge* edgeTU = &m_Edges.back();
@@ -154,7 +154,7 @@ void Mesh::InitializeEdgeListIndexes()
         edgeTU->m_NextIdx = edgeUV->m_SelfIndex;
 
         
-        s32 triangleIdx = m_Triangles.size();
+        s32 triangleIdx = static_cast<s32>(m_Triangles.size());
         m_Triangles.push_back(Triangle());
         Triangle* triangle = &m_Triangles.back();
 
@@ -225,10 +225,10 @@ vec4 Mesh::ComputeFaceNormal(uint32_t a, uint32_t b, uint32_t c) const
 vec4 Mesh::ComputeFaceNormal(const Vertex& a, const Vertex& b, const Vertex& c) const
 {
     //Using right-hand coordinate system and clockwise face orientation
-    vec4 AB = b.m_Position - a.m_Position;
-    vec4 AC = c.m_Position - a.m_Position;
+    vec3 AB = b.m_Position - a.m_Position;
+    vec3 AC = c.m_Position - a.m_Position;
 
-    vec4 result = vec4::Cross(AC, AB);
+    vec4 result = AC.Cross(AB);
     result.Normalize();
     return result;
 }
@@ -295,12 +295,12 @@ void Mesh::BuildTangents()
         vec4& t1 = tanB[i];
 
         //Applies corretion in the case where the computed tangent is not perpendicular to the surface normal;
-        vec4 t = t0 - (n * vec4::Dot(n, t0));
+        vec4 t = t0 - (n * n.Dot(t0));
         t.Normalize();
 
         //Applies correction in the case where the tangent, binormal and normal do not produce S+ orientation
         vec4 biNormal = vec4::Cross(n, t0);
-        f32 w = (vec4::Dot(biNormal, t1) < 0) ? -1.0f : 1.0f;
+        f32 w = (biNormal.Dot(t1) < 0) ? -1.0f : 1.0f;
         m_Vertices[i].m_Tangent = vec4(t.x, t.y, t.z, w);
     }
 }

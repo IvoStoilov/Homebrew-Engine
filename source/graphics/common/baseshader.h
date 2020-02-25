@@ -1,28 +1,24 @@
 #pragma once
-#include <d3d11.h>
-#include <directxmath.h>
-#include "system/math/vec4.h"
-
 struct MatrixBufferType
 {
-    DirectX::XMMATRIX world;
-    DirectX::XMMATRIX view;
-    DirectX::XMMATRIX projection;
+    mat4x4 world;
+    mat4x4 view;
+    mat4x4 projection;
 };
 
 struct ClipPlaneBufferType
 {
-    DirectX::XMVECTOR clipPlane;
+    vec4 clipPlane;
 };
 
 struct ShaderParamsBase
 {
-    DirectX::XMMATRIX m_World;
-    DirectX::XMMATRIX m_View;
-    DirectX::XMMATRIX m_Projection;
+    mat4x4 m_World;
+    mat4x4 m_View;
+    mat4x4 m_Projection;
 
     bool m_IsClipPlaneEnable = false;
-    DirectX::XMVECTOR m_ClipPlane;
+    vec4 m_ClipPlane;
 
     template<class T>
     const T* GetAs() const { return popObjectDynamicCast(const T, this); }

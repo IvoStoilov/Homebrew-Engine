@@ -1,9 +1,4 @@
 #pragma once
-#include <d3d11.h>
-#include <d3dx10math.h>
-#include <stdint.h>
-#include <string>
-
 class Texture;
 class Font
 {
@@ -16,8 +11,8 @@ private:
 
     struct VertexType
     {
-        D3DXVECTOR4 m_Position;
-        D3DXVECTOR2 m_UV;
+        vec4 m_Position;
+        vec2 m_UV;
     };
 
 public:

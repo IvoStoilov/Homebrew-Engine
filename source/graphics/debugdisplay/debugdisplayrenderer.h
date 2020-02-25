@@ -1,8 +1,5 @@
 #pragma once
-#include "graphics/isubrenderer.h"
-#include "system/math/vec4.h"
-#include "system/math/mat4x4.h"
-#include <vector>
+#include <graphics/isubrenderer.h>
 
 struct ID3D11Device;
 class ColorShader;

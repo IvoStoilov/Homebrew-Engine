@@ -1,4 +1,4 @@
-#include "precompile.h"
+#include <graphics/precompile.h>
 #include "graphics/terrain/terrainrenderer.h"
 #include "graphics/terrain/terrain.h"
 
@@ -11,10 +11,10 @@
 #include "system/commandline/commandlineoptions.h"
 #include "system/math/mathutil.h"
 
-DirectX::XMFLOAT4 DIFFUSE_COLOR(1.f, 1.f, 1.f, 1.f);
-DirectX::XMFLOAT4 LIGHT_DIRECTION(-.5f, -.2f, .5f, 0.f);
+vec4 DIFFUSE_COLOR(1.f, 1.f, 1.f, 1.f);
+vec4 LIGHT_DIRECTION(-.5f, -.2f, .5f, 0.f);
 constexpr float AMBIENT_LIGHT_FACTOR = 0.f;
-DirectX::XMFLOAT4 AMBIENT_LIGHT(AMBIENT_LIGHT_FACTOR, AMBIENT_LIGHT_FACTOR, AMBIENT_LIGHT_FACTOR, 0.f);
+vec4 AMBIENT_LIGHT(AMBIENT_LIGHT_FACTOR, AMBIENT_LIGHT_FACTOR, AMBIENT_LIGHT_FACTOR, 0.f);
 
 const String HEIGHT_TEXTURE_PATH = "../../resource/terrain/heightMaps/islands2HM.png";
 const String NORMAL_TEXTURE_PATH = "../../resource/terrain/islands2/islands2NRML.png";
@@ -40,16 +40,16 @@ bool TerrainRenderer::Render(D3D11* d3d)
 
     if (g_CommandLineOptions->m_DrawWireframe)
     {
-        D3DXMATRIX worldMatrix;
-        D3DXMatrixIdentity(&worldMatrix);
-        D3DXMATRIX projectionMatrix;
+        mat4x4 worldMatrix;
+        mat4x4Identity(&worldMatrix);
+        mat4x4 projectionMatrix;
         d3d->GetProjectionMatrix(projectionMatrix);
-        m_WireframeShader->Render(d3d->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, m_ViewMatrix.ToD3DXMATRIX(), projectionMatrix);
+        m_WireframeShader->Render(d3d->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, m_ViewMatrix.Tomat4x4(), projectionMatrix);
     }
     else
     {
         LightShaderParams params;
-        params.m_World = DirectX::XMMatrixIdentity();
+        params.m_World = mat4x4Identity();
         params.m_View = m_ViewMatrix.ToXMMATRIX();
         params.m_Projection = d3d->GetProjectionMatrix();
 
@@ -64,7 +64,7 @@ bool TerrainRenderer::Render(D3D11* d3d)
         params.m_PSTextures.push_back(std::make_pair(m_RockHeightTexture , 7));
         params.m_PSTextures.push_back(std::make_pair(m_SnowHeightTexture , 8));
 
-        params.m_ClipPlane = DirectX::XMVectorSet(m_ClipPlane.x, m_ClipPlane.y, m_ClipPlane.z, m_ClipPlane.w);
+        params.m_ClipPlane = vec4Set(m_ClipPlane.x, m_ClipPlane.y, m_ClipPlane.z, m_ClipPlane.w);
 
         params.m_DiffuseColor = DIFFUSE_COLOR;
         params.m_LightDirection = LIGHT_DIRECTION;

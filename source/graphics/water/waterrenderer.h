@@ -1,7 +1,7 @@
 #pragma once
-#include "graphics/isubrenderer.h"
-#include "graphics/common/reflectionshader.h"
-#include "graphics/common/mesh.h"
+#include <graphics/isubrenderer.h>
+#include <graphics/common/reflectionshader.h>
+#include <graphics/common/mesh.h>
 
 class WaterRenderer : public ISubRenderer
 {

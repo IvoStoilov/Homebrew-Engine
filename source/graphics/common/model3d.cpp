@@ -1,4 +1,4 @@
-#include "precompile.h"
+#include <graphics/precompile.h>
 #include "graphics/common/model3d.h"
 #include "graphics/common/texture.h"
 
@@ -50,9 +50,9 @@ bool Model3D::InitializeBuffers(ID3D11Device* device)
 
     for(uint32_t i = 0; i < m_VertexCount; ++i)
     {
-        vertices[i].m_Position = D3DXVECTOR4(m_VertexData[i].position[0], m_VertexData[i].position[1], m_VertexData[i].position[2], 1.f);
-        vertices[i].m_UV = D3DXVECTOR2(m_VertexData[i].uv[0], m_VertexData[i].position[1]);
-        vertices[i].m_Normal = D3DXVECTOR3(m_VertexData[i].normal[0], m_VertexData[i].normal[1], m_VertexData[i].normal[2]);
+        vertices[i].m_Position = vec4(m_VertexData[i].position[0], m_VertexData[i].position[1], m_VertexData[i].position[2], 1.f);
+        vertices[i].m_UV = vec2(m_VertexData[i].uv[0], m_VertexData[i].position[1]);
+        vertices[i].m_Normal = vec3(m_VertexData[i].normal[0], m_VertexData[i].normal[1], m_VertexData[i].normal[2]);
         indices[i] = i;
     }
 

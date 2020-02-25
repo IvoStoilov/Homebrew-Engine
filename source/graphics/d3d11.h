@@ -1,16 +1,4 @@
 #pragma once
-#include <dxgi.h>
-#include <d3dcommon.h>
-#include <d3d11.h>
-#include <d3dx10math.h>
-
-#include <directxmath.h>
-
-#pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "d3d11.lib")
-//#pragma comment(lib, "d3dx11.lib")
-//#pragma comment(lib, "d3dx10.lib")
-
 class D3D11
 {
 public:
@@ -35,11 +23,11 @@ public:
     inline ID3D11DeviceContext* GetDeviceContext() { return m_DeviceContext; }
     inline ID3D11DepthStencilView* GetDepthStencilView() { return m_DepthStencilView; }
 
-    inline void GetProjectionMatrix(D3DXMATRIX& mat) { mat = m_ProjectionMatrix_DEPRECATED; }
-    inline DirectX::XMMATRIX GetProjectionMatrix() const { return m_ProjectionMatrix; }
-    inline void GetWorldMatrix(D3DXMATRIX& mat) { mat = m_WorldMatrix; }
-    inline void GetOrthoMatrix(D3DXMATRIX& mat) { mat = m_OrthoMatrix_DEPRECATED; }
-    inline DirectX::XMMATRIX GetOrthoMatrix() const { return m_OrthoMatrix; }
+    inline void GetProjectionMatrix(mat4x4& mat) { mat = m_ProjectionMatrix_DEPRECATED; }
+    inline mat4x4 GetProjectionMatrix() const { return m_ProjectionMatrix; }
+    inline void GetWorldMatrix(mat4x4& mat) { mat = m_WorldMatrix; }
+    inline void GetOrthoMatrix(mat4x4& mat) { mat = m_OrthoMatrix_DEPRECATED; }
+    inline mat4x4 GetOrthoMatrix() const { return m_OrthoMatrix; }
 
 
     void GetVideoCardInfo(char* outCardName, int& outMemorySize);
@@ -71,9 +59,9 @@ private:
     ID3D11BlendState* m_AlphaBlendingStateEnable;
     ID3D11BlendState* m_AlphaBlendingStateDisable;
     //clean this
-    D3DXMATRIX m_ProjectionMatrix_DEPRECATED;
-    DirectX::XMMATRIX m_ProjectionMatrix;
-    D3DXMATRIX m_WorldMatrix;
-    D3DXMATRIX m_OrthoMatrix_DEPRECATED;
-    DirectX::XMMATRIX m_OrthoMatrix;
+    mat4x4 m_ProjectionMatrix_DEPRECATED;
+    mat4x4 m_ProjectionMatrix;
+    mat4x4 m_WorldMatrix;
+    mat4x4 m_OrthoMatrix_DEPRECATED;
+    mat4x4 m_OrthoMatrix;
 };

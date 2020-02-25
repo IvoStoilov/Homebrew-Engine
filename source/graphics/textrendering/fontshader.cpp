@@ -1,10 +1,9 @@
+#include <graphics/precompile.h>
 #include "graphics/textrendering/fontshader.h"
 
 #include "system/error.h"
+#include <d3dcompiler.h>
 
-#include <d3d11.h>
-#include <D3DCompiler.h>
-#include <d3dx11async.h>
 
 using namespace std;
 
@@ -34,7 +33,7 @@ void FontShader::Shutdown()
     ShutdownShader();
 }
 
-bool FontShader::Render(ID3D11DeviceContext* deviceContext, uint32_t indexCount, D3DXMATRIX& worldMatrix, D3DXMATRIX& viewMatrix, D3DXMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, D3DXVECTOR4& pixelColor)
+bool FontShader::Render(ID3D11DeviceContext* deviceContext, uint32_t indexCount, mat4x4& worldMatrix, mat4x4& viewMatrix, mat4x4& projectionMatrix, ID3D11ShaderResourceView* texture, vec4& pixelColor)
 {
     // Set the shader parameters that it will use for rendering.
     if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, pixelColor))
@@ -217,8 +216,8 @@ void FontShader::ShutdownShader()
     }
 }
 
-bool FontShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix,
-    D3DXMATRIX viewMatrix, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, D3DXVECTOR4& pixelColor)
+bool FontShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, mat4x4 worldMatrix,
+    mat4x4 viewMatrix, mat4x4 projectionMatrix, ID3D11ShaderResourceView* texture, vec4& pixelColor)
 {
     HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -226,9 +225,9 @@ bool FontShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMAT
     unsigned int bufferNumber;
 
     // Transpose the matrices to prepare them for the shader.
-    D3DXMatrixTranspose(&worldMatrix, &worldMatrix);
-    D3DXMatrixTranspose(&viewMatrix, &viewMatrix);
-    D3DXMatrixTranspose(&projectionMatrix, &projectionMatrix);
+    mat4x4Transpose(&worldMatrix, &worldMatrix);
+    mat4x4Transpose(&viewMatrix, &viewMatrix);
+    mat4x4Transpose(&projectionMatrix, &projectionMatrix);
 
     // Lock the constant buffer so it can be written to.
     result = deviceContext->Map(m_MatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -240,7 +239,7 @@ bool FontShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMAT
     // Get a pointer to the data in the constant buffer.
     dataPtr = (MatrixBufferType*)mappedResource.pData;
 
-    //D3DXMatrixIdentity(&projectionMatrix);
+    //mat4x4Identity(&projectionMatrix);
     // Copy the matrices into the constant buffer.
     dataPtr->world = worldMatrix;
     dataPtr->view = viewMatrix;

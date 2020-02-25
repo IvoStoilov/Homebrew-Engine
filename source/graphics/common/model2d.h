@@ -1,20 +1,12 @@
 #pragma once
-#include <dxgi.h>
-#include <d3dcommon.h>
-#include <d3d11.h>
-#include <d3dx10math.h>
-#include <stdint.h>
-
-#include <string>
-
 class Texture;
 class Model2D
 {
 private:
     struct VertexType
     {
-        D3DXVECTOR4 m_Position;
-        D3DXVECTOR2 m_UV;
+        vec4 m_Position;
+        vec2 m_UV;
     };
 
 public:
@@ -27,7 +19,7 @@ public:
 
     inline int GetIndexCount() { return m_IndexCount; }
     ID3D11ShaderResourceView* GetTexture();
-    inline D3DXMATRIX GetWorldMatrix() const { return m_WorldMatrix; }
+    inline mat4x4 GetWorldMatrix() const { return m_WorldMatrix; }
 
 private:
     bool InitializeBuffers(ID3D11Device* device);
@@ -51,5 +43,5 @@ private:
     int32_t m_ModelWidth, m_ModelHeight;
     int32_t m_PreviousePosX, m_PreviousePosY;
 
-    D3DXMATRIX m_WorldMatrix;
+    mat4x4 m_WorldMatrix;
 };

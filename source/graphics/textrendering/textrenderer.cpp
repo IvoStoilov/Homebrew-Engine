@@ -1,11 +1,11 @@
-#include "precompile.h"
-#include "graphics/textrendering/textrenderer.h"
-#include "graphics/d3d11.h"
+#include <graphics/precompile.h>
+#include <graphics/textrendering/textrenderer.h>
+#include <graphics/d3d11.h>
 
-#include "engine/engine.h"
-#include "engine/camera.h"
-#include "system/error.h"
-#include "system/math/vec4.h"
+#include <engine/engine.h>
+#include <engine/camera.h>
+#include <system/error.h>
+
 
 bool TextRenderer::Render(D3D11* d3d)
 {
@@ -29,13 +29,9 @@ bool TextRenderer::Render(D3D11* d3d)
     m_2DTexts[0]->SetText(cameraPosText, 3);
     m_2DTexts[0]->SetText(cameraMovespeed, 4);
 
-    D3DXMATRIX orthoMatrix;
-    D3DXMATRIX worldMatrix;
-    D3DXMATRIX id;
-
-    D3DXMatrixIdentity(&id);
-    D3DXMatrixIdentity(&worldMatrix);
-
+    mat4x4 orthoMatrix;
+    mat4x4 worldMatrix;
+    mat4x4 id;
     worldMatrix._43 += 5.f;
 
     d3d->GetOrthoMatrix(orthoMatrix);

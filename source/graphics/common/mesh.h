@@ -11,15 +11,14 @@
     Tangent Computation needed for Normal Mapping
     https://www.marti.works/calculating-tangents-for-your-mesh/
 */
-#include "system/math/vec4.h"
-#include "system/math/vec2.h"
-#include "system/error.h"
+#include <system/math/vec.h>
+#include <system/error.h>
 
 struct VertexTypePos
 {
-    DirectX::XMFLOAT4 m_Position;
+    vec4 m_Position;
     
-    void SetValues(const DirectX::XMFLOAT4& pos, const DirectX::XMFLOAT2& uv, const DirectX::XMFLOAT3& norm, const DirectX::XMFLOAT4& tangent)
+    void SetValues(const vec4& pos, const vec2& uv, const vec3& norm, const vec4& tangent)
     {
         m_Position = pos;
     }
@@ -27,10 +26,10 @@ struct VertexTypePos
 
 struct VertexTypePosUV
 {
-    DirectX::XMFLOAT4 m_Position;
-    DirectX::XMFLOAT2 m_UV;
+    vec4 m_Position;
+    vec2 m_UV;
 
-    void SetValues(const DirectX::XMFLOAT4& pos, const DirectX::XMFLOAT2& uv, const DirectX::XMFLOAT3& norm, const DirectX::XMFLOAT4& tangent)
+    void SetValues(const vec4& pos, const vec2& uv, const vec3& norm, const vec4& tangent)
     {
         m_Position = pos;
         m_UV = uv;
@@ -39,11 +38,11 @@ struct VertexTypePosUV
 
 struct VertexTypePosUVNorm
 {
-    DirectX::XMFLOAT4 m_Position;
-    DirectX::XMFLOAT2 m_UV;
-    DirectX::XMFLOAT3 m_Normal;
+    vec4 m_Position;
+    vec2 m_UV;
+    vec3 m_Normal;
 
-    void SetValues(const DirectX::XMFLOAT4& pos, const DirectX::XMFLOAT2& uv, const DirectX::XMFLOAT3& norm, const DirectX::XMFLOAT4& tangent)
+    void SetValues(const vec4& pos, const vec2& uv, const vec3& norm, const vec4& tangent)
     {
         m_Position = pos;
         m_UV = uv;
@@ -53,12 +52,12 @@ struct VertexTypePosUVNorm
 
 struct VertexTypePosUVNormTan
 {
-    DirectX::XMFLOAT4 m_Position;
-    DirectX::XMFLOAT2 m_UV;
-    DirectX::XMFLOAT3 m_Normal;
-    DirectX::XMFLOAT4 m_Tangent;
+    vec4 m_Position;
+    vec2 m_UV;
+    vec3 m_Normal;
+    vec4 m_Tangent;
 
-    void SetValues(const DirectX::XMFLOAT4& pos, const DirectX::XMFLOAT2& uv, const DirectX::XMFLOAT3& norm, const DirectX::XMFLOAT4& tangent)
+    void SetValues(const vec4& pos, const vec2& uv, const vec3& norm, const vec4& tangent)
     {
         m_Position = pos;
         m_UV = uv;
@@ -194,10 +193,10 @@ bool Mesh::InitializeVertexBuffer(ID3D11Device* device)
         float y = m_Vertices[i].m_Position.y;
         float z = m_Vertices[i].m_Position.z;
 
-        vertices[i].SetValues( DirectX::XMFLOAT4(x, y, z, 0.f)
-                             , DirectX::XMFLOAT2(m_Vertices[i].m_UV.x, m_Vertices[i].m_UV.y)
-                             , DirectX::XMFLOAT3(m_Vertices[i].m_Normal.x, m_Vertices[i].m_Normal.y, m_Vertices[i].m_Normal.z)
-                             , DirectX::XMFLOAT4(m_Vertices[i].m_Tangent.x, m_Vertices[i].m_Tangent.y, m_Vertices[i].m_Tangent.z, m_Vertices[i].m_Tangent.w));
+        vertices[i].SetValues( vec4(x, y, z, 0.f)
+                             , vec2(m_Vertices[i].m_UV.x, m_Vertices[i].m_UV.y)
+                             , vec3(m_Vertices[i].m_Normal.x, m_Vertices[i].m_Normal.y, m_Vertices[i].m_Normal.z)
+                             , vec4(m_Vertices[i].m_Tangent.x, m_Vertices[i].m_Tangent.y, m_Vertices[i].m_Tangent.z, m_Vertices[i].m_Tangent.w));
 
         //if(m_DrawNormals)
         //    g_DebugDisplay->AddLine(m_Vertices[i].m_Position, m_Vertices[i].m_Position + m_Vertices[i].m_Normal, vec4(0.f, 1.f, 0.f, 1.f));

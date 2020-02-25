@@ -1,4 +1,4 @@
-#include "precompile.h"
+#include <graphics/precompile.h>
 #include "graphics/skydome/skydomerenderer.h"
 #include "graphics/skydome/skydomeshader.h"
 
@@ -14,8 +14,8 @@
 std::string SKYDOME_OBJ_PATH = "../../resource/skydome.obj";
 
 // Set the color at the top of the sky dome.
-DirectX::XMFLOAT4 APEX_COLOR = DirectX::XMFLOAT4(0.0f, 0.05f, 0.6f, 1.0f);
-DirectX::XMFLOAT4 CENTER_COLOR = DirectX::XMFLOAT4(0.0f, 0.5f, 0.8f, 1.0f);
+vec4 APEX_COLOR = vec4(0.0f, 0.05f, 0.6f, 1.0f);
+vec4 CENTER_COLOR = vec4(0.0f, 0.5f, 0.8f, 1.0f);
 
 bool SkydomeRenderer::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
@@ -38,14 +38,14 @@ bool SkydomeRenderer::Render(D3D11* d3d)
     d3d->TurnDepthTestOff();
 
     const Camera* camera = g_Engine->GetCamera();
-    DirectX::XMMATRIX inverseView = m_ViewMatrix.ToXMMATRIX();
-    inverseView = DirectX::XMMatrixInverse(nullptr, inverseView);
+    mat4x4 inverseView = m_ViewMatrix.ToXMMATRIX();
+    inverseView = mat4x4Inverse(nullptr, inverseView);
     vec4 cameraPos = inverseView.r[3];
     
     m_SkydomeMesh->Render(d3d->GetDeviceContext());
 
     SkydomeShaderParams skydomeShaderParams;
-    skydomeShaderParams.m_World = DirectX::XMMatrixTranslation(cameraPos.x, cameraPos.y, cameraPos.z);
+    skydomeShaderParams.m_World = mat4x4Translation(cameraPos.x, cameraPos.y, cameraPos.z);
     skydomeShaderParams.m_View = m_ViewMatrix.ToXMMATRIX();
     skydomeShaderParams.m_Projection = d3d->GetProjectionMatrix();
     skydomeShaderParams.m_ApexColor = APEX_COLOR;

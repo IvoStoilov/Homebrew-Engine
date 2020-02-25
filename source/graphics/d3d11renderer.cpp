@@ -1,4 +1,4 @@
-#include "precompile.h"
+#include <graphics/precompile.h>
 #include <graphics/d3d11renderer.h>
 //TODO istoilov: remove the include of #include <d3dx10math.h> in d3d11renderer
 #include <graphics/d3d11.h>
@@ -120,7 +120,7 @@ bool D3D11Renderer::PreFrame()
 
 bool D3D11Renderer::RenderReflection()
 {
-    D3DXMATRIX worldMatrix, reflectionViewMatrix, projectionMatrix;
+    mat4x4 worldMatrix, reflectionViewMatrix, projectionMatrix;
     
     m_ReflectionTexture->SetRenderTarget(m_D3D->GetDeviceContext(), m_D3D->GetDepthStencilView());
     m_ReflectionTexture->ClearRenderTarget(m_D3D->GetDeviceContext(), m_D3D->GetDepthStencilView(), 0.0f, 0.0f, 0.0f, 1.0f);
@@ -190,7 +190,7 @@ bool D3D11Renderer::Render()
     }
 
     //TODO istoilov : Move code to a dedicated solid object sub renderer.
-    D3DXMATRIX projectionMatrix;
+    mat4x4 projectionMatrix;
     m_D3D->GetProjectionMatrix(projectionMatrix);
     for (GraphicsNode* node : m_Nodes)
     {

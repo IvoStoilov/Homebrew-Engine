@@ -1,4 +1,4 @@
-#include "precompile.h"
+#include <graphics/precompile.h>
 #include "graphics/common/model2d.h"
 #include "graphics/common/texture.h"
 
@@ -182,14 +182,14 @@ bool Model2D::UpdateBuffers(ID3D11DeviceContext* deviceContext, int32_t posX, in
     float bottom = top - (float)m_ModelHeight;
 
     {
-        //D3DXVECTOR4 modelPos((left + m_ModelWidth / 2.f), (top - m_ModelHeight / 2.f), 0.f, 1.f);
-        //D3DXVECTOR4 cameraPos = g_Engine->GetCamera()->GetPosition().ToD3DXVECTOR4();
+        //vec4 modelPos((left + m_ModelWidth / 2.f), (top - m_ModelHeight / 2.f), 0.f, 1.f);
+        //vec4 cameraPos = g_Engine->GetCamera()->GetPosition().Tovec4();
         //
-        //D3DXVECTOR3 zAxis = cameraPos - modelPos;
+        //vec3 zAxis = cameraPos - modelPos;
         //D3DXVec3Normalize(&zAxis, &zAxis);
-        //D3DXVECTOR3 yAxis = g_Engine->GetCamera()->GetUpAxis().ToD3DXVECTOR4();
+        //vec3 yAxis = g_Engine->GetCamera()->GetUpAxis().Tovec4();
         //D3DXVec3Normalize(&yAxis, &yAxis);
-        //D3DXVECTOR3 xAxis;
+        //vec3 xAxis;
         //D3DXVec3Cross(&xAxis, &yAxis, &zAxis);
 
         //m_WorldMatrix._41 = left; //- cameraPosition[0];
@@ -204,24 +204,24 @@ bool Model2D::UpdateBuffers(ID3D11DeviceContext* deviceContext, int32_t posX, in
         return false;
     }
 
-    vertices[0].m_Position = D3DXVECTOR4(left, top, 0.0f, 0.f);  // Top left.
-    vertices[0].m_UV = D3DXVECTOR2(0.0f, 0.0f);
+    vertices[0].m_Position = vec4(left, top, 0.0f, 0.f);  // Top left.
+    vertices[0].m_UV = vec2(0.0f, 0.0f);
 
-    vertices[1].m_Position = D3DXVECTOR4(right, bottom, 0.0f, 0.f);  // Bottom right.
-    vertices[1].m_UV = D3DXVECTOR2(1.0f, 1.0f);
+    vertices[1].m_Position = vec4(right, bottom, 0.0f, 0.f);  // Bottom right.
+    vertices[1].m_UV = vec2(1.0f, 1.0f);
 
-    vertices[2].m_Position = D3DXVECTOR4(left, bottom, 0.0f, 0.f);  // Bottom left.
-    vertices[2].m_UV = D3DXVECTOR2(0.0f, 1.0f);
+    vertices[2].m_Position = vec4(left, bottom, 0.0f, 0.f);  // Bottom left.
+    vertices[2].m_UV = vec2(0.0f, 1.0f);
 
     // Second triangle.
-    vertices[3].m_Position = D3DXVECTOR4(left, top, 0.0f, 0.f);  // Top left.
-    vertices[3].m_UV = D3DXVECTOR2(0.0f, 0.0f);
+    vertices[3].m_Position = vec4(left, top, 0.0f, 0.f);  // Top left.
+    vertices[3].m_UV = vec2(0.0f, 0.0f);
 
-    vertices[4].m_Position = D3DXVECTOR4(right, top, 0.0f, 0.f);  // Top right.
-    vertices[4].m_UV = D3DXVECTOR2(1.0f, 0.0f);
+    vertices[4].m_Position = vec4(right, top, 0.0f, 0.f);  // Top right.
+    vertices[4].m_UV = vec2(1.0f, 0.0f);
 
-    vertices[5].m_Position = D3DXVECTOR4(right, bottom, 0.0f, 0.f);  // Bottom right.
-    vertices[5].m_UV = D3DXVECTOR2(1.0f, 1.0f);
+    vertices[5].m_Position = vec4(right, bottom, 0.0f, 0.f);  // Bottom right.
+    vertices[5].m_UV = vec2(1.0f, 1.0f);
 
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     result = deviceContext->Map(m_VertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);

@@ -1,10 +1,8 @@
-#include "precompile.h"
-#include "graphics/common/baseshader.h"
+#include <graphics/precompile.h>
+#include <graphics/common/baseshader.h>
 
-#include "system/error.h"
-
-#include <D3DCompiler.h>
-#include <d3dx11async.h>
+#include <system/error.h>
+#include <d3dcompiler.h>
 
 bool BaseShader::Initialize(ID3D11Device* device)
 {
@@ -28,18 +26,28 @@ BaseShader::VS_PS_Blobs BaseShader::CompileShaders(ID3D11Device* device, const S
 {
     HRESULT result;
     ID3D10Blob* errorMessage = nullptr;
-   
     ID3D10Blob* vertexShaderBuffer = nullptr;
 
-    
 #ifdef POP_DEBUG
     u32 shaderCompileFlags = (D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3D10_SHADER_ENABLE_STRICTNESS);
 #elif POP_RELEASE
     u32 shaderCompileFlags = (D3D10_SHADER_ENABLE_STRICTNESS | D3DCOMPILE_OPTIMIZATION_LEVEL3);
 #endif
-
-    result = D3DX11CompileFromFile(vsPath.c_str(), NULL, NULL, "main", "vs_5_0", shaderCompileFlags, 0, NULL,
-        &vertexShaderBuffer, &errorMessage, NULL);
+    std::wstring unicodeVSPath(vsPath.begin(), vsPath.end());
+    static constexpr D3D_SHADER_MACRO* P_DEFINES_NONE = nullptr;
+    static constexpr ID3DInclude* P_INCLUDE_NONE = nullptr;
+    static constexpr LPCSTR P_ENTRY_POINT_MAIN = "main";
+    static constexpr LPCSTR P_TARGET_VS_5_0 = "vs_5_0";
+    static constexpr u32 FLAGS_2_NONE = 0u;
+    result = D3DCompileFromFile(unicodeVSPath.c_str(), 
+                                P_DEFINES_NONE, 
+                                P_INCLUDE_NONE, 
+                                P_ENTRY_POINT_MAIN, 
+                                P_TARGET_VS_5_0, 
+                                shaderCompileFlags, 
+                                FLAGS_2_NONE,
+                                &vertexShaderBuffer, 
+                                &errorMessage);
     popAssert(!FAILED(result), "Vertex Compilation Failed.");
 
     if (errorMessage)
@@ -55,10 +63,19 @@ BaseShader::VS_PS_Blobs BaseShader::CompileShaders(ID3D11Device* device, const S
     popAssert(!FAILED(result), "BaseShader::InitializeShader::CreateVertexShader failed");
 
     ID3D10Blob* pixelShaderBuffer = nullptr;
-    result = D3DX11CompileFromFile(psPath.c_str(), NULL, NULL, "main", "ps_5_0", shaderCompileFlags, 0, NULL,
-        &pixelShaderBuffer, &errorMessage, NULL);
-    popAssert(!FAILED(result), "Pixel Shader Compilation Failed.");
+    std::wstring unicodePSPath(psPath.begin(), psPath.end());
+    static constexpr LPCSTR P_TARGET_PS_5_0 = "ps_5_0";
+    result = D3DCompileFromFile(unicodePSPath.c_str(), 
+                                P_DEFINES_NONE, 
+                                P_INCLUDE_NONE, 
+                                P_ENTRY_POINT_MAIN, 
+                                P_TARGET_PS_5_0,
+                                shaderCompileFlags,
+                                FLAGS_2_NONE,
+                                &pixelShaderBuffer, 
+                                &errorMessage);
 
+    popAssert(!FAILED(result), "Pixel Shader Compilation Failed.");
     if (errorMessage)
     {
         u32 size = errorMessage->GetBufferSize();
@@ -67,7 +84,6 @@ BaseShader::VS_PS_Blobs BaseShader::CompileShaders(ID3D11Device* device, const S
         int b = 0;
         delete[] errorMsg;
     }
-    
 
     result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_PixelShader);
     popAssert(!FAILED(result), "SkydomeShader::InitializeShader::CreateVertexShader failed");

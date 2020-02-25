@@ -1,3 +1,4 @@
+#include <graphics/precompile.h>
 #include "graphics/debugdisplay/debugdisplayrenderer.h"
 
 #include "graphics/common/colorshader.h"
@@ -7,13 +8,13 @@
 
 bool DebugDisplayRenderer::Render(D3D11* d3d)
 {
-    D3DXMATRIX worldMatrix;
-    D3DXMatrixIdentity(&worldMatrix);
-    D3DXMATRIX projectionMatrix;
+    mat4x4 worldMatrix;
+    mat4x4 Identity(worldMatrix);
+    mat4x4 projectionMatrix;
     d3d->GetProjectionMatrix(projectionMatrix);
 
     RenderGeometry(d3d->GetDeviceContext());
-    m_Shader->Render(d3d->GetDeviceContext(), m_Elements.size() * 2 , worldMatrix, m_ViewMatrix.ToD3DXMATRIX(), projectionMatrix);
+    m_Shader->Render(d3d->GetDeviceContext(), m_Elements.size() * 2 , worldMatrix, m_ViewMatrix, projectionMatrix);
 
     return true;
 }

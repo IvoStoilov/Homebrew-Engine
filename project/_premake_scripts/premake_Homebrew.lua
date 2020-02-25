@@ -6,7 +6,11 @@ workspace "HomebrewEngine"
 
     architecture "x64"
     startproject "Gameplay"
-    
+
+    targetdir(OUTPUT_DIR .. "/homebrew")
+    objdir(TEMP_DIR .. "/homebrew")
+    characterset("ASCII")
+
     configurations
     {
         "Debug",
@@ -14,10 +18,42 @@ workspace "HomebrewEngine"
         "Final"
     }
 
+    filter "configurations:Debug"
+        targetsuffix "_d"
+        defines "POP_DEBUG"
+        runtime "Debug"
+        symbols "on"
+    filter {} --filter "configurations:Debug"
+
+    filter "configurations:Release"
+        targetsuffix "_r"
+        defines "POP_RELEASE"
+        runtime "Release"
+        optimize "on"
+    filter {} -- filter "configurations:Release"
+
+    filter "configurations:Final"
+        targetsuffix "_f"
+        defines
+        {
+            "POP_RELEASE",
+            "POP_FINAL"
+        }
+        runtime "Release"
+        optimize "on"
+    filter {} --filter "configurations:Final"
+
+    filter "system:windows"
+		systemversion "latest"
+		defines
+		{
+			"POP_PLATFORM_WINDOWS"
+        }
+    filter {} --filter "system:windows"
+
     defines
     {
         "_CRT_SECURE_NO_WARNINGS",
-        "_XM_NO_INTRINSICS_"
     }
 
     includedirs
@@ -34,8 +70,6 @@ workspace "HomebrewEngine"
         "4996"
     }
 
-	characterset("ASCII");
-
 group "Extern"
     include "premake_DirectXTK"
 group ""
@@ -50,9 +84,6 @@ project "Gameplay"
     cppdialect "C++17"
     staticruntime "on"
 
-    targetdir(OUTPUT_DIR);
-    objdir(TEMP_DIR);
-    
     files
     {
         MAIN_DIR .. "/source/gameplay/**.h",
@@ -64,32 +95,6 @@ project "Gameplay"
         "Engine"
     }
 
-	filter "system:windows"
-		systemversion "latest"
-		defines
-		{
-			"POP_PLATFORM_WINDOWS"
-		}
-
-    filter "configurations:Debug"
-        defines "POP_DEBUG"
-        runtime "Debug"
-        symbols "on"
-
-    filter "configurations:Release"
-        defines "POP_RELEASE"
-        runtime "Release"
-        optimize "on"
-
-filter "configurations:Final"
-    defines
-    {
-        "POP_RELEASE",
-        "POP_FINAL"
-    }
-    runtime "Release"
-    optimize "on"
-
 project "Engine"
     location(PROJECT_DIR .. "/engine")
     kind "StaticLib"
@@ -97,9 +102,6 @@ project "Engine"
     cppdialect "C++17"
     staticruntime "on"
     
-    targetdir(OUTPUT_DIR);
-    objdir(TEMP_DIR);
-
     --pchheader precompile
     --pchsource source/ ..... / precompile.cpp
 
@@ -115,39 +117,6 @@ project "Engine"
         "System"
     }
 
-    includedirs
-    {
-        os.getenv("DXSDK_DIR") .. "/Include"
-    }
-    
-	filter "system:windows"
-		systemversion "latest"
-		
-		defines
-		{
-			"POP_PLATFORM_WINDOWS"
-		}
-
-    filter "configurations:Debug"
-        defines "POP_DEBUG"
-        runtime "Debug"
-        symbols "on"
-
-    filter "configurations:Release"
-        defines "POP_RELEASE"
-        runtime "Release"
-        optimize "on"
-
-    filter "configurations:Final"
-        defines
-        {
-            "POP_RELEASE",
-            "POP_FINAL"
-        }
-    
-        runtime "Release"
-        optimize "on"
-
 -- ****************
 -- *** Graphics ***
 -- ****************
@@ -157,16 +126,9 @@ project "Graphics"
     language "C++"
     cppdialect "C++17"
     staticruntime "on"
-    
-    targetdir(OUTPUT_DIR);
-    objdir(TEMP_DIR);
 
-    links
-    {
-        "System"
-    }
-    --pchheader precompile
-    --pchsource source/ ..... / precompile.cpp
+    pchheader ("graphics/precompile.h")
+    pchsource (MAIN_DIR .. "/source/graphics/precompile.cpp")
 
     files
     {
@@ -174,53 +136,13 @@ project "Graphics"
         MAIN_DIR .. "/source/graphics/**.cpp",
     }
 
-    includedirs
-    {
-        os.getenv("DXSDK_DIR") .. "/Include"
-    }
-
     links
     {
         "System",
         "DirectXTK",
-        "d3dx11",
-        "d3dx10"
     }
-
-    libdirs
-    {
-        os.getenv("DXSDK_DIR") .. "/Lib/x64",
-        OUTPUT_DIR -- because it is missing the xcopy libs
-    }
-
-    filter "system:windows"
-        systemversion "latest"
-
-		defines
-		{
-			"POP_PLATFORM_WINDOWS"
-		}
-
-	filter "configurations:Debug"
-	    defines "POP_DEBUG"
-	    runtime "Debug"
-    	symbols "on"
-
-    filter "configurations:Release"
-        defines "POP_RELEASE"
-        runtime "Release"
-        optimize "on"
-
-    filter "configurations:Final"
-        defines
-        {
-            "POP_RELEASE",
-            "POP_FINAL"
-        }
-        runtime "Release"
-        optimize "on"
 
 -- **************
 -- *** System ***
 -- **************
-    include "premake_System"
+include "premake_System"

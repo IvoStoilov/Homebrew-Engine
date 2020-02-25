@@ -1,3 +1,4 @@
+#include <graphics/precompile.h>
 #include "graphics/common/texture.h"
 #include "extern/DirectXTK/Inc/WICTextureLoader.h"
 

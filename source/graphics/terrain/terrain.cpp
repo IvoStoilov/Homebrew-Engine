@@ -1,4 +1,4 @@
-#include "precompile.h"
+#include <graphics/precompile.h>
 #include "graphics/terrain/terrain.h"
 #include "graphics/d3d11renderer.h"
 #include "graphics/common/mesh.h"

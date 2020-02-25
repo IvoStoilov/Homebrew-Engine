@@ -3,8 +3,8 @@
 
 struct ReflectionBufferType
 {
-    DirectX::XMMATRIX m_ReflectionMatrix;
-    DirectX::XMMATRIX m_ProjectionMatrix;
+    mat4x4 m_ReflectionMatrix;
+    mat4x4 m_ProjectionMatrix;
 };
 
 struct DeltaTimeBufferType
@@ -15,7 +15,7 @@ struct DeltaTimeBufferType
 
 struct ReflectionShaderParams : public TextureShaderParams
 {
-    DirectX::XMMATRIX m_ReflectionMatrix;
+    mat4x4 m_ReflectionMatrix;
     f32 m_MoveFactor;
 };
 

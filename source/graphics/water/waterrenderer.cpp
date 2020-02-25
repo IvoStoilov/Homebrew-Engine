@@ -1,4 +1,4 @@
-#include "precompile.h"
+#include <graphics/precompile.h>
 #include "graphics/water/waterrenderer.h"
 
 #include "graphics/common/mesh.h"
@@ -20,8 +20,8 @@ bool WaterRenderer::Render(D3D11* d3d)
     m_Mesh->Render(d3d->GetDeviceContext());
 
     ReflectionShaderParams params;
-    params.m_World = DirectX::XMMatrixTranslation(0, m_WaterLevel, 0.f);
-    params.m_View = m_ViewMatrix.ToXMMATRIX();
+    params.m_World = mat4x4::CreateTranslation(0, m_WaterLevel, 0.f);
+    params.m_View = m_ViewMatrix;
     params.m_Projection = d3d->GetProjectionMatrix();
 
     const SharedPtr<RenderTexture>& renderTextureSPtr = g_RenderEngine->GetReflectionTexture();
@@ -31,7 +31,7 @@ bool WaterRenderer::Render(D3D11* d3d)
     params.m_PSTextures.push_back(std::make_pair(m_DuDvTexture, 11));
     params.m_PSTextures.push_back(std::make_pair(m_NormalMap, 12));
 
-    params.m_ReflectionMatrix = m_ReflectionMatrix.ToXMMATRIX();
+    params.m_ReflectionMatrix = m_ReflectionMatrix;
 
     UpdateMoveFactor(g_RenderEngine->GetDT());
     params.m_MoveFactor = m_MoveFactor;

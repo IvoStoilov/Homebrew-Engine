@@ -1,4 +1,4 @@
-#include "precompile.h"
+#include <graphics/precompile.h>
 #include "graphics/common/lightshader.h"
 #include "system/error.h"
 

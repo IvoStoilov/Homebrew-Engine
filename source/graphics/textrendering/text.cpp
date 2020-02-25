@@ -1,3 +1,4 @@
+#include <graphics/precompile.h>
 #include "graphics/textrendering/text.h"
 #include "graphics/textrendering/font.h"
 #include "graphics/textrendering/fontshader.h"
@@ -69,7 +70,7 @@ void Text::Shutdown()
     }
 }
 
-bool Text::Render(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX orthoMatrix)
+bool Text::Render(ID3D11DeviceContext* deviceContext, mat4x4 worldMatrix, mat4x4 orthoMatrix)
 {
     bool result;
 
@@ -262,10 +263,10 @@ void Text::ReleaseSentence(SentenceType** sentence)
     }
 }
 
-bool Text::RenderSentence(ID3D11DeviceContext* deviceContext, SentenceType* sentence, D3DXMATRIX worldMatrix, D3DXMATRIX orthoMatrix)
+bool Text::RenderSentence(ID3D11DeviceContext* deviceContext, SentenceType* sentence, mat4x4 worldMatrix, mat4x4 orthoMatrix)
 {
     unsigned int stride, offset;
-    D3DXVECTOR4 pixelColor;
+    vec4 pixelColor;
     bool result;
 
     stride = sizeof(VertexType);
@@ -275,11 +276,9 @@ bool Text::RenderSentence(ID3D11DeviceContext* deviceContext, SentenceType* sent
     m_DeviceContextCache->IASetIndexBuffer(sentence->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
     m_DeviceContextCache->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    pixelColor = D3DXVECTOR4(sentence->red, sentence->green, sentence->blue, 1.0f);
+    pixelColor = vec4(sentence->red, sentence->green, sentence->blue, 1.0f);
 
-    D3DXMATRIX id;
-    D3DXMatrixIdentity(&id);
-
+    mat4x4 id;
     if(m_FontShader->Render(deviceContext, sentence->indexCount, worldMatrix, id, orthoMatrix, m_Font->GetTexture(), pixelColor))
     {
         false;

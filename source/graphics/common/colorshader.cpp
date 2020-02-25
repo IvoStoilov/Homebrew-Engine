@@ -1,9 +1,8 @@
-#include "graphics/common/colorshader.h"
-#include "system/error.h"
+#include <graphics/precompile.h>
+#include <graphics/common/colorshader.h>
+#include <system/error.h>
 
-#include <d3d11.h>
-#include <D3DCompiler.h>
-#include <d3dx11async.h>
+#include <d3dcompiler.h>
 
 /*
 Shader Paths :
@@ -39,7 +38,7 @@ void ColorShader::Shutdown()
     ShutdownShader();
 }
 
-bool ColorShader::Render(ID3D11DeviceContext* deviceContext, uint32_t indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, D3DXMATRIX projectionMatrix)
+bool ColorShader::Render(ID3D11DeviceContext* deviceContext, uint32_t indexCount, mat4x4 worldMatrix, mat4x4 viewMatrix, mat4x4 projectionMatrix)
 {
     // Set the shader parameters that it will use for rendering.
     if(!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix))
@@ -65,15 +64,40 @@ bool ColorShader::InitializeShader(ID3D11Device* device, const std::string& vsPa
     vertexShaderBuffer = 0;
     pixelShaderBuffer = 0;
     
+#ifdef POP_DEBUG
+    u32 shaderCompileFlags = (D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3D10_SHADER_ENABLE_STRICTNESS);
+#elif POP_RELEASE
+    u32 shaderCompileFlags = (D3D10_SHADER_ENABLE_STRICTNESS | D3DCOMPILE_OPTIMIZATION_LEVEL3);
+#endif
 
-    // Compile the vertex shader code.
-    result = D3DX11CompileFromFile(vsPath.c_str(), NULL, NULL, "main", "vs_5_0", (D3D10_SHADER_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG), 0, NULL,
-             &vertexShaderBuffer, &errorMessage, NULL);
+    std::wstring unicodeVSPath(vsPath.begin(), vsPath.end());
+    static constexpr D3D_SHADER_MACRO* P_DEFINES_NONE = nullptr;
+    static constexpr ID3DInclude* P_INCLUDE_NONE = nullptr;
+    static constexpr LPCSTR P_ENTRY_POINT_MAIN = "main";
+    static constexpr LPCSTR P_TARGET_VS_5_0 = "vs_5_0";
+    static constexpr u32 FLAGS_2_NONE = 0u;
+    result = D3DCompileFromFile(unicodeVSPath.c_str(),
+        P_DEFINES_NONE,
+        P_INCLUDE_NONE,
+        P_ENTRY_POINT_MAIN,
+        P_TARGET_VS_5_0,
+        shaderCompileFlags,
+        FLAGS_2_NONE,
+        &vertexShaderBuffer,
+        &errorMessage);
     popAssert(!FAILED(result), "ColorShaderVS Compilation Failed.");
 
-    // Compile the pixel shader code.
-    result = D3DX11CompileFromFile(psPath.c_str(), NULL, NULL, "main", "ps_5_0", (D3D10_SHADER_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG), 0, NULL,
-             &pixelShaderBuffer, &errorMessage, NULL);
+    std::wstring unicodePSPath(psPath.begin(), psPath.end());
+    static constexpr LPCSTR P_TARGET_PS_5_0 = "ps_5_0";
+    result = D3DCompileFromFile(unicodePSPath.c_str(),
+        P_DEFINES_NONE,
+        P_INCLUDE_NONE,
+        P_ENTRY_POINT_MAIN,
+        P_TARGET_PS_5_0,
+        shaderCompileFlags,
+        FLAGS_2_NONE,
+        &pixelShaderBuffer,
+        &errorMessage);
     popAssert(!FAILED(result), "ColorShaderPS Compilation Failed.");
 
     // Create the vertex shader from the buffer.
@@ -165,20 +189,18 @@ void ColorShader::ShutdownShader()
     }
 }
 
-bool ColorShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX& worldMatrix,
-    D3DXMATRIX& viewMatrix, D3DXMATRIX& projectionMatrix)
+bool ColorShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, mat4x4& worldMatrix,
+    mat4x4& viewMatrix, mat4x4& projectionMatrix)
 {
     HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     MatrixBufferType* dataPtr;
     unsigned int bufferNumber;
 
-    // Transpose the matrices to prepare them for the shader.
-    D3DXMatrixTranspose(&worldMatrix, &worldMatrix);
-    D3DXMatrixTranspose(&viewMatrix, &viewMatrix);
-    D3DXMatrixTranspose(&projectionMatrix, &projectionMatrix);
+    mat4x4 worldMatrixTransposed = worldMatrix.Transpose();
+    mat4x4 viewMatrixTransposed = viewMatrix.Transpose();
+    mat4x4 projectionMatrixTransposed = projectionMatrix.Transpose();
 
-    // Lock the constant buffer so it can be written to.
     result = deviceContext->Map(m_MatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
     if (FAILED(result))
     {
@@ -188,11 +210,11 @@ bool ColorShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMA
     // Get a pointer to the data in the constant buffer.
     dataPtr = (MatrixBufferType*)mappedResource.pData;
 
-    //D3DXMatrixIdentity(&projectionMatrix);
+    //mat4x4Identity(&projectionMatrix);
     // Copy the matrices into the constant buffer.
-    dataPtr->world = worldMatrix;
-    dataPtr->view = viewMatrix;
-    dataPtr->projection = projectionMatrix;
+    dataPtr->world = worldMatrixTransposed;
+    dataPtr->view = viewMatrixTransposed;
+    dataPtr->projection = projectionMatrixTransposed;
 
     // Unlock the constant buffer.
     deviceContext->Unmap(m_MatrixBuffer, 0);

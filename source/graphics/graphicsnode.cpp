@@ -1,4 +1,4 @@
-#include "precompile.h"
+#include <graphics/precompile.h>
 #include "graphics/graphicsnode.h"
 #include "graphics/common/model3d.h"
 #include "graphics/common/lightshader.h"
@@ -10,8 +10,8 @@
 
 //Adding _ to the names because they are global vars and are conflicting during compilation.
 //TODO istoilov: make a Light Source object to store such data
-DirectX::XMFLOAT4 _DIFFUSE_COLOR(1.f, 1.f, 1.f, 1.f);
-DirectX::XMFLOAT4 _LIGHT_DIRECTION(-.3f, +.3f, 1.f, 0.f);
+vec4 _DIFFUSE_COLOR(1.f, 1.f, 1.f, 1.f);
+vec4 _LIGHT_DIRECTION(-.3f, +.3f, 1.f, 0.f);
 
 void GraphicsNode::Initialize(ID3D11Device* device)
 {
