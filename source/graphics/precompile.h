@@ -9,9 +9,6 @@
 
 #include <d3d11.h>
 
-#include <system/math/vec.h>
-#include <system/math/mat4x4.h>
-
 template<class T>
 using UniquePtr = std::unique_ptr<T>;
 
@@ -40,3 +37,5 @@ using Array = std::vector<T>;
 #define popObjectDynamicCast(ToType, ObjPtr) dynamic_cast<ToType*>(ObjPtr)
 #define popObjectCast(ToType, ObjPtr) static_cast<ToType*>(ObjPtr)
 
+#include <system/math/vec.h>
+#include <system/math/mat4x4.h>

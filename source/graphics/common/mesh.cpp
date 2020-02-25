@@ -273,11 +273,13 @@ void Mesh::BuildTangents()
 
         vec4 tangent(   ((edge1.x * uvEdge2.y) - (edge2.x * uvEdge1.y)) * r,
                         ((edge1.y * uvEdge2.y) - (edge2.y * uvEdge1.y)) * r,
-                        ((edge1.z * uvEdge2.y) - (edge2.z * uvEdge1.y)) * r );
+                        ((edge1.z * uvEdge2.y) - (edge2.z * uvEdge1.y)) * r,
+                        0.f);
 
         vec4 bitangent( ((edge2.x * uvEdge1.x) - (edge1.x * uvEdge2.x)) * r,
                         ((edge2.y * uvEdge1.x) - (edge1.y * uvEdge2.x)) * r,
-                        ((edge2.z * uvEdge1.x) - (edge1.z * uvEdge2.x)) * r );
+                        ((edge2.z * uvEdge1.x) - (edge1.z * uvEdge2.x)) * r,
+                        0.f);
        
         tanA[m_Indexes[i    ]] += tangent;
         tanA[m_Indexes[i + 1]] += tangent;
@@ -299,7 +301,7 @@ void Mesh::BuildTangents()
         t.Normalize();
 
         //Applies correction in the case where the tangent, binormal and normal do not produce S+ orientation
-        vec4 biNormal = vec4::Cross(n, t0);
+        vec4 biNormal = n.Cross(t0);
         f32 w = (biNormal.Dot(t1) < 0) ? -1.0f : 1.0f;
         m_Vertices[i].m_Tangent = vec4(t.x, t.y, t.z, w);
     }
