@@ -1,5 +1,5 @@
 group "Extern"
-    include "premake_DirectXTK"
+    include "p_premake_DirectXTK"
 group ""
 
 project "System"

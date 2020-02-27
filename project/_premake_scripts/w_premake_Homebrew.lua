@@ -1,4 +1,4 @@
-include "premake_GlobalVars"
+include "g_premake_GlobalVars"
 
 workspace "HomebrewEngine"
     filename "HomebrewEngine_%{_ACTION}"
@@ -71,7 +71,7 @@ workspace "HomebrewEngine"
     }
 
 group "Extern"
-    include "premake_DirectXTK"
+    include "p_premake_DirectXTK"
 group ""
 
 -- ****************
@@ -117,32 +117,5 @@ project "Engine"
         "System"
     }
 
--- ****************
--- *** Graphics ***
--- ****************
-project "Graphics"
-    location(PROJECT_DIR .. "/graphics");
-    kind "StaticLib"
-    language "C++"
-    cppdialect "C++17"
-    staticruntime "on"
-
-    pchheader ("graphics/precompile.h")
-    pchsource (MAIN_DIR .. "/source/graphics/precompile.cpp")
-
-    files
-    {
-        MAIN_DIR .. "/source/graphics/**.h",
-        MAIN_DIR .. "/source/graphics/**.cpp",
-    }
-
-    links
-    {
-        "System",
-        "DirectXTK",
-    }
-
--- **************
--- *** System ***
--- **************
-include "premake_System"
+    include "p_premake_Graphics"
+    include "p_premake_System"

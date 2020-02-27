@@ -52,7 +52,7 @@ BaseShader::VS_PS_Blobs BaseShader::CompileShaders(ID3D11Device* device, const S
 
     if (errorMessage)
     {
-        u32 size = errorMessage->GetBufferSize();
+        u32 size = u32(errorMessage->GetBufferSize());
         char* errorMsg = new char[size];
         memcpy(errorMsg, errorMessage->GetBufferPointer(), size);
         int b = 0;

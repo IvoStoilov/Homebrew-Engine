@@ -24,7 +24,8 @@
 .vs
 bin/Debug
 bin/Release
-bin/sandbox
+bin/graphics_sandbox
+bin/system_sandbox
 resource
 temp
 extern/DirectXTK/Bin
