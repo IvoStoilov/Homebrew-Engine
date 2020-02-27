@@ -47,7 +47,7 @@ bool SkydomeRenderer::Render(D3D11* d3d)
     SkydomeShaderParams skydomeShaderParams;
     skydomeShaderParams.m_World = mat4x4Translation(cameraPos.x, cameraPos.y, cameraPos.z);
     skydomeShaderParams.m_View = m_ViewMatrix.ToXMMATRIX();
-    skydomeShaderParams.m_Projection = d3d->GetProjectionMatrix();
+    skydomeShaderParams.m_Projection = d3d->GetPerspectiveMatrix();
     skydomeShaderParams.m_ApexColor = APEX_COLOR;
     skydomeShaderParams.m_CenterColor = CENTER_COLOR;
     

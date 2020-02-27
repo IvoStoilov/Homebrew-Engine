@@ -11,7 +11,7 @@ bool DebugDisplayRenderer::Render(D3D11* d3d)
     mat4x4 worldMatrix;
     mat4x4 Identity(worldMatrix);
     mat4x4 projectionMatrix;
-    d3d->GetProjectionMatrix(projectionMatrix);
+    d3d->GetPerspectiveMatrix(projectionMatrix);
 
     RenderGeometry(d3d->GetDeviceContext());
     m_Shader->Render(d3d->GetDeviceContext(), m_Elements.size() * 2 , worldMatrix, m_ViewMatrix, projectionMatrix);

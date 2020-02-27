@@ -1,10 +1,8 @@
 #include <graphics/precompile.h>
-#include "graphics/common/model2d.h"
-#include "graphics/common/texture.h"
+#include <graphics/common/model2d.h>
+#include <graphics/common/texture.h>
 
-#include "system/error.h"
-#include "engine/engine.h"
-#include "engine/camera.h"
+#include <system/error.h>
 
 Model2D::Model2D() :
     m_VertexBuffer(nullptr),

@@ -23,12 +23,9 @@ public:
     inline ID3D11DeviceContext* GetDeviceContext() { return m_DeviceContext; }
     inline ID3D11DepthStencilView* GetDepthStencilView() { return m_DepthStencilView; }
 
-    inline void GetProjectionMatrix(mat4x4& mat) { mat = m_ProjectionMatrix_DEPRECATED; }
-    inline mat4x4 GetProjectionMatrix() const { return m_ProjectionMatrix; }
-    inline void GetWorldMatrix(mat4x4& mat) { mat = m_WorldMatrix; }
-    inline void GetOrthoMatrix(mat4x4& mat) { mat = m_OrthoMatrix_DEPRECATED; }
-    inline mat4x4 GetOrthoMatrix() const { return m_OrthoMatrix; }
-
+    inline const mat4x4& GetPerspectiveMatrix() const { return m_PerspectiveMatrix; }
+    inline void GetPerspectiveMatrix(mat4x4& outPerspectiveMatrix) const { outPerspectiveMatrix = m_PerspectiveMatrix; }
+    inline const mat4x4& GetOrthoMatrix() const { return m_OrthoMatrix; }
 
     void GetVideoCardInfo(char* outCardName, int& outMemorySize);
 
@@ -58,10 +55,7 @@ private:
     ID3D11RasterizerState* m_RasterState;
     ID3D11BlendState* m_AlphaBlendingStateEnable;
     ID3D11BlendState* m_AlphaBlendingStateDisable;
-    //clean this
-    mat4x4 m_ProjectionMatrix_DEPRECATED;
-    mat4x4 m_ProjectionMatrix;
-    mat4x4 m_WorldMatrix;
-    mat4x4 m_OrthoMatrix_DEPRECATED;
+
+    mat4x4 m_PerspectiveMatrix;
     mat4x4 m_OrthoMatrix;
 };

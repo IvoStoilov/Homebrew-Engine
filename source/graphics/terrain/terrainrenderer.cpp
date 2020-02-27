@@ -43,7 +43,7 @@ bool TerrainRenderer::Render(D3D11* d3d)
         mat4x4 worldMatrix;
         mat4x4Identity(&worldMatrix);
         mat4x4 projectionMatrix;
-        d3d->GetProjectionMatrix(projectionMatrix);
+        d3d->GetPerspectiveMatrix(projectionMatrix);
         m_WireframeShader->Render(d3d->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, m_ViewMatrix.Tomat4x4(), projectionMatrix);
     }
     else
@@ -51,7 +51,7 @@ bool TerrainRenderer::Render(D3D11* d3d)
         LightShaderParams params;
         params.m_World = mat4x4Identity();
         params.m_View = m_ViewMatrix.ToXMMATRIX();
-        params.m_Projection = d3d->GetProjectionMatrix();
+        params.m_Projection = d3d->GetPerspectiveMatrix();
 
         params.m_VSTextures.push_back(std::make_pair(m_HeightMapTexture  , 0));
         params.m_PSTextures.push_back(std::make_pair(m_NormalMapTexture  , 0));

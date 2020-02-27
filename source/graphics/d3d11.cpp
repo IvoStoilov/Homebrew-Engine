@@ -2,6 +2,7 @@
 #include <graphics/d3d11.h>
 
 #include <system/viewprovider/viewprovider.h>
+#include <system/math/mathutil.h>
 
 D3D11::D3D11() :
     m_SwapChain(nullptr),
@@ -471,19 +472,11 @@ void D3D11::InitMatrices(uint32_t screenWidth, uint32_t screenHeight, float scre
     float fieldOfView, screenAspect;
 
     // Setup the projection matrix.
-    fieldOfView = (float)D3DX_PI / 4.0f;
+    fieldOfView = MathUtil::PI / 4.0f;
     screenAspect = (float)screenWidth / (float)screenHeight;
 
-    // Create the projection matrix for 3D rendering.
-    mat4x4PerspectiveFovLH(&m_ProjectionMatrix_DEPRECATED, fieldOfView, screenAspect, screenNear, screenDepth);
-    m_ProjectionMatrix = mat4x4PerspectiveFovLH(fieldOfView, screenAspect, screenNear, screenDepth);
-
-    // Initialize the world matrix to the identity matrix.
-    mat4x4Identity(&m_WorldMatrix);
-
-    // Create an orthographic projection matrix for 2D rendering.
-    mat4x4OrthoLH(&m_OrthoMatrix_DEPRECATED, (float)screenWidth, (float)screenHeight, screenNear, screenDepth);
-    m_OrthoMatrix = mat4x4OrthographicOffCenterLH(0.f, (float)screenWidth, 0.f, (float)screenHeight, screenNear, screenDepth);
+    m_PerspectiveMatrix.CreatePerspectiveFieldOfView(fieldOfView, screenAspect, screenNear, screenDepth);
+    m_OrthoMatrix.CreateOrthographic(static_cast<f32>(screenWidth), static_cast<f32>(screenHeight), screenNear, screenDepth);
 }
 
 void D3D11::Shutdown()

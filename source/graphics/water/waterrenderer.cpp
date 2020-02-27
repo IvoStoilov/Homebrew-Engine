@@ -22,7 +22,7 @@ bool WaterRenderer::Render(D3D11* d3d)
     ReflectionShaderParams params;
     params.m_World = mat4x4::CreateTranslation(0, m_WaterLevel, 0.f);
     params.m_View = m_ViewMatrix;
-    params.m_Projection = d3d->GetProjectionMatrix();
+    params.m_Projection = d3d->GetPerspectiveMatrix();
 
     const SharedPtr<RenderTexture>& renderTextureSPtr = g_RenderEngine->GetReflectionTexture();
     const SharedPtr<RenderTexture>& refractionTexture = g_RenderEngine->GetRefractionTexture();

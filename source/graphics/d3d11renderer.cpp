@@ -1,6 +1,5 @@
 #include <graphics/precompile.h>
 #include <graphics/d3d11renderer.h>
-//TODO istoilov: remove the include of #include <d3dx10math.h> in d3d11renderer
 #include <graphics/d3d11.h>
 #include <graphics/graphicsnode.h>
 #include <graphics/isubrenderer.h>
@@ -10,11 +9,6 @@
 #include <graphics/textrendering/textrenderer.h>
 #include <graphics/water/waterrenderer.h>
 #include <graphics/textrendering/text.h>
-
-#include <engine/camera.h>
-#include <engine/engine.h>
-#include <engine/entitymodel/entity.h>
-#include <engine/entitymodel/components/visualcomponent.h>
 
 #include <system/viewprovider/viewprovider.h>
 #include <system/error.h>
@@ -93,13 +87,7 @@ void D3D11Renderer::Shutdown()
 
 void D3D11Renderer::RegisterDrawable(VisualComponent* visComponent)
 {
-    if (visComponent)
-    {
-        GraphicsNode* node = new GraphicsNode(visComponent);
-        node->Initialize(m_D3D->GetDevice());
-        if (!visComponent->GetIs2D())
-            m_Nodes.push_back(node);
-    }
+    
 }
 
 void D3D11Renderer::UnregisterDrawable(VisualComponent* visComponents)
@@ -125,16 +113,15 @@ bool D3D11Renderer::RenderReflection()
     m_ReflectionTexture->SetRenderTarget(m_D3D->GetDeviceContext(), m_D3D->GetDepthStencilView());
     m_ReflectionTexture->ClearRenderTarget(m_D3D->GetDeviceContext(), m_D3D->GetDepthStencilView(), 0.0f, 0.0f, 0.0f, 1.0f);
 
-    mat4x4 reflectedViewMatrix = g_Engine->GetCamera()->ComputeReflectionMatrix(WATER_LEVEL);
-    m_D3D->GetProjectionMatrix(projectionMatrix);
+    m_D3D->GetPerspectiveMatrix(projectionMatrix);
     f32 clipPlane[4] = { 0, 1, 0, -WATER_LEVEL };
-    //istoilov : we render everything before the water
+    
     for (u8 i = 0; i < SubRendererOrder::Water; i++)
     {
         if (m_SubRenderers[i]->IsEnabled())
         {
-            m_SubRenderers[i]->UpdateViewMatrix(reflectedViewMatrix);
-            m_SubRenderers[i]->UpdateReflectionMatrix(reflectedViewMatrix);
+            m_SubRenderers[i]->UpdateViewMatrix(m_ReflectedViewMatrix);
+            m_SubRenderers[i]->UpdateReflectionMatrix(m_ReflectedViewMatrix);
             m_SubRenderers[i]->SetClipPlane(vec4(0, 1.f, 0, -WATER_LEVEL));
             m_SubRenderers[i]->Render(m_D3D);
             m_SubRenderers[i]->SetClipPlane(vec4::Zero);
@@ -151,12 +138,8 @@ bool D3D11Renderer::RenderRefractionTexture()
     m_RefractionTexture->SetRenderTarget(m_D3D->GetDeviceContext(), m_D3D->GetDepthStencilView());
     m_RefractionTexture->ClearRenderTarget(m_D3D->GetDeviceContext(), m_D3D->GetDepthStencilView(), 0.f, 0.f, 0.f, 1.f );
 
-
-    mat4x4 viewMatrix;
-    g_Engine->GetCameraViewMatrix(viewMatrix);
-
     ISubRenderer* terrainRenderer = m_SubRenderers[SubRendererOrder::Terrain];
-    terrainRenderer->UpdateViewMatrix(viewMatrix);
+    terrainRenderer->UpdateViewMatrix(m_ViewMatrix);
     terrainRenderer->SetClipPlane(vec4(0, -1.f, 0, WATER_LEVEL));
     terrainRenderer->Render(m_D3D);
 
@@ -171,9 +154,6 @@ bool D3D11Renderer::Render()
 
     m_D3D->BeginScene(0.f, 0.f, 0.f, 0.f);
 
-    mat4x4 viewMatrix;
-    g_Engine->GetCameraViewMatrix(viewMatrix);
-
     {
         //istoilov : minor optimization on the rendering, because we are already drawing this on the refraction texture.
         ISubRenderer* terrainRenderer = m_SubRenderers[SubRendererOrder::Terrain];
@@ -184,20 +164,20 @@ bool D3D11Renderer::Render()
     {
         if (subRenderer->IsEnabled())
         {
-            subRenderer->UpdateViewMatrix(viewMatrix);
+            subRenderer->UpdateViewMatrix(m_ViewMatrix);
             subRenderer->Render(m_D3D);
         }
     }
 
     //TODO istoilov : Move code to a dedicated solid object sub renderer.
-    mat4x4 projectionMatrix;
-    m_D3D->GetProjectionMatrix(projectionMatrix);
-    for (GraphicsNode* node : m_Nodes)
-    {
-        node->SetProjectionMatrix(mat4x4(projectionMatrix));
-        node->SetViewMatrix(viewMatrix);
-        node->Render(m_D3D->GetDeviceContext());
-    }
+    //mat4x4 projectionMatrix;
+    //m_D3D->GetPerspectiveMatrix(projectionMatrix);
+    //for (GraphicsNode* node : m_Nodes)
+    //{
+    //    node->SetProjectionMatrix(mat4x4(projectionMatrix));
+    //    node->SetViewMatrix(viewMatrix);
+    //    node->Render(m_D3D->GetDeviceContext());
+    //}
 
     // Present the rendered scene to the screen.
     m_D3D->EndScene();

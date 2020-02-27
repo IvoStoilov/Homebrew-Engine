@@ -1,5 +1,5 @@
 #pragma once
-#include "graphics/common/rendertexture.h"
+#include <graphics/common/rendertexture.h>
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = false;
@@ -58,6 +58,9 @@ public:
     inline const SharedPtr<RenderTexture>& GetRefractionTexture() const { return m_RefractionTexture; }
     inline SharedPtr<RenderTexture>& GetRefractionTexture() { return m_RefractionTexture; }
 
+    static_assert(false, "CAll setView Matrix in update engine loop");
+    inline void SetViewMatrix(const mat4x4 viewMatrix) { m_ViewMatrix = viewMatrix; }
+    inline void SetReflectedViewMatrix(const mat4x4 reflectedViewMatrix) { m_ReflectedViewMatrix = reflectedViewMatrix; }
     inline const f32 GetDT() const { return m_DT; }
 
 private:
@@ -69,6 +72,8 @@ private:
     f32 m_DT;
 
     D3D11* m_D3D;
+    mat4x4 m_ViewMatrix;
+    mat4x4 m_ReflectedViewMatrix;
 
     Array<GraphicsNode*> m_Nodes;
     Array<ISubRenderer*> m_SubRenderers;
