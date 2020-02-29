@@ -1,10 +1,10 @@
 #include <graphics/precompile.h>
-#include "graphics/debugdisplay/debugdisplayrenderer.h"
+#include <graphics/debugdisplay/debugdisplayrenderer.h>
 
-#include "graphics/common/colorshader.h"
-#include "graphics/d3d11.h"
+#include <graphics/common/colorshader.h>
+#include <graphics/d3d11.h>
 
-#include "system/error.h"
+#include <system/error.h>
 
 bool DebugDisplayRenderer::Render(D3D11* d3d)
 {

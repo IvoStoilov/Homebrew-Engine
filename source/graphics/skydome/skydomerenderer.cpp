@@ -1,15 +1,12 @@
 #include <graphics/precompile.h>
-#include "graphics/skydome/skydomerenderer.h"
-#include "graphics/skydome/skydomeshader.h"
+#include <graphics/skydome/skydomerenderer.h>
+#include <graphics/skydome/skydomeshader.h>
 
-#include "graphics/d3d11.h"
-#include "graphics/common/colorshader.h"
-#include "graphics/common/mesh.h"
+#include <graphics/d3d11.h>
+#include <graphics/common/colorshader.h>
+#include <graphics/common/mesh.h>
 
-#include "system/error.h"
-
-#include "engine/engine.h"
-#include "engine/camera.h"
+#include <system/error.h>
 
 std::string SKYDOME_OBJ_PATH = "../../resource/skydome.obj";
 
@@ -37,16 +34,14 @@ bool SkydomeRenderer::Render(D3D11* d3d)
 {
     d3d->TurnDepthTestOff();
 
-    const Camera* camera = g_Engine->GetCamera();
-    mat4x4 inverseView = m_ViewMatrix.ToXMMATRIX();
-    inverseView = mat4x4Inverse(nullptr, inverseView);
-    vec4 cameraPos = inverseView.r[3];
+    mat4x4 inverseView = m_ViewMatrix.Invert();
+    vec3 cameraPos = inverseView.Translation();
     
     m_SkydomeMesh->Render(d3d->GetDeviceContext());
 
     SkydomeShaderParams skydomeShaderParams;
-    skydomeShaderParams.m_World = mat4x4Translation(cameraPos.x, cameraPos.y, cameraPos.z);
-    skydomeShaderParams.m_View = m_ViewMatrix.ToXMMATRIX();
+    skydomeShaderParams.m_World = mat4x4::CreateTranslation(cameraPos);
+    skydomeShaderParams.m_View = m_ViewMatrix;
     skydomeShaderParams.m_Projection = d3d->GetPerspectiveMatrix();
     skydomeShaderParams.m_ApexColor = APEX_COLOR;
     skydomeShaderParams.m_CenterColor = CENTER_COLOR;

@@ -3,6 +3,7 @@
 
 struct ID3D11Device;
 class ColorShader;
+class D3D11;
 class DebugDisplayRenderer : public ISubRenderer
 {
 public:

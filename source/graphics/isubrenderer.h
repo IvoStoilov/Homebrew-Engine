@@ -1,4 +1,5 @@
 #pragma once
+class D3D11;
 class ISubRenderer
 {
 public:

@@ -58,7 +58,6 @@ public:
     inline const SharedPtr<RenderTexture>& GetRefractionTexture() const { return m_RefractionTexture; }
     inline SharedPtr<RenderTexture>& GetRefractionTexture() { return m_RefractionTexture; }
 
-    static_assert(false, "CAll setView Matrix in update engine loop");
     inline void SetViewMatrix(const mat4x4 viewMatrix) { m_ViewMatrix = viewMatrix; }
     inline void SetReflectedViewMatrix(const mat4x4 reflectedViewMatrix) { m_ReflectedViewMatrix = reflectedViewMatrix; }
     inline const f32 GetDT() const { return m_DT; }

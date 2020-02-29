@@ -1,8 +1,6 @@
 #pragma once
-#include <vector>
-
-#include "graphics/isubrenderer.h"
-#include "graphics/textrendering/text.h"
+#include <graphics/isubrenderer.h>
+#include <graphics/textrendering/text.h>
 
 struct ID3D11Device;
 struct ID3D11DeviceContext;

@@ -145,7 +145,7 @@ void Terrain::InitializeTerrainNormals()
         if (adjFaces.size() != 0)
             normal /= (float)adjFaces.size();
         else
-            normal = vec4::BaseJ;
+            normal = vec4::UnitY;
 
         v.m_Normal = normal;
     }

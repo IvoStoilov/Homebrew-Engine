@@ -40,17 +40,16 @@ bool TerrainRenderer::Render(D3D11* d3d)
 
     if (g_CommandLineOptions->m_DrawWireframe)
     {
-        mat4x4 worldMatrix;
-        mat4x4Identity(&worldMatrix);
+        mat4x4 worldMatrix = mat4x4::Identity;
         mat4x4 projectionMatrix;
         d3d->GetPerspectiveMatrix(projectionMatrix);
-        m_WireframeShader->Render(d3d->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, m_ViewMatrix.Tomat4x4(), projectionMatrix);
+        m_WireframeShader->Render(d3d->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, m_ViewMatrix, projectionMatrix);
     }
     else
     {
         LightShaderParams params;
-        params.m_World = mat4x4Identity();
-        params.m_View = m_ViewMatrix.ToXMMATRIX();
+        params.m_World = mat4x4::Identity;
+        params.m_View = m_ViewMatrix;
         params.m_Projection = d3d->GetPerspectiveMatrix();
 
         params.m_VSTextures.push_back(std::make_pair(m_HeightMapTexture  , 0));
@@ -64,7 +63,7 @@ bool TerrainRenderer::Render(D3D11* d3d)
         params.m_PSTextures.push_back(std::make_pair(m_RockHeightTexture , 7));
         params.m_PSTextures.push_back(std::make_pair(m_SnowHeightTexture , 8));
 
-        params.m_ClipPlane = vec4Set(m_ClipPlane.x, m_ClipPlane.y, m_ClipPlane.z, m_ClipPlane.w);
+        params.m_ClipPlane = vec4(m_ClipPlane.x, m_ClipPlane.y, m_ClipPlane.z, m_ClipPlane.w);
 
         params.m_DiffuseColor = DIFFUSE_COLOR;
         params.m_LightDirection = LIGHT_DIRECTION;

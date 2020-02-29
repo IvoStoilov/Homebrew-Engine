@@ -1,7 +1,7 @@
 #include <graphics/precompile.h>
-#include "graphics/textrendering/fontshader.h"
+#include <graphics/textrendering/fontshader.h>
 
-#include "system/error.h"
+#include <system/error.h>
 #include <d3dcompiler.h>
 
 
@@ -61,19 +61,44 @@ bool FontShader::InitializeShader(ID3D11Device* device, const std::string& vsPat
     vertexShaderBuffer = 0;
     pixelShaderBuffer = 0;
 
+#ifdef POP_DEBUG
+    u32 shaderCompileFlags = (D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3D10_SHADER_ENABLE_STRICTNESS);
+#elif POP_RELEASE
+    u32 shaderCompileFlags = (D3D10_SHADER_ENABLE_STRICTNESS | D3DCOMPILE_OPTIMIZATION_LEVEL3);
+#endif
+    std::wstring unicodeVSPath(vsPath.begin(), vsPath.end());
+    static constexpr D3D_SHADER_MACRO* P_DEFINES_NONE = nullptr;
+    static constexpr ID3DInclude* P_INCLUDE_NONE = nullptr;
+    static constexpr LPCSTR P_ENTRY_POINT_MAIN = "main";
+    static constexpr LPCSTR P_TARGET_VS_5_0 = "vs_5_0";
+    static constexpr u32 FLAGS_2_NONE = 0u;
+    result = D3DCompileFromFile(unicodeVSPath.c_str(),
+        P_DEFINES_NONE,
+        P_INCLUDE_NONE,
+        P_ENTRY_POINT_MAIN,
+        P_TARGET_VS_5_0,
+        shaderCompileFlags,
+        FLAGS_2_NONE,
+        &vertexShaderBuffer,
+        &errorMessage);
+    popAssert(!FAILED(result), "Vertex Compilation Failed.");
 
-    // Compile the vertex shader code.
-    result = D3DX11CompileFromFile(vsPath.c_str(), NULL, NULL, "main", "vs_5_0", (D3D10_SHADER_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG), 0, NULL,
-        &vertexShaderBuffer, &errorMessage, NULL);
-    popAssert(!FAILED(result), "Texture Shader VS compilation failed.");
+    std::wstring unicodePSPath(psPath.begin(), psPath.end());
+    static constexpr LPCSTR P_TARGET_PS_5_0 = "ps_5_0";
+    result = D3DCompileFromFile(unicodePSPath.c_str(),
+        P_DEFINES_NONE,
+        P_INCLUDE_NONE,
+        P_ENTRY_POINT_MAIN,
+        P_TARGET_PS_5_0,
+        shaderCompileFlags,
+        FLAGS_2_NONE,
+        &pixelShaderBuffer,
+        &errorMessage);
 
-    // Compile the pixel shader code.
-    result = D3DX11CompileFromFile(psPath.c_str(), NULL, NULL, "main", "ps_5_0", (D3D10_SHADER_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG), 0, NULL,
-        &pixelShaderBuffer, &errorMessage, NULL);
-    popAssert(!FAILED(result), "Texture Shader PS compilation failed.")
+    popAssert(!FAILED(result), "Pixel Shader Compilation Failed.");
 
-        // Create the vertex shader from the buffer.
-        result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_VertexShader);
+    // Create the vertex shader from the buffer.
+    result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_VertexShader);
     popAssert(!FAILED(result), "TextureShader::InitializeShader::CreateVertexShader failed");
 
     // Create the pixel shader from the buffer.
@@ -225,9 +250,9 @@ bool FontShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, mat4x4 
     unsigned int bufferNumber;
 
     // Transpose the matrices to prepare them for the shader.
-    mat4x4Transpose(&worldMatrix, &worldMatrix);
-    mat4x4Transpose(&viewMatrix, &viewMatrix);
-    mat4x4Transpose(&projectionMatrix, &projectionMatrix);
+    worldMatrix = worldMatrix.Transpose();
+    viewMatrix = viewMatrix.Transpose();
+    projectionMatrix = projectionMatrix.Transpose();
 
     // Lock the constant buffer so it can be written to.
     result = deviceContext->Map(m_MatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
