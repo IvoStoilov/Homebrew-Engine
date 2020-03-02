@@ -1,12 +1,11 @@
-#include "precompile.h"
+#include <gameplay/precompile.h>
 
 #include <engine/engine.h>
 
 #include <system/commandline/commandlineparser.h>
 #include <system/commandline/commandlineoptions.h>
 #include <system/error.h>
-#include <stdio.h>
-#include <windows.h>
+
 const std::string INI_PATH = "../homebrew.ini";
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow)

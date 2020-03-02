@@ -197,9 +197,9 @@ bool ColorShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, mat4x4
     MatrixBufferType* dataPtr;
     unsigned int bufferNumber;
 
-    mat4x4 worldMatrixTransposed = worldMatrix.Transpose();
-    mat4x4 viewMatrixTransposed = viewMatrix.Transpose();
-    mat4x4 projectionMatrixTransposed = projectionMatrix.Transpose();
+    mat4x4 worldMatrixTransposed = worldMatrix.GetTransposed();
+    mat4x4 viewMatrixTransposed = viewMatrix.GetTransposed();
+    mat4x4 projectionMatrixTransposed = projectionMatrix.GetTransposed();
 
     result = deviceContext->Map(m_MatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
     if (FAILED(result))

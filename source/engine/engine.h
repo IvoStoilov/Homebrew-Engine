@@ -1,8 +1,4 @@
 #pragma once
-#include <vector>
-#include <stdint.h>
-#include <windows.h>
-
 #include <engine/input/inputhandler.h>
 #include <engine/entitymodel/entity.h>
 

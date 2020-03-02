@@ -1,4 +1,5 @@
-#include "engine/entitymodel/components/visualcomponent.h"
+#include <engine/precompile.h>
+#include <engine/entitymodel/components/visualcomponent.h>
 
 VisualComponent::VisualComponent() :
     Component(),

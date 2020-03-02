@@ -116,7 +116,7 @@ void Mesh::InitializeEdgeListIndexes()
 
         m_Edges.push_back(Edge());
         Edge* edgeTU = &m_Edges.back();
-        edgeTU->m_SelfIndex = m_Edges.size() - 1;
+        edgeTU->m_SelfIndex = static_cast<u32>(m_Edges.size()) - 1;
         
         edgeMap[uv] = edgeUV;
         edgeMap[vt] = edgeVT;
@@ -249,11 +249,11 @@ void Mesh::GetAdjacentTriangles(const Vertex& v, Array<Triangle*>& outResult) co
 
 void Mesh::BuildTangents()
 {
-    u32 vtxCount = m_Vertices.size();
+    u32 vtxCount = static_cast<u32>(m_Vertices.size());
     Array<vec4> tanA(vtxCount, vec4());
     Array<vec4> tanB(vtxCount, vec4());
 
-    u32 indexCount = m_Indexes.size();
+    u32 indexCount = static_cast<u32>(m_Indexes.size());
     for (u32 i = 0; i < indexCount; i += 3)
     {
         vec4 a = m_Vertices[m_Indexes[i  ]].m_Position;
@@ -329,7 +329,7 @@ void Mesh::BuildHullEdges()
     {
         m_Edges.push_back(Edge());
         currentEdge = &m_Edges[m_Edges.size() - 1];
-        currentEdge->m_SelfIndex = m_Edges.size() - 1;
+        currentEdge->m_SelfIndex = static_cast<u32>(m_Edges.size()) - 1;
         
         currentEdge->m_EndVertex = hullEdge->m_Next->m_Next->m_EndVertex;
         for (u32 i = 0; i < m_Vertices.size(); ++i)
@@ -405,19 +405,19 @@ void Mesh::Serialize(const String& path)
     auto fileToWrite = std::fstream(path, std::ios::out | std::ios::binary);
 
     //TODO istoilov : make Serialization helper for PODs
-    u32 verticesSize = m_Vertices.size();
+    u32 verticesSize = static_cast<u32>(m_Vertices.size());
     fileToWrite.write(reinterpret_cast<char*>(&verticesSize), sizeof(u32));
     fileToWrite.write(reinterpret_cast<char*>(&m_Vertices[0]), verticesSize * sizeof(Vertex));
 
-    u32 edgesSize = m_Edges.size();
+    u32 edgesSize = static_cast<u32>(m_Edges.size());
     fileToWrite.write(reinterpret_cast<char*>(&edgesSize), sizeof(u32));
     fileToWrite.write(reinterpret_cast<char*>(&m_Edges[0]), edgesSize * sizeof(Edge));
 
-    u32 trianglesSize = m_Triangles.size();
+    u32 trianglesSize = static_cast<u32>(m_Triangles.size());
     fileToWrite.write(reinterpret_cast<char*>(&trianglesSize), sizeof(u32));
     fileToWrite.write(reinterpret_cast<char*>(&m_Triangles[0]), trianglesSize * sizeof(Triangle));
 
-    u32 indexSize = m_Indexes.size();
+    u32 indexSize = static_cast<u32>(m_Indexes.size());
     fileToWrite.write(reinterpret_cast<char*>(&indexSize), sizeof(u32));
     fileToWrite.write(reinterpret_cast<char*>(&m_Indexes[0]), indexSize * sizeof(u32));
 
@@ -549,7 +549,7 @@ bool Mesh::InitializeIndexBuffer(ID3D11Device* device)
 
 void Mesh::SetupBuffersForWireframe(uint32_t*& indexes, uint32_t& outArrSize)
 {
-    outArrSize = m_Indexes.size() * 2;
+    outArrSize = static_cast<u32>(m_Indexes.size()) * 2;
     indexes = new uint32_t[outArrSize];
     uint32_t j = 0;
     for (uint32_t i = 0; i < m_Indexes.size(); i += 3)
@@ -565,7 +565,7 @@ void Mesh::SetupBuffersForWireframe(uint32_t*& indexes, uint32_t& outArrSize)
 
 void Mesh::SetupBuffersForSolid(uint32_t*& indexes, uint32_t& outArrSize)
 {
-    outArrSize = m_Indexes.size();
+    outArrSize = static_cast<u32>(m_Indexes.size());
     indexes = new uint32_t[outArrSize];
 
     for (uint32_t i = 0; i < outArrSize; i++)

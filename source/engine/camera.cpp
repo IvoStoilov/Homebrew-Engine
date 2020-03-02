@@ -1,11 +1,9 @@
-#include "precompile.h"
-#include "engine/camera.h"
+#include <engine/precompile.h>
 
-#include "system/inputmanager.h"
-#include "system/math/mathutil.h"
+#include <engine/camera.h>
 
-#include <d3d11.h>
-#include <d3dx10math.h>
+#include <system/inputmanager.h>
+#include <system/math/mathutil.h>
 
 Camera::Camera()
 {
@@ -54,10 +52,10 @@ vec4 Camera::GetRotation() const
 
 vec4 Camera::GetUpAxis() const
 {
-    return vec4((m_ViewMatrix[0][1]), (m_ViewMatrix[1][1]), (m_ViewMatrix[2][1]), 0.f);
+    return vec4(m_ViewMatrix.Up());
 }
 
-DirectX::XMMATRIX Camera::ComputeReflectionMatrix(f32 planeHeight) const
+mat4x4 Camera::ComputeReflectionMatrix(f32 planeHeight) const
 {
     DirectX::XMVECTOR up = DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f);
     f32 distance = 2.f * (m_positionY - planeHeight);
@@ -109,9 +107,9 @@ void Camera::Update(float dt)
         m_MoveSpeed -= .5f;
     }
 
-    D3DXVECTOR3 up, position, lookAt;
-    float yaw, pitch, roll;
-    D3DXMATRIX rotationMatrix;
+    vec3 up, position, lookAt;
+    f32 yaw, pitch, roll;
+    mat4x4 rotationMatrix;
 
     // Setup the vector that points upwards.
     up.x = 0.0f;
@@ -129,18 +127,18 @@ void Camera::Update(float dt)
     roll = m_rotationZ * 0.0174532925f;
 
     // Create the rotation matrix from the yaw, pitch, and roll values.
-    D3DXMatrixRotationYawPitchRoll(&rotationMatrix, yaw, pitch, roll);
+    rotationMatrix = mat4x4::CreateFromYawPitchRoll(yaw, pitch, roll);
 
     // Transform the lookAt and up vector by the rotation matrix so the view is correctly rotated at the origin.
-    D3DXVec3TransformCoord(&lookAt, &lookAt, &rotationMatrix);
-    D3DXVec3TransformCoord(&up, &up, &rotationMatrix);
+    lookAt = vec3::Transform(lookAt, rotationMatrix);
+    up = vec3::Transform(up, rotationMatrix);
+    
+    vec3 moveZ(0.f, 0.f, 0.f), moveX(0.f, 0.f, 0.f);
+    vec3 dirZ(0.f, 0.f, 1.f);
+    vec3 dirX(1.f, 0.f, 0.f);
 
-    D3DXVECTOR3 moveZ(0.f, 0.f, 0.f), moveX(0.f, 0.f, 0.f);
-    D3DXVECTOR3 dirZ(0.f, 0.f, 1.f);
-    D3DXVECTOR3 dirX(1.f, 0.f, 0.f);
-
-    D3DXVec3TransformCoord(&dirZ, &dirZ, &rotationMatrix);
-    D3DXVec3TransformCoord(&dirX, &dirX, &rotationMatrix);
+    dirZ = vec3::Transform(dirZ, rotationMatrix);
+    dirX = vec3::Transform(dirX, rotationMatrix);
 
     if (g_InputManager->IsKeyPressed(InputManager::Key::W))
     {
@@ -180,12 +178,5 @@ void Camera::Update(float dt)
     lookAt = position + lookAt;
 
     // Finally create the view matrix from the three updated vectors.
-    D3DXMATRIX viewMatrix;
-    D3DXMatrixLookAtLH(&viewMatrix, &position, &lookAt, &up);
-    m_ViewMatrix = viewMatrix;
-}
-
-void Camera::GetViewMatrix(mat4x4& viewMatrix)
-{
-    viewMatrix = m_ViewMatrix;
+    m_ViewMatrix = mat4x4::CreateLookAt(position, lookAt, up);
 }

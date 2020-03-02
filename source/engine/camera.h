@@ -1,7 +1,4 @@
 #pragma once
-#include "system/math/vec4.h"
-#include "system/math/mat4x4.h"
-
 class Camera
 {
 public:
@@ -13,7 +10,7 @@ public:
 
     inline float GetMoveSpeed() const { return m_MoveSpeed; }
 
-    DirectX::XMMATRIX ComputeReflectionMatrix(f32 planeHeight) const;
+    mat4x4 ComputeReflectionMatrix(f32 planeHeight) const;
 
     vec4 GetPosition() const;
     vec4 GetRotation() const;
@@ -23,12 +20,14 @@ public:
     void Update(float dt);
     void UpdateMovement();
 
-    void GetViewMatrix(mat4x4& outViewMatrix);
+    inline void GetViewMatrix(mat4x4& outViewMatrix) const { outViewMatrix = m_ViewMatrix; }
+    inline const mat4x4& GetViewMatrix() const { return m_ViewMatrix; }
 
 private:
-    float m_positionX, m_positionY, m_positionZ;
-    float m_rotationX, m_rotationY, m_rotationZ;
+    f32 m_positionX, m_positionY, m_positionZ;
+    f32 m_rotationX, m_rotationY, m_rotationZ;
+    f32 m_MoveSpeed;
     mat4x4 m_ViewMatrix;
     
-    float m_MoveSpeed;
+    
 };

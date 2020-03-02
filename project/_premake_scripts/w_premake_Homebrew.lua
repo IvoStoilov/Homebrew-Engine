@@ -10,7 +10,7 @@ workspace "HomebrewEngine"
     targetdir(OUTPUT_DIR .. "/homebrew")
     objdir(TEMP_DIR .. "/homebrew")
     characterset("ASCII")
-
+    
     configurations
     {
         "Debug",
@@ -82,7 +82,9 @@ project "Gameplay"
     kind "WindowedApp"
     language "C++"
     cppdialect "C++17"
-    staticruntime "on"
+    
+    pchheader ("gameplay/precompile.h")
+    pchsource (MAIN_DIR .. "/source/gameplay/precompile.cpp")
 
     files
     {
@@ -100,10 +102,9 @@ project "Engine"
     kind "StaticLib"
     language "C++"
     cppdialect "C++17"
-    staticruntime "on"
     
-    --pchheader precompile
-    --pchsource source/ ..... / precompile.cpp
+    pchheader ("engine/precompile.h")
+    pchsource (MAIN_DIR .. "/source/engine/precompile.cpp")
 
     files
     {

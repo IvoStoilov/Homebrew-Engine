@@ -1,18 +1,17 @@
-#include "precompile.h"
-#include "engine/engine.h"
-#include "engine/camera.h"
-#include "engine/entitymodel/components/visualcomponent.h"
-
-#include <system/viewprovider/viewprovider.h>
-#include "system/inputmanager.h"
-#include "system/profiling/profilemanager.h"
-#include "system/commandline/commandlineoptions.h"
-#include "system/error.h"
-
-#include "graphics/d3d11renderer.h"
+#include <engine/precompile.h>
+#include <engine/engine.h>
+#include <engine/camera.h>
+#include <engine/entitymodel/components/visualcomponent.h>
 
 //Temp Hack
-#include "graphics/terrain/terrain.h"
+#include <graphics/d3d11renderer.h>
+#include <graphics/terrain/terrain.h>
+
+#include <system/viewprovider/viewprovider.h>
+#include <system/inputmanager.h>
+#include <system/profiling/profilemanager.h>
+#include <system/commandline/commandlineoptions.h>
+#include <system/error.h>
 
 #include <thread>
 #include <chrono>
@@ -70,44 +69,47 @@ bool Engine::Initialize()
 //----Main Update loop----
 void Engine::Update()
 {
-    if (g_CommandLineOptions->m_QuitAfterInit)
-        return;
-
-    m_WorldClock.Update();
-    float dt = GetFrameTimeInS();
-
-    ViewProvider::GetInstance().Update();
-
-    g_InputManager->Update();
-
-    // Check if the user pressed escape and wants to exit the application.
-    m_HasRequestedQuit = m_HasRequestedQuit || g_InputManager->IsEscapePressed();
-
-    m_InputHandler.Update();
-
-    m_FPSCounter.Update();
-    m_CPUInfo.Update();
-
-    for (Entity* entity : m_Entities)
+    do
     {
-        entity->Update(dt);
-    }
+        if (g_CommandLineOptions->m_QuitAfterInit)
+            return;
 
-    m_Camera->Update(dt);
+        m_WorldClock.Update();
+        float dt = GetFrameTimeInS();
 
-    
-    g_RenderEngine->PreFrame();
-    g_RenderEngine->Frame(dt);
+        ViewProvider::GetInstance().Update();
 
-    float delta = m_WorldClock.GetDeltaTime();
-    while (delta < 16.6666)
-    {
-        delta = m_WorldClock.GetDeltaTime();
-        //Sleep granularity of very rough and leads to artificial FPS drop from 60 to 30
-        //Going with a crappy solution for a while cycle. 
-        //Not sure what is the implementation of the VSYNC and what are the tradeoffs.
-        //std::this_thread::sleep_for(std::chrono::milliseconds(17 - delta));
-    }
+        g_InputManager->Update();
+
+        // Check if the user pressed escape and wants to exit the application.
+        m_HasRequestedQuit = m_HasRequestedQuit || g_InputManager->IsEscapePressed();
+
+        m_InputHandler.Update();
+
+        m_FPSCounter.Update();
+        m_CPUInfo.Update();
+
+        for (Entity* entity : m_Entities)
+        {
+            entity->Update(dt);
+        }
+
+        m_Camera->Update(dt);
+
+        g_RenderEngine->SetViewMatrix(m_Camera->GetViewMatrix());
+        g_RenderEngine->PreFrame();
+        g_RenderEngine->Frame(dt);
+
+        float delta = m_WorldClock.GetDeltaTime();
+        while (delta < 16.6666)
+        {
+            delta = m_WorldClock.GetDeltaTime();
+            //Sleep granularity of very rough and leads to artificial FPS drop from 60 to 30
+            //Going with a crappy solution for a while cycle. 
+            //Not sure what is the implementation of the VSYNC and what are the tradeoffs.
+            //std::this_thread::sleep_for(std::chrono::milliseconds(17 - delta));
+        }
+    } while (!m_HasRequestedQuit);
 }
 
 void Engine::Shutdown()

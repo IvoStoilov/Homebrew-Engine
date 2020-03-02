@@ -92,7 +92,6 @@ void ViewProvider::Update()
     MSG msg;
     ZeroMemory(&msg, sizeof(MSG));
 
-    while (true)
     {
         // Handle the windows messages.
         if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))

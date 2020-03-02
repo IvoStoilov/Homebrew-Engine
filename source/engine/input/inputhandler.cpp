@@ -1,9 +1,9 @@
-#include "precompile.h"
-#include "engine/input/inputhandler.h"
+#include <engine/precompile.h>
+#include <engine/input/inputhandler.h>
 
-#include "graphics/d3d11renderer.h"
+#include <graphics/d3d11renderer.h>
 
-#include "system/inputmanager.h"
+#include <system/inputmanager.h>
 
 void InputHandler::Update()
 {

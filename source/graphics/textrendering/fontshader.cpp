@@ -250,9 +250,9 @@ bool FontShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, mat4x4 
     unsigned int bufferNumber;
 
     // Transpose the matrices to prepare them for the shader.
-    worldMatrix = worldMatrix.Transpose();
-    viewMatrix = viewMatrix.Transpose();
-    projectionMatrix = projectionMatrix.Transpose();
+    worldMatrix.Transpose();
+    viewMatrix.Transpose();
+    projectionMatrix.Transpose();
 
     // Lock the constant buffer so it can be written to.
     result = deviceContext->Map(m_MatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);

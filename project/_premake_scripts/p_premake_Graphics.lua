@@ -9,8 +9,7 @@ project "Graphics"
     kind "StaticLib"
     language "C++"
     cppdialect "C++17"
-    staticruntime "on"
-
+    
     pchheader ("graphics/precompile.h")
     pchsource (MAIN_DIR .. "/source/graphics/precompile.cpp")
 
@@ -22,6 +21,9 @@ project "Graphics"
 
     links
     {
+        "d3d11",
+        "dxgi",
+        "d3dcompiler",
         "System",
         "DirectXTK",
     }

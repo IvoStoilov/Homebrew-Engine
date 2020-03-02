@@ -7,7 +7,6 @@ project "System"
     kind "StaticLib"
     language "C++"
     cppdialect "C++17"
-    staticruntime "on"
 
     pchheader ("system/precompile.h")
     pchsource (MAIN_DIR .. "/source/system/precompile.cpp")

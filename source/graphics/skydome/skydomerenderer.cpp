@@ -34,7 +34,7 @@ bool SkydomeRenderer::Render(D3D11* d3d)
 {
     d3d->TurnDepthTestOff();
 
-    mat4x4 inverseView = m_ViewMatrix.Invert();
+    mat4x4 inverseView = m_ViewMatrix.GetInverted();
     vec3 cameraPos = inverseView.Translation();
     
     m_SkydomeMesh->Render(d3d->GetDeviceContext());

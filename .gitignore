@@ -22,10 +22,9 @@
 *.vcxproj.filters
 
 .vs
-bin/Debug
-bin/Release
 bin/graphics_sandbox
 bin/system_sandbox
+bin/homebrew
 resource
 temp
 extern/DirectXTK/Bin

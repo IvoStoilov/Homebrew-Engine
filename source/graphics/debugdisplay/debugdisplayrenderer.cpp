@@ -14,7 +14,7 @@ bool DebugDisplayRenderer::Render(D3D11* d3d)
     d3d->GetPerspectiveMatrix(projectionMatrix);
 
     RenderGeometry(d3d->GetDeviceContext());
-    m_Shader->Render(d3d->GetDeviceContext(), m_Elements.size() * 2 , worldMatrix, m_ViewMatrix, projectionMatrix);
+    m_Shader->Render(d3d->GetDeviceContext(), static_cast<u32>(m_Elements.size()) * 2 , worldMatrix, m_ViewMatrix, projectionMatrix);
 
     return true;
 }
@@ -34,9 +34,9 @@ void DebugDisplayRenderer::InitializeBuffers(ID3D11Device* device)
     if (m_Elements.empty())
         return;
 
-    uint32_t vertexDataSize = m_Elements.size() * 2;
+    u32 vertexDataSize = static_cast<u32>(m_Elements.size()) * 2;
     VertexType* vertexData = new VertexType[vertexDataSize];
-    uint32_t*   indices = new uint32_t[vertexDataSize];
+    u32*   indices = new uint32_t[vertexDataSize];
     for (uint32_t i = 0; i < m_Elements.size(); ++i)
     {
         vertexData[2 * i].m_Position = m_Elements[i].m_Start;

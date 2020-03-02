@@ -1,7 +1,5 @@
 #pragma once
-#include "engine/entitymodel/components/component.h"
-
-#include <string>
+#include <engine/entitymodel/components/component.h>
 
 class VisualComponent : public Component
 {

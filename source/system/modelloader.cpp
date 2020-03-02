@@ -53,9 +53,9 @@ bool ModelLoader::LoadBMPFile(const std::string& filepath, std::vector<VertexDat
     BITMAPFILEHEADER bitmapFileHeader;
     BITMAPINFOHEADER bitmapInfoHeader;
 
-    int32_t count = 0;
+    u64 count = 0;
 
-    count = fread(&bitmapFileHeader, sizeof(BITMAPFILEHEADER), 1, filePtr);
+    count = fread(&bitmapFileHeader, sizeof(BITMAPFILEHEADER), 1u, filePtr);
     if (count != 1)
         return false;
 
@@ -63,7 +63,7 @@ bool ModelLoader::LoadBMPFile(const std::string& filepath, std::vector<VertexDat
     if (count != 1)
         return false;
 
-    uint32_t bytesPerPixel = (uint32_t)bitmapInfoHeader.biBitCount / 8;
+    u32 bytesPerPixel = (uint32_t)bitmapInfoHeader.biBitCount / 8;
     //uint32_t rawDataSize = bitmapInfoHeader.biSizeImage;
     outBMPwidth = bitmapInfoHeader.biWidth;
     outBMPheight = bitmapInfoHeader.biHeight;
@@ -88,9 +88,9 @@ bool ModelLoader::LoadBMPFile(const std::string& filepath, std::vector<VertexDat
         return false;
 
     uint32_t index = 0;
-    for (uint32_t i = 0; i < bitmapInfoHeader.biWidth; ++i)
+    for (s32 i = 0; i < bitmapInfoHeader.biWidth; ++i)
     {
-        for (uint32_t j = 0; j < bitmapInfoHeader.biHeight; ++j)
+        for (s32 j = 0; j < bitmapInfoHeader.biHeight; ++j)
         {
             VertexData vertex;
             vertex.uv[0] = (float)i;

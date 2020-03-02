@@ -149,7 +149,6 @@ bool D3D11Renderer::RenderRefractionTexture()
 
 bool D3D11Renderer::Render()
 {
-    static_assert(false, "Call setView Matrix in update engine loop");
     RenderReflection();
     RenderRefractionTexture();
 

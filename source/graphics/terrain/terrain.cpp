@@ -62,7 +62,7 @@ bool Terrain::Render(ID3D11DeviceContext* deviceContext)
 
 const uint32_t Terrain::GetIndexCount() const
 { 
-    return m_Mesh->GetIndexes().size(); 
+    return static_cast<u32>(m_Mesh->GetIndexes().size());
 }
 
 #pragma region BINARIZE

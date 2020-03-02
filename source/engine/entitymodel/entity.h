@@ -1,7 +1,5 @@
 #pragma once
-#include "system/math/mat4x4.h"
 
-#include <vector>
 class Component;
 class Entity
 {
@@ -9,9 +7,11 @@ public:
     Entity();
     ~Entity();
 
-    inline Transform& GetGlobalMatrix() { return m_GlobalMatrix; }
-    inline void SetGlobalMatrix(const Transform& globalMatrix) { m_GlobalMatrix = globalMatrix; }
-    inline void SetGlobalPosition(const vec4& pos) { m_GlobalMatrix.SetTranslate(pos); }
+    inline mat4x4& GetGlobalMatrix() { return m_GlobalMatrix; }
+    inline const mat4x4& GetGlobalMatrix() const { return m_GlobalMatrix; }
+    inline void SetGlobalMatrix(const mat4x4& globalMatrix) { m_GlobalMatrix = globalMatrix; }
+
+    inline void SetGlobalPosition(const vec4& pos) { m_GlobalMatrix.SetTranslation(pos); }
 
     void Update(float dt);
     void OnDestroy();
@@ -33,8 +33,6 @@ public:
     }
 private:
     std::vector<Component*> m_Components;
-
-    Transform m_GlobalMatrix;
-
+    mat4x4 m_GlobalMatrix;
     float m_Angle;
 };

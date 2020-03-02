@@ -1,5 +1,6 @@
-#include "engine/entitymodel/entity.h"
-#include "engine/entitymodel/components/component.h"
+#include <engine/precompile.h>
+#include <engine/entitymodel/entity.h>
+#include <engine/entitymodel/components/component.h>
 
 Entity::Entity() :
     m_Angle(0.f)
@@ -18,12 +19,10 @@ void Entity::Update(float dt)
 
 void Entity::Rotate(float deg)
 {
-    float rad = MathUtil::ToRads(deg);
-    vec4 globalPos = m_GlobalMatrix.GetTranslate();
-    m_GlobalMatrix = mat4x4::GetRotateYAxisMatrix(rad);
-    m_GlobalMatrix.SetTranslate(globalPos);
-    //m_GlobalMatrix.NormalizeCollums();
-    
+    f32 rad = MathUtil::ToRads(deg);
+    vec4 globalPos = m_GlobalMatrix.GetTranslation();
+    m_GlobalMatrix = mat4x4::CreateRotationY(rad);
+    m_GlobalMatrix.SetTranslation(globalPos);
 }
 
 void Entity::AddComponent(Component* component)

@@ -42,7 +42,7 @@ void GraphicsNode::Shutdown()
 
 void GraphicsNode::Render(ID3D11DeviceContext* deviceContext)
 {
-    static_assert (false, "Refactor Entity Render");
+    //static_assert (false, "Refactor Entity Render");
     //Transform globalMatrix = m_Owner->GetOwner()->GetGlobalMatrix();
     //
     //m_Model->Render(deviceContext);
