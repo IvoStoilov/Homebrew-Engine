@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+ <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+   <Type Name="ModelLoader::VertexData">
+     <DisplayString>Color:({color.x}, {color.y}, {color.z})</DisplayString>
+   </Type>
+   
+   <Type Name="Mesh::Vertex">
+     <DisplayString>Position:({m_Position.x}, {m_Position.y}, {m_Position.z})</DisplayString>
+     <Expand>
+       <Synthetic Name ="Position">
+         <DisplayString>({m_Position.x}, {m_Position.y}, {m_Position.z}, {m_Position.w})</DisplayString>
+       </Synthetic>
+       <Synthetic Name ="Normal">
+         <DisplayString>({m_Normal.x}, {m_Normal.y}, {m_Normal.z}, {m_Normal.w}</DisplayString>
+       </Synthetic>
+       <Synthetic Name ="Tangent">
+         <DisplayString>({m_Tangent.x}, {m_Tangent.y}, {m_Tangent.z}, {m_Tangent.w})</DisplayString>
+       </Synthetic>
+       <Synthetic Name ="UV">
+         <DisplayString>({m_UV.x}, {m_UV.y})</DisplayString>
+       </Synthetic>
+     </Expand>
+   </Type>
+
+   <Type Name="mat4x4">
+     <DisplayString>({_11}, {_12}, {_13}, {_14})</DisplayString>
+     <Expand>
+        <Synthetic Name ="Row 1">
+         <DisplayString>({_11}, {_12}, {_13}, {_14})</DisplayString>
+       </Synthetic>
+       <Synthetic Name ="Row 2">
+         <DisplayString>({_21}, {_22}, {_23}, {_24})</DisplayString>
+       </Synthetic>
+       <Synthetic Name ="Row 3">
+         <DisplayString>({_31}, {_32}, {_33}, {_34})</DisplayString>
+       </Synthetic>
+       <Synthetic Name ="Row 4">
+         <DisplayString>({_41}, {_42}, {_43}, {_44})</DisplayString>
+       </Synthetic>
+     </Expand>
+   </Type>
+
+   <Type Name="vec2">
+     <DisplayString>({x}, {y})</DisplayString>
+   </Type>
+   <Type Name="vec3">
+     <DisplayString>({x}, {y}, {z})</DisplayString>
+   </Type>
+   <Type Name="vec4">
+     <DisplayString>({x}, {y}, {z}, {w})</DisplayString>
+   </Type>
+
+ </AutoVisualizer>
