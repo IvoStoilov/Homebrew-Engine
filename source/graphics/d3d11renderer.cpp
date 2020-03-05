@@ -120,7 +120,7 @@ bool D3D11Renderer::RenderReflection()
     {
         if (m_SubRenderers[i]->IsEnabled())
         {
-            m_SubRenderers[i]->UpdateViewMatrix(m_ReflectedViewMatrix);
+            m_SubRenderers[i]->UpdateViewMatrix(m_ViewMatrix);
             m_SubRenderers[i]->UpdateReflectionMatrix(m_ReflectedViewMatrix);
             m_SubRenderers[i]->SetClipPlane(vec4(0, 1.f, 0, -WATER_LEVEL));
             m_SubRenderers[i]->Render(m_D3D);
@@ -152,7 +152,7 @@ bool D3D11Renderer::Render()
     RenderReflection();
     RenderRefractionTexture();
 
-    m_D3D->BeginScene(0.f, 0.f, 0.f, 0.f);
+    m_D3D->BeginScene(0.f, 1.f, 0.f, 0.f);
 
     {
         //istoilov : minor optimization on the rendering, because we are already drawing this on the refraction texture.

@@ -475,8 +475,8 @@ void D3D11::InitMatrices(uint32_t screenWidth, uint32_t screenHeight, float scre
     fieldOfView = MathUtil::PI / 4.0f;
     screenAspect = (float)screenWidth / (float)screenHeight;
 
-    m_PerspectiveMatrix.CreatePerspectiveFieldOfView(fieldOfView, screenAspect, screenNear, screenDepth);
-    m_OrthoMatrix.CreateOrthographic(static_cast<f32>(screenWidth), static_cast<f32>(screenHeight), screenNear, screenDepth);
+    m_PerspectiveMatrix = mat4x4::CreatePerspectiveFieldOfView(fieldOfView, screenAspect, screenNear, screenDepth);
+    m_OrthoMatrix = mat4x4::CreateOrthographic(static_cast<f32>(screenWidth), static_cast<f32>(screenHeight), screenNear, screenDepth);
 }
 
 void D3D11::Shutdown()

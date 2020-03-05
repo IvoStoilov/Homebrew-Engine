@@ -77,7 +77,7 @@ mat4x4 Camera::ComputeReflectionMatrix(f32 planeHeight) const
 
     lookAt = DirectX::XMVectorAdd(lookAt, cameraPosition);
 
-    return DirectX::XMMatrixLookAtLH(cameraPosition, lookAt, up);
+    return DirectX::XMMatrixLookAtRH(cameraPosition, lookAt, up);
 }
 
 void Camera::UpdateMovement()
@@ -88,8 +88,8 @@ void Camera::UpdateMovement()
     if (g_InputManager->IsMouseButtonPressed(InputManager::MouseButton::LEFT))
     {
         g_InputManager->GetMouseDelta(mouseDeltaX, mouseDeltaY);
-        m_rotationY += mouseDeltaX * 0.1f;
-        m_rotationX += mouseDeltaY * 0.1f;
+        m_rotationY += mouseDeltaX * -0.1f;
+        m_rotationX += mouseDeltaY * +0.1f;
     }
 }
 
@@ -146,7 +146,7 @@ void Camera::Update(float dt)
     }
     if (g_InputManager->IsKeyPressed(InputManager::Key::A))
     {
-        moveX -= dirX * m_MoveSpeed * dt;
+        moveX += dirX * m_MoveSpeed * dt;
     }
     if (g_InputManager->IsKeyPressed(InputManager::Key::S))
     {
@@ -154,7 +154,7 @@ void Camera::Update(float dt)
     }
     if (g_InputManager->IsKeyPressed(InputManager::Key::D))
     {
-        moveX += dirX * m_MoveSpeed * dt;
+        moveX -= dirX * m_MoveSpeed * dt;
     }
 
     // Setup the position of the camera in the world.
