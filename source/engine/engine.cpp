@@ -16,6 +16,7 @@
 #include <thread>
 #include <chrono>
 
+constexpr f32 WATER_LEVEL = 3.f;
 Engine* Engine::s_Instance = nullptr;
 
 bool Engine::Initialize()
@@ -97,6 +98,7 @@ void Engine::Update()
         m_Camera->Update(dt);
 
         g_RenderEngine->SetViewMatrix(m_Camera->GetViewMatrix());
+        g_RenderEngine->SetReflectedViewMatrix(m_Camera->ComputeReflectionMatrix(WATER_LEVEL));
         g_RenderEngine->PreFrame();
         g_RenderEngine->Frame(dt);
 
