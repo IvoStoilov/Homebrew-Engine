@@ -2,9 +2,7 @@
 
 #include <string>
 
-#define POP_ASSERT_ENABLE 
-
-#ifdef POP_ASSERT_ENABLE
+#ifdef POP_ASSERT_ENABLED
     #define popAssert(condition, conditionString)   \
         if(!(condition))                            \
         {                                           \
@@ -13,6 +11,6 @@
 #else
     #define popAssert(condition, conditionString)   \
         condition
-#endif //POP_ASSERT_ENABLE
+#endif //POP_ASSERT_ENABLED
 
 void BreakWithMessageBox(const std::string& conditionString);
