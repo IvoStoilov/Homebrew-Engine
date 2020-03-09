@@ -60,6 +60,7 @@ workspace "GraphicsSandbox"
 
     project "Sandbox"
         location(PROJECT_DIR .. "/graphics_sandbox")
+        debugdir(OUTPUT_DIR .. "/graphics_sandbox")
         kind "ConsoleApp"
         language "C++"
         cppdialect "C++17"

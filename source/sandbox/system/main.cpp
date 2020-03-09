@@ -1,21 +1,14 @@
 #include <system/precompile.h>
-
-#include <system/math/vec.h>
-#include <system/viewprovider/viewprovider.h>
-#include <system/commandline/commandlineoptions.h>
-
+#include <system/log/log.h>
 using namespace std;
 
 int main()
 {
-    CommandLineOptions::CreateInstance();
-    ViewProvider::CreateInstance();
-    g_ViewProvider.Update();
-    ViewProvider::DestroyInstnace();
-    vec4 a;
-    vec4 b(1.f, 1.f, 1.f, 1.f);
-    
-    vec4 c = a + b;
+    Log::Initialize();
 
+    popDebug(logSystem, "Hello {}", "ivO");
+    popInfo(logSystem, "Support for int: {0:d};  hex: {0:x};  oct: {0:o}; bin: {0:b}", 42);
+    popCriticalError(false, logSystem, "{:>8} aligned, {:<8} aligned", "right", "left");
     system("pause");
+    Log::Shutdown();
 }

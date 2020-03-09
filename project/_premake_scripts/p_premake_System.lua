@@ -17,6 +17,11 @@ project "System"
         MAIN_DIR .. "/source/system/**.cpp"
     }
 
+    includedirs
+    {
+        MAIN_DIR .. "/extern/spdlog/include/"
+    }
+
     links
     {
         "DirectXTK"

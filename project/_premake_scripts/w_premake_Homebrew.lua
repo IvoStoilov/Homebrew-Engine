@@ -79,6 +79,7 @@ group ""
 -- ****************
 project "Gameplay"
     location(PROJECT_DIR .. "/gameplay")
+    debugdir(OUTPUT_DIR .. "/homebrew")
     kind "WindowedApp"
     language "C++"
     cppdialect "C++17"

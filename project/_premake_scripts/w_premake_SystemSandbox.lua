@@ -47,7 +47,8 @@ workspace "SystemSandbox"
     includedirs
     {
         MAIN_DIR,
-        MAIN_DIR .. "/source"
+        MAIN_DIR .. "/source",
+        MAIN_DIR .. "/extern/spdlog/include/"
     }
 
     disablewarnings 
@@ -60,10 +61,10 @@ workspace "SystemSandbox"
 
 project "Sandbox"
     location(PROJECT_DIR .. "/system_sandbox")
+    debugdir(OUTPUT_DIR .. "/system_sandbox")
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++17"
-    staticruntime "on"
 
     files
     {
