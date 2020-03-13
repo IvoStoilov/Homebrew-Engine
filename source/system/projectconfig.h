@@ -3,8 +3,8 @@
 #define POP_LOGGING_ENABLED
 #define POP_ASSERT_ENABLED
 
-#define STRING(TEXT) #TEXT
-#define CONCAT(A, B) A##B
+#define popSTRING(TEXT) #TEXT
+#define popJOIN(A, B) A##B
 
 template<class T>
 using UniquePtr = std::unique_ptr<T>;
