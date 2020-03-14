@@ -59,7 +59,8 @@ workspace "HomebrewEngine"
     includedirs
     {
         MAIN_DIR,
-        MAIN_DIR .. "/source"
+        MAIN_DIR .. "/source",
+        MAIN_DIR .. "/extern/spdlog/include/"
     }
 
     disablewarnings 

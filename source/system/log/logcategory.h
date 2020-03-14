@@ -1,6 +1,6 @@
 #pragma once
+#include <extern/spdlog/include/spdlog/async_logger.h>
 #ifdef POP_LOGGING_ENABLED
-using AsyncLogger = spdlog::async_logger;
 
 #define POP_DECLARE_LOGCATEGORY(logCategory)                                           \
 public:                                                                                \
@@ -17,6 +17,7 @@ private:                                                                        
 
 #define popLogCategoryDictionary LogCategoryDictionary::GetInstance()
 
+using AsyncLogger = spdlog::async_logger;
 class LogSinkDictionary;
 class LogCategoryDictionary
 {

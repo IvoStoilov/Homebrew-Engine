@@ -1,5 +1,6 @@
 #pragma once
 #include <system/log/logcategory.h>
+
 /*
 String Patterns :
 "Hello, {}!", "World"

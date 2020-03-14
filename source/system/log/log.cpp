@@ -3,7 +3,6 @@
 
 #include <system/log/log.h>
 #include <system/log/logsinkdictionary.h>
-#include <system/log/logcategory.h>
 
 #include <extern/spdlog/include/spdlog/spdlog.h>
 #include <extern/spdlog/include/spdlog/async.h>

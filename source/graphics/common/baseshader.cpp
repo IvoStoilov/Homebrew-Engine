@@ -47,16 +47,16 @@ BaseShader::VS_PS_Blobs BaseShader::CompileShaders(ID3D11Device* device, const S
                                 FLAGS_2_NONE,
                                 &vertexShaderBuffer, 
                                 &errorMessage);
-    popAssert(!FAILED(result), "Vertex Compilation Failed.");
-
-    if (errorMessage)
+#ifdef POP_ASSERT_ENABLED
+    if (FAILED(result))
     {
         u32 size = u32(errorMessage->GetBufferSize());
         char* errorMsg = new char[size];
         memcpy(errorMsg, errorMessage->GetBufferPointer(), size);
-        int b = 0;
+        popAssert(false, "VS {} failed compilation. Reason : {}", vsPath.c_str(), errorMsg);
         delete[] errorMsg;
     }
+#endif //POP_ASSERT_ENABLED
 
     result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_VertexShader);
     popAssert(!FAILED(result), "BaseShader::InitializeShader::CreateVertexShader failed");
@@ -74,18 +74,19 @@ BaseShader::VS_PS_Blobs BaseShader::CompileShaders(ID3D11Device* device, const S
                                 &pixelShaderBuffer, 
                                 &errorMessage);
 
-    popAssert(!FAILED(result), "Pixel Shader Compilation Failed.");
-    if (errorMessage)
+#ifdef POP_ASSERT_ENABLED
+    if (FAILED(result))
     {
         u32 size = static_cast<u32>(errorMessage->GetBufferSize());
         char* errorMsg = new char[size];
         memcpy(errorMsg, errorMessage->GetBufferPointer(), size);
-        int b = 0;
+        popAssert(false, "PS {} failed compilation. Reason : {}", psPath.c_str(), errorMsg);
         delete[] errorMsg;
     }
+#endif //POP_ASSERT_ENABLED
 
     result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_PixelShader);
-    popAssert(!FAILED(result), "SkydomeShader::InitializeShader::CreateVertexShader failed");
+    popAssert(!FAILED(result), "BaseShader::InitializeShader::CreatePixelShader failed");
 
     return std::make_pair(UniquePtr<ID3D10Blob>(vertexShaderBuffer), UniquePtr<ID3D10Blob>(pixelShaderBuffer));
 }

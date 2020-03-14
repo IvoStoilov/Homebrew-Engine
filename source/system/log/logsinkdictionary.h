@@ -1,4 +1,8 @@
 #pragma once
+#include <extern/spdlog/include/spdlog/sinks/null_sink.h>
+#include <extern/spdlog/include/spdlog/sinks/msvc_sink.h>
+#include <extern/spdlog/include/spdlog/sinks/basic_file_sink.h>
+
 #ifdef POP_LOGGING_ENABLED
 
 #define POP_DECLARE_LOGSINK(logSink, sinkType)                                      \

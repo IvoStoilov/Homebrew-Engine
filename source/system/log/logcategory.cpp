@@ -2,9 +2,9 @@
 #include <system/log/logcategory.h>
 
 #ifdef POP_LOGGING_ENABLED
-
 #include <system/log/logsinkdictionary.h>
 
+#include <extern/spdlog/include/spdlog/async.h>
 #include <extern/spdlog/include/spdlog/spdlog.h>
 
 LogCategoryDictionary::LogCategoryDictionary(const LogSinkDictionary& sinkDictionary)

@@ -11,7 +11,7 @@
 #include <system/inputmanager.h>
 #include <system/profiling/profilemanager.h>
 #include <system/commandline/commandlineoptions.h>
-#include <system/error.h>
+
 
 #include <thread>
 #include <chrono>
@@ -26,6 +26,7 @@ bool Engine::Initialize()
     //This needs a flow refactor - bootstrap load?
     if (g_CommandLineOptions->m_Binarize)
     {
+        popInfo(LogEngine, "Starting binarization");
         Terrain::BinarizeTerrain(g_CommandLineOptions->GetBinarizeInputFile(0),
                                  g_CommandLineOptions->GetBinarizeInputFile(1),
                                  g_CommandLineOptions->m_BinarizeOutputFile);
