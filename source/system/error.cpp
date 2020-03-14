@@ -1,10 +1,5 @@
 #include <system/precompile.h>
-#include "system\error.h"
-#include "windows.h"
+#include <system/error.h>
 
-void BreakWithMessageBox(const std::string& conditionString)
-{
-    MessageBox(nullptr, conditionString.c_str(), "Assert Notification", MB_OKCANCEL | MB_ICONEXCLAMATION | MB_SETFOREGROUND);
-
-    __debugbreak();
-}
+#define SPDLOG_COMPILED_LIB
+#include <extern/spdlog/src/fmt.cpp>

@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <windows.h>
 
 #include <system/projectconfig.h>
 #include <system/error.h>

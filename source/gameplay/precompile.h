@@ -35,6 +35,7 @@ using Array = std::vector<T>;
 #define popObjectDynamicCast(ToType, ObjPtr) dynamic_cast<ToType*>(ObjPtr)
 #define popObjectCast(ToType, ObjPtr) static_cast<ToType*>(ObjPtr)
 
+#include <system/projectconfig.h>
 #include <system/math/vec.h>
 #include <system/math/mat4x4.h>
 #include <system/math/mathutil.h>

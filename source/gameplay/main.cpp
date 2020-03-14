@@ -18,6 +18,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
     CommandLineOptions::CreateInstance();
     CommandLineParser parser;
 
+    popAssert(false, "{} : {}", 1, "Error Msg");
     parser.ParseCommandLineArgsFromIni(INI_PATH);
     parser.ParseCommandLineArgs(pScmdline);
     parser.CallCallbacks();

@@ -1,7 +1,6 @@
 #include <graphics/precompile.h>
 #include <graphics/common/baseshader.h>
 
-#include <system/error.h>
 #include <d3dcompiler.h>
 
 bool BaseShader::Initialize(ID3D11Device* device)

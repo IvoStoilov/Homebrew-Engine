@@ -92,6 +92,8 @@ void CommandLineParser::ParseCommandLineArgs(char* args)
     if (strlen(args) == 0)
         return;
 
+    popInfo(LogSystem, "Command Line Args : {}", args);
+
     char* currentLetter = args;
     while (true)
     {
