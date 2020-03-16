@@ -97,8 +97,10 @@ void D3D11Renderer::UnregisterDrawable(VisualComponent* visComponents)
 
 bool D3D11Renderer::Frame(f32 dt)
 {
+    popProfile(D3D11Renderer::Frame);
     m_DT = dt;
-    return Render();
+    Render();
+    return true;
 }
 
 bool D3D11Renderer::PreFrame()
@@ -108,6 +110,8 @@ bool D3D11Renderer::PreFrame()
 
 bool D3D11Renderer::RenderReflection()
 {
+    popProfile(D3D11Renderer::RenderReflection);
+
     mat4x4 worldMatrix, reflectionViewMatrix, projectionMatrix;
     
     m_ReflectionTexture->SetRenderTarget(m_D3D->GetDeviceContext(), m_D3D->GetDepthStencilView());
@@ -135,6 +139,8 @@ bool D3D11Renderer::RenderReflection()
 
 bool D3D11Renderer::RenderRefractionTexture()
 {
+    popProfile(D3D11Renderer::RenderRefractionTexture);
+
     m_RefractionTexture->SetRenderTarget(m_D3D->GetDeviceContext(), m_D3D->GetDepthStencilView());
     m_RefractionTexture->ClearRenderTarget(m_D3D->GetDeviceContext(), m_D3D->GetDepthStencilView(), 0.f, 0.f, 0.f, 1.f );
 
@@ -186,7 +192,8 @@ bool D3D11Renderer::Render()
 }
 
 D3D11Renderer::D3D11Renderer() :
-    m_D3D(nullptr)
+    m_D3D(nullptr),
+    m_DT(0.f)
 {
 }
 

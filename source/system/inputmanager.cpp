@@ -115,6 +115,8 @@ void InputManager::Shutdown()
 
 bool InputManager::Update()
 {
+    popProfile(InputManager::Update);
+
     bool result;
 
     result = ReadKeyboard();

@@ -8,6 +8,8 @@
 
 bool DebugDisplayRenderer::Render(D3D11* d3d)
 {
+    popProfile(DebugDisplayRenderer::Render)
+
     mat4x4 worldMatrix;
     mat4x4 Identity(worldMatrix);
     mat4x4 projectionMatrix;

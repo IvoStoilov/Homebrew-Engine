@@ -68,7 +68,7 @@ private:
     bool RenderRefractionTexture();
 private:
     //Do we really need DT in the Render Engine?
-    f32 m_DT;
+    f32 m_DT = 0.f;
 
     D3D11* m_D3D;
     mat4x4 m_ViewMatrix;

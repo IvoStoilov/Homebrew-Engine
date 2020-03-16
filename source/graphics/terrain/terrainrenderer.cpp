@@ -36,6 +36,8 @@ const String TERRAIN_PS_PATH = "../../source/graphics/shader/terrainPS.hlsl";
 
 bool TerrainRenderer::Render(D3D11* d3d)
 {
+    popProfile(TerrainRenderer::Render);
+
     m_Terrain->Render(d3d->GetDeviceContext());
 
     if (g_CommandLineOptions->m_DrawWireframe)

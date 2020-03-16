@@ -89,6 +89,7 @@ void ViewProvider::ShutdownInternal()
 
 void ViewProvider::Update()
 {
+    popProfile(ViewProvider::Update);
     MSG msg;
     ZeroMemory(&msg, sizeof(MSG));
 

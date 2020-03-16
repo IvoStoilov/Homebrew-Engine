@@ -1,20 +1,63 @@
 #include <system/precompile.h>
-#include "system/profiling/profilemanager.h"
+#include <system/profiling/profilemanager.h>
 
-std::string PROFILE_TEXTFILE_PATH = "Homebrew_ProfileInfo_dump.txt";
+#ifdef POP_PROFILE_ENABLED
+
+#include <system/string/stringhelper.h>
 
 ProfileManager* ProfileManager::s_Instance = nullptr;
 
-void ProfileInfo::UpdateInfo(uint64_t time)
+void ProfileManager::DumpInfoToJSON()
 {
-    if (time < m_MinTime || m_CallCount == 0)
-        m_MinTime = time;
+    String dateTime = StringHelper::FormatTime(std::chrono::system_clock::now());
+    String fileName = StringHelper::Format("Profile_%s.json", dateTime.c_str());
+    m_OutStream.open(fileName);
+    popAssert(!m_OutStream.fail(), "Failed to open {}", fileName);
+   
+    WriteHeader();
+    WriteProfile();
+    WriteFooter();
+    m_OutStream.close();
+}
 
-    if (time > m_MaxTime)
-        m_MaxTime = time;
+void ProfileManager::WriteHeader()
+{
+    m_OutStream << "{\"otherData\": {},\"traceEvents\":[";
+    m_OutStream.flush();
+}
 
-    m_AvgTime = (m_AvgTime * m_CallCount + time) / (m_CallCount + 1);
-    m_CallCount++;
+void ProfileManager::WriteProfile()
+{
+    bool firstEntry = true;
+    for (const ProfileInfo& info : m_ProfileInfosDuringSession)
+    {
+        if (!firstEntry)
+        {
+            m_OutStream << ",";
+        }
+        firstEntry = false;
+
+        String name = info.m_Name;
+        std::replace(name.begin(), name.end(), '"', '\'');
+
+        m_OutStream << "{";
+        m_OutStream << "\"cat\":\"function\",";
+        m_OutStream << "\"dur\":" << (info.m_End - info.m_Start) << ',';
+        m_OutStream << "\"name\":\"" << name << "\",";
+        m_OutStream << "\"ph\":\"X\",";
+        m_OutStream << "\"pid\":0,";
+        m_OutStream << "\"tid\":" << info.m_ThreadID << ",";
+        m_OutStream << "\"ts\":" << info.m_Start;
+        m_OutStream << "}";
+    }
+
+    m_OutStream.flush();
+}
+
+void ProfileManager::WriteFooter()
+{
+    m_OutStream << "]}";
+    m_OutStream.flush();
 }
 
 void ProfileManager::CreateInstance()
@@ -31,53 +74,26 @@ void ProfileManager::CleanInstance()
     }
 
 }
-bool ProfileManager::UpdateOrRegister(std::string name, long long time /*= 0ull*/)
+
+void ProfileManager::BeginSession()
 {
-    auto it = m_Repo.find(name);
-    if (it == m_Repo.end())
-    {
-        ProfileInfo info;
-        info.UpdateInfo(time);
-        m_Repo[name] = info;
-        return false;
-    }
-    it->second.UpdateInfo(time);
-    return true;
+    m_ProfileInfosDuringSession.clear();
+    m_IsSessionActive = true;
 }
 
-void ProfileManager::GetInfo(const char* name) const
+void ProfileManager::EndSession()
 {
-    GetInfo(std::string(name));
+    m_IsSessionActive = false;
+    DumpInfoToJSON();
 }
 
-void ProfileManager::GetInfo(std::string& name) const
+void ProfileManager::Register(const ProfileInfo& info)
 {
-    auto it = m_Repo.find(name);
-    if (it == m_Repo.end())
-        printf("No data in Repository.\n");
-    else
+    popError(m_IsSessionActive, LogSystem, "Trying to register Profile info, during no active session");
+    if (m_IsSessionActive)
     {
-        printf("%s\n", it->first.c_str());
-        it->second.Print();
+        m_ProfileInfosDuringSession.push_back(info);
     }
 }
 
-void ProfileManager::DumpInfoToFile() const
-{
-    std::ofstream writer;
-    writer.open(PROFILE_TEXTFILE_PATH, std::ofstream::out | std::ofstream::trunc);
-    auto it = m_Repo.begin();
-    for (it; it != m_Repo.end(); ++it)
-    {
-        writer << it->first << "\n";
-        writer << it->second.ToString() << "\n";
-    }
-}
-
-std::string ProfileInfo::ToString() const
-{
-    char buffer[256];
-    sprintf_s(buffer, "Avarage Time : %.2f ms.\nMax Time     : %.2f ms.\nMin Time     : %.2f ms.\nCall count : %d\n\n",
-        m_AvgTime, m_MaxTime, m_MinTime, m_CallCount);
-    return std::string(buffer);
-}
+#endif //POP_PROFILE_ENABLED

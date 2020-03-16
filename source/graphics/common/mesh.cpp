@@ -33,7 +33,7 @@ bool Mesh::InitializeMeshFromObjFile(const std::string& filepath, bool buildHalf
 
 void Mesh::InitializeVertexList(const std::string& filepath)
 {
-    PROFILE_FUNCTION(Mesh::InitializeVertexList);
+    popProfile(Mesh::InitializeVertexList);
     m_Vertices.clear();
     m_Triangles.clear();
     m_Indexes.clear();
@@ -392,13 +392,13 @@ void Mesh::ComputeFaceNormals()
 
 void Mesh::PreSerialize()
 {
-    PROFILE_FUNCTION(Mesh::PreSerialize);
+    popProfile(Mesh::PreSerialize);
 }
 
 
 void Mesh::Serialize(const String& path)
 {
-    PROFILE_FUNCTION(Mesh::Serialize);
+    popProfile(Mesh::Serialize);
     
     PreSerialize();
 
@@ -426,7 +426,7 @@ void Mesh::Serialize(const String& path)
 
 void Mesh::Deserialize(const String& path)
 {
-    PROFILE_FUNCTION(Mesh::Deserialize);
+    popProfile(Mesh::Deserialize);
     auto fileToRead = std::fstream(path, std::ios::in | std::ios::binary);
     
     //TODO istoilov : make Serialization helper for PODs
@@ -492,7 +492,7 @@ void Mesh::Deserialize(const String& path)
 
 void Mesh::PostDeserialize()
 {
-    PROFILE_FUNCTION(Mesh::PostDeserialize);
+    popProfile(Mesh::PostDeserialize);
 
     if (REBUILD_HALFEDGELIST_ENABLED)
     {

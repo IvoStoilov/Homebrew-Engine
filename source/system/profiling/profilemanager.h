@@ -1,99 +1,79 @@
 #pragma once
-#include <chrono>
-#include <stdio.h>
-#include <string.h>
-#include <map>
-#include <string>
-
-class ProfileInfo
+#ifdef POP_PROFILE_ENABLED
+struct ProfileInfo
 {
-protected:
-    double m_AvgTime;
-    double m_MaxTime;
-    double m_MinTime;
-    uint32_t m_CallCount;
-    
-    friend class ProfileManager;
-    static ProfileInfo Empty() { return ProfileInfo(); }
-public:
-    ProfileInfo() :
-        m_AvgTime(0), m_MaxTime(0),
-        m_MinTime(0), m_CallCount(0)
+    explicit ProfileInfo(const String& name, s64 start, s64 end, u32 threadID) :
+        m_Name(name),
+        m_Start(start),
+        m_End(end),
+        m_ThreadID(threadID)
     {}
 
-    void UpdateInfo(uint64_t time);
-    void Print() const
-    {
-        printf("Avarage Time : %.2f ms.\nMax Time     : %.2f ms.\nMin Time     : %.2f ms.\nCall count : %d\n\n", 
-            m_AvgTime, m_MaxTime, m_MinTime, m_CallCount);
-    }
-    std::string ToString() const;
+    const String m_Name = "";
+    const s64 m_Start = 0;
+    const s64 m_End = 0;
+    const u32 m_ThreadID = 0u;
 };
-
 
 class ProfileManager
 {
-protected:
-    std::map<std::string, ProfileInfo> m_Repo;
-    static ProfileManager* s_Instance;
-    ProfileManager()
-    {}
-
 public:
     static ProfileManager& GetInstance() { return *s_Instance; }
     static void CreateInstance();
     static void CleanInstance();
 
-    bool UpdateOrRegister(std::string name, const long long time = 0ull);
+    inline bool IsSessionActive() const { return m_IsSessionActive; }
+    void BeginSession();
+    void EndSession();
 
-    void GetInfo(std::string& name) const;
-    void GetInfo(const char* name) const;
-    void DumpInfoToFile() const;
+    void Register(const ProfileInfo& info);
+    
+protected:
+    void DumpInfoToJSON();
+    void WriteHeader();
+    void WriteProfile();
+    void WriteFooter();
+protected:
+    ProfileManager() {}
+    static ProfileManager* s_Instance;
+
+    bool m_IsSessionActive = false;
+    std::ofstream m_OutStream;
+    Array<ProfileInfo> m_ProfileInfosDuringSession;
 };
 
 #define g_ProfileManager ProfileManager::GetInstance()
 
-#define CONCAT(A, B) A##B
-
-#define PROFILE_MANAGER_INIT      																		\
-    ProfileManager::Initialize();	
-
-#define PROFILE_MANAGER_UPDATE_OR_REGISTER(NAME, TIME)													\
-    g_ProfileManager.UpdateOrRegister(#NAME, TIME);
-
-#define PROFILE_CODEREGION_START(NAME)																	\
-    std::chrono::milliseconds ms_start_##NAME = std::chrono::duration_cast<std::chrono::milliseconds>	\
-    (std::chrono::system_clock::now().time_since_epoch());
-
-#define PROFILE_CODEREGION_END(NAME)																	\
-    std::chrono::milliseconds ms_end_##NAME = std::chrono::duration_cast<std::chrono::milliseconds>		\
-    (std::chrono::system_clock::now().time_since_epoch());												\
-    uint64_t TIME = (ms_end_##NAME).count() - (ms_start_##NAME).count();							    \
-    PROFILE_MANAGER_UPDATE_OR_REGISTER(NAME, TIME)														\
-    /*printf("PROFILE_CODEREGION::%s : %lld ms.\n", #NAME, TIME)*/;
-
 struct ProfilingObject
 {
     const char* m_Name;
-    std::chrono::milliseconds ms_start;
-    std::chrono::milliseconds ms_end;
+    std::chrono::microseconds m_Start;
+    std::chrono::microseconds m_End;
 
     ProfilingObject(const char* name) :
         m_Name(name)
     {
-        ms_start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+        m_Start = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
+        m_End = m_Start;
     }
     ~ProfilingObject()
     {
-        ms_end = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-        const long long time = ms_end.count() - ms_start.count();
-
-        g_ProfileManager.UpdateOrRegister(m_Name, time);
-
-        /*printf("PROFILE_FUNCTION::%s : %lld ms.\n", m_Name, time);*/
+        if (g_ProfileManager.IsSessionActive())
+        {
+            m_End = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
+            u32 threadID = static_cast<u32>(std::hash<std::thread::id>{}(std::this_thread::get_id()));
+            ProfileInfo result(m_Name, m_Start.count(), m_End.count(), threadID);
+            g_ProfileManager.Register(result);
+        }
     }
 };
+#endif //POP_PROFILE_ENABLED
 
-#define PROFILE_FUNCTION(NAME) ProfilingObject p_obj(#NAME);
+#ifdef POP_PROFILE_ENABLED
+#define popProfile(NAME) ProfilingObject pObj##__LINE__(#NAME);
+#else
+#define popProfile(NAME)
+#endif //POP_PROFILE_ENABLED
+
 
 

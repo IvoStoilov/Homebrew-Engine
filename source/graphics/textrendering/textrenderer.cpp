@@ -6,6 +6,8 @@
 
 bool TextRenderer::Render(D3D11* d3d)
 {
+    popProfile(TextRenderer::Render);
+
     d3d->TurnDepthTestOff();
 
     char fpsText[40]         = "Lorem Ispum";

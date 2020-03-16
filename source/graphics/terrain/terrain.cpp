@@ -28,7 +28,7 @@ Terrain::Terrain() :
 
 bool Terrain::Initialize(ID3D11Device* device)
 {
-    PROFILE_FUNCTION(Terrain::Initialize);
+    popProfile(Terrain::Initialize);
 
     if (!InitializeTerrainMesh())
         return false;
@@ -68,7 +68,7 @@ const uint32_t Terrain::GetIndexCount() const
 #pragma region BINARIZE
 void Terrain::BinarizeTerrain(const std::string& meshOBJFilePath, const std::string& heighMapBMPFilePath, const std::string& outputPath)
 {
-    PROFILE_FUNCTION(Terrain::BinarizeTerrain)
+    popProfile(Terrain::BinarizeTerrain)
 
     Terrain* terrain = new Terrain();
     if (terrain->InitializeForBinarize(meshOBJFilePath, heighMapBMPFilePath))

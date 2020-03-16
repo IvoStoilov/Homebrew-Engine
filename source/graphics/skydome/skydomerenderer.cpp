@@ -32,6 +32,8 @@ bool SkydomeRenderer::Initialize(ID3D11Device* device, ID3D11DeviceContext* devi
 
 bool SkydomeRenderer::Render(D3D11* d3d)
 {
+    popProfile(SkydomeRenderer::Render)
+
     d3d->TurnDepthTestOff();
 
     mat4x4 inverseView = m_ViewMatrix.GetInverted();

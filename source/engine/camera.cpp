@@ -95,6 +95,8 @@ void Camera::UpdateMovement()
 
 void Camera::Update(float dt)
 {
+    popProfile(Camera::Update);
+
     UpdateMovement();
 
     if (g_InputManager->IsKeyJustPressed(InputManager::Key::Q))

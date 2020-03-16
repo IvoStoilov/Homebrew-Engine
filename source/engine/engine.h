@@ -35,7 +35,8 @@ public:
     void Update();
     void GetCameraViewMatrix(mat4x4& outMatrix);
 
-
+private:
+    void EndFrame();
 private:
     Camera* m_Camera;
     std::vector<Entity*> m_Entities;

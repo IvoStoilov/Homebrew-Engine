@@ -17,6 +17,8 @@ constexpr f32 WAVE_SPEED = 0.03f;
 
 bool WaterRenderer::Render(D3D11* d3d)
 {
+    popProfile(WaterRenderer::Render)
+
     m_Mesh->Render(d3d->GetDeviceContext());
 
     ReflectionShaderParams params;

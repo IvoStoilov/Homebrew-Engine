@@ -73,6 +73,7 @@ void Engine::Update()
 {
     do
     {
+        popProfile(Frame);
         if (g_CommandLineOptions->m_QuitAfterInit)
             return;
 
@@ -103,25 +104,14 @@ void Engine::Update()
         g_RenderEngine->PreFrame();
         g_RenderEngine->Frame(dt);
 
-        float delta = m_WorldClock.GetDeltaTime();
-        while (delta < 16.6666)
-        {
-            delta = m_WorldClock.GetDeltaTime();
-            //Sleep granularity of very rough and leads to artificial FPS drop from 60 to 30
-            //Going with a crappy solution for a while cycle. 
-            //Not sure what is the implementation of the VSYNC and what are the tradeoffs.
-            //std::this_thread::sleep_for(std::chrono::milliseconds(17 - delta));
-        }
+        EndFrame();
     } while (!m_HasRequestedQuit);
 }
 
 void Engine::Shutdown()
 {
     InputManager::CleanInstance();
-
     D3D11Renderer::CleanInstance();
-
-    g_ProfileManager.DumpInfoToFile();
     ProfileManager::CreateInstance();
 
     if (m_Camera)
@@ -145,6 +135,21 @@ void Engine::Shutdown()
 void Engine::GetCameraViewMatrix(mat4x4& outMatrix) 
 {
     m_Camera->GetViewMatrix(outMatrix); 
+}
+
+void Engine::EndFrame()
+{
+    popProfile(Engine::EndFrame);
+    float delta = m_WorldClock.GetDeltaTime();
+    while (delta < 16.6666)
+    {
+
+        delta = m_WorldClock.GetDeltaTime();
+        //Sleep granularity of very rough and leads to artificial FPS drop from 60 to 30
+        //Going with a crappy solution for a while cycle. 
+        //Not sure what is the implementation of the VSYNC and what are the tradeoffs.
+        //std::this_thread::sleep_for(std::chrono::milliseconds(17 - delta));
+    }
 }
 
 void Engine::CreateInstance()
