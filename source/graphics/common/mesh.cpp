@@ -522,7 +522,7 @@ bool Mesh::InitializeIndexBuffer(ID3D11Device* device)
     uint32_t* indices = nullptr;
     uint32_t indexCount = 0;
 
-    if (g_CommandLineOptions->m_DrawWireframe)
+    if (g_CommandLineOptions.m_DrawWireframe)
         SetupBuffersForWireframe(indices, indexCount);
     else
         SetupBuffersForSolid(indices, indexCount);
@@ -581,7 +581,7 @@ void Mesh::Render(ID3D11DeviceContext* deviceContext)
 
     deviceContext->IASetVertexBuffers(0, 1, &m_VertexBuffer, &stride, &offset);
     deviceContext->IASetIndexBuffer(m_IndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-    D3D_PRIMITIVE_TOPOLOGY drawTopology = g_CommandLineOptions->m_DrawWireframe ? D3D11_PRIMITIVE_TOPOLOGY_LINELIST : D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+    D3D_PRIMITIVE_TOPOLOGY drawTopology = g_CommandLineOptions.m_DrawWireframe ? D3D11_PRIMITIVE_TOPOLOGY_LINELIST : D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     deviceContext->IASetPrimitiveTopology(drawTopology);
 }
 

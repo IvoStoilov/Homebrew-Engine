@@ -1,6 +1,6 @@
 #pragma once
 #include <system/log/logcategory.h>
-
+#include <system/singleton/singleton.h>
 /*
 String Patterns :
 "Hello, {}!", "World"
@@ -15,9 +15,8 @@ String Patterns :
 
 class Log
 {
+    POP_DECLARE_SINGLETON(Log)
 public:
-    static Log& GetInstance() { static Log ms_Instance; return ms_Instance; }
-
     Log();
     ~Log();
 

@@ -5,8 +5,6 @@
 
 #include <system/string/stringhelper.h>
 
-ProfileManager* ProfileManager::s_Instance = nullptr;
-
 void ProfileManager::DumpInfoToJSON()
 {
     String dateTime = StringHelper::FormatTime(std::chrono::system_clock::now());
@@ -58,21 +56,6 @@ void ProfileManager::WriteFooter()
 {
     m_OutStream << "]}";
     m_OutStream.flush();
-}
-
-void ProfileManager::CreateInstance()
-{
-    if (s_Instance == nullptr)
-        s_Instance = new ProfileManager();
-}
-
-void ProfileManager::CleanInstance()
-{
-    if (s_Instance != nullptr)
-    {
-        delete s_Instance;
-    }
-
 }
 
 void ProfileManager::BeginSession()

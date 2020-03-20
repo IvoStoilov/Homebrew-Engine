@@ -12,31 +12,39 @@
 #include <system/profiling/profilemanager.h>
 #include <system/commandline/commandlineoptions.h>
 
-
 #include <thread>
 #include <chrono>
 
 constexpr f32 WATER_LEVEL = 3.f;
-Engine* Engine::s_Instance = nullptr;
+
+Engine::Engine()
+{
+    Initialize();
+}
+
+Engine::~Engine()
+{
+    Shutdown();
+}
 
 bool Engine::Initialize()
 {
     ProfileManager::CreateInstance();
 
     //This needs a flow refactor - bootstrap load?
-    if (g_CommandLineOptions->m_Binarize)
+    if (g_CommandLineOptions.m_Binarize)
     {
         popInfo(LogEngine, "Starting binarization");
-        Terrain::BinarizeTerrain(g_CommandLineOptions->GetBinarizeInputFile(0),
-                                 g_CommandLineOptions->GetBinarizeInputFile(1),
-                                 g_CommandLineOptions->m_BinarizeOutputFile);
+        Terrain::BinarizeTerrain(g_CommandLineOptions.GetBinarizeInputFile(0),
+                                 g_CommandLineOptions.GetBinarizeInputFile(1),
+                                 g_CommandLineOptions.m_BinarizeOutputFile);
 
-        if (g_CommandLineOptions->m_QuitAfterInit)
+        if (g_CommandLineOptions.m_QuitAfterInit)
             return true;
     }
 
     ViewProvider::CreateInstance();
-    InputManager::CreateInstance(g_ViewProvider);
+    InputManager::CreateInstance();
     D3D11Renderer::CreateInstance();
 
     m_Camera = new Camera();
@@ -61,7 +69,7 @@ bool Engine::Initialize()
 
         for (Entity* entity : m_Entities)
         {
-            g_RenderEngine->RegisterDrawable(entity->GetComponentByType<VisualComponent>());
+            g_RenderEngine.RegisterDrawable(entity->GetComponentByType<VisualComponent>());
         }
     }
 
@@ -74,7 +82,7 @@ void Engine::Update()
     do
     {
         popProfile(Frame);
-        if (g_CommandLineOptions->m_QuitAfterInit)
+        if (g_CommandLineOptions.m_QuitAfterInit)
             return;
 
         m_WorldClock.Update();
@@ -82,10 +90,10 @@ void Engine::Update()
 
         ViewProvider::GetInstance().Update();
 
-        g_InputManager->Update();
+        g_InputManager.Update();
 
         // Check if the user pressed escape and wants to exit the application.
-        m_HasRequestedQuit = m_HasRequestedQuit || g_InputManager->IsEscapePressed();
+        m_HasRequestedQuit = m_HasRequestedQuit || g_InputManager.IsEscapePressed();
 
         m_InputHandler.Update();
 
@@ -99,10 +107,10 @@ void Engine::Update()
 
         m_Camera->Update(dt);
 
-        g_RenderEngine->SetViewMatrix(m_Camera->GetViewMatrix());
-        g_RenderEngine->SetReflectedViewMatrix(m_Camera->ComputeReflectionMatrix(WATER_LEVEL));
-        g_RenderEngine->PreFrame();
-        g_RenderEngine->Frame(dt);
+        g_RenderEngine.SetViewMatrix(m_Camera->GetViewMatrix());
+        g_RenderEngine.SetReflectedViewMatrix(m_Camera->ComputeReflectionMatrix(WATER_LEVEL));
+        g_RenderEngine.PreFrame();
+        g_RenderEngine.Frame(dt);
 
         EndFrame();
     } while (!m_HasRequestedQuit);
@@ -112,7 +120,8 @@ void Engine::Shutdown()
 {
     InputManager::CleanInstance();
     D3D11Renderer::CleanInstance();
-    ProfileManager::CreateInstance();
+    ProfileManager::CleanInstance();
+    ViewProvider::CleanInstance();
 
     if (m_Camera)
     {
@@ -151,34 +160,3 @@ void Engine::EndFrame()
         //std::this_thread::sleep_for(std::chrono::milliseconds(17 - delta));
     }
 }
-
-void Engine::CreateInstance()
-{
-    if (s_Instance == nullptr)
-    {
-        s_Instance = new Engine();
-        popAssert(s_Instance->Initialize(), "Engine::Initialize failed.");
-    }
-}
-
-void Engine::CleanInstnace()
-{
-    if (s_Instance != nullptr)
-    {
-        s_Instance->Shutdown();
-        delete s_Instance;
-    }
-}
-
-Engine* Engine::GetInstance()
-{
-    popAssert(s_Instance != nullptr, "Engine Instance is not created.");
-    return s_Instance;
-}
-
-Engine::Engine() :
-    m_HasRequestedQuit(false)
-{}
-
-Engine::~Engine()
-{}

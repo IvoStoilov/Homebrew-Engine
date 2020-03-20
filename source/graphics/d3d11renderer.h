@@ -1,6 +1,8 @@
 #pragma once
 #include <graphics/common/rendertexture.h>
 
+#include <system/singleton/singleton.h>
+
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = false;
 const float SCREEN_DEPTH = 1000.0f;
@@ -15,34 +17,13 @@ class RenderTexture;
 class WindowHandle;
 class D3D11Renderer
 {
-private:
-    enum SubRendererOrder
-    {
-        Skydome      = 0,
-        Terrain      = 1,
-        Water        = 2,
-        Text         = 3,
-        DebugDisplay = 4,
-
-        COUNT,
-        Invalid
-    };
-
-    static D3D11Renderer* s_Instance;
+    POP_DECLARE_SINGLETON(D3D11Renderer);
     D3D11Renderer();
     ~D3D11Renderer();
-
-    bool Initialize();
-    void Shutdown();
 
 public:
     DebugDisplayRenderer* GetDebugDisplayRenderer() const;
 
-    static D3D11Renderer* GetInstance();
-    static void CreateInstance();
-    static void CleanInstance();
-
-public:
     bool IsEnabledDebugDisplay() const;
     void EnableDebugDisplay(bool shouldEnable);
 
@@ -63,14 +44,30 @@ public:
     inline const f32 GetDT() const { return m_DT; }
 
 private:
+    bool Initialize();
+    void Shutdown();
+
     bool Render();
     bool RenderReflection();
     bool RenderRefractionTexture();
+
+    enum SubRendererOrder
+    {
+        Skydome = 0,
+        Terrain = 1,
+        Water = 2,
+        Text = 3,
+        DebugDisplay = 4,
+
+        COUNT,
+        Invalid
+    };
+
 private:
     //Do we really need DT in the Render Engine?
     f32 m_DT = 0.f;
 
-    D3D11* m_D3D;
+    D3D11* m_D3D = nullptr;
     mat4x4 m_ViewMatrix;
     mat4x4 m_ReflectedViewMatrix;
 
@@ -80,5 +77,5 @@ private:
     SharedPtr<RenderTexture> m_RefractionTexture;
 };
 
-#define g_DebugDisplay D3D11Renderer::GetInstance()->GetDebugDisplayRenderer()
+#define g_DebugDisplay D3D11Renderer::GetInstance().GetDebugDisplayRenderer()
 #define g_RenderEngine D3D11Renderer::GetInstance()

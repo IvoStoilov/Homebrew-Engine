@@ -26,8 +26,8 @@ bool WaterRenderer::Render(D3D11* d3d)
     params.m_View = m_ViewMatrix;
     params.m_Projection = d3d->GetPerspectiveMatrix();
 
-    const SharedPtr<RenderTexture>& renderTextureSPtr = g_RenderEngine->GetReflectionTexture();
-    const SharedPtr<RenderTexture>& refractionTexture = g_RenderEngine->GetRefractionTexture();
+    const SharedPtr<RenderTexture>& renderTextureSPtr = g_RenderEngine.GetReflectionTexture();
+    const SharedPtr<RenderTexture>& refractionTexture = g_RenderEngine.GetRefractionTexture();
     params.m_PSTextures.push_back(std::make_pair(std::static_pointer_cast<Texture>(renderTextureSPtr), 9));
     params.m_PSTextures.push_back(std::make_pair(std::static_pointer_cast<Texture>(refractionTexture), 10));
     params.m_PSTextures.push_back(std::make_pair(m_DuDvTexture, 11));
@@ -35,7 +35,7 @@ bool WaterRenderer::Render(D3D11* d3d)
 
     params.m_ReflectionMatrix = m_ReflectionMatrix;
 
-    UpdateMoveFactor(g_RenderEngine->GetDT());
+    UpdateMoveFactor(g_RenderEngine.GetDT());
     params.m_MoveFactor = m_MoveFactor;
 
     m_ReflectionShader->Render(d3d->GetDeviceContext(), m_Mesh->GetIndexCount(), params);

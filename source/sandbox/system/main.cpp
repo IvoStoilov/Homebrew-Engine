@@ -1,4 +1,5 @@
 #include <system/precompile.h>
+#include <system/viewprovider/viewprovider.h>
 
 using namespace std;
 
@@ -23,6 +24,8 @@ void PrintFProfile()
 int main()
 {
     ProfileManager::CreateInstance();
+    ViewProvider::GetInstance();
+    ViewProvider::CreateInstance();
     g_ProfileManager.BeginSession();
     {
         popProfile(Frame)
@@ -37,4 +40,6 @@ int main()
     }
 
     g_ProfileManager.EndSession();
+    ViewProvider::CleanInstance();
+    ProfileManager::CleanInstance();
 }

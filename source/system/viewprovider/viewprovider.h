@@ -1,4 +1,6 @@
 #pragma once
+#include <system/singleton/singleton.h>
+
 #ifdef POP_PLATFORM_WINDOWS
 #include <windows.h>
 #endif //POP_PLATFORM_WINDOWS
@@ -7,6 +9,8 @@
 
 class ViewProvider
 {
+    POP_DECLARE_SINGLETON(ViewProvider)
+
 public:
     struct WindowResolution
     {
@@ -16,11 +20,6 @@ public:
         s32 m_Width = 0;
         s32 m_Height = 0;
     };
-
-public:
-    static ViewProvider& GetInstance();
-    static void CreateInstance();
-    static void DestroyInstnace();
 
 public:
     ViewProvider();

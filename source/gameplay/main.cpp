@@ -23,8 +23,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
     parser.CallCallbacks();
 
     Engine::CreateInstance();
-    Engine::GetInstance()->Update();
-    Engine::CleanInstnace();
+    Engine::GetInstance().Update();
+    Engine::CleanInstance();
 
     return 0;
 }

@@ -64,7 +64,7 @@ bool ViewProvider::InitializeInternal()
     SetFocus(m_Win64_HWND);
 
     // Hide the mouse cursor.
-    ShowCursor(g_CommandLineOptions->m_ShowCursor);
+    ShowCursor(g_CommandLineOptions.m_ShowCursor);
 
     return true;
 }
@@ -74,7 +74,7 @@ void ViewProvider::ShutdownInternal()
     // Show the mouse cursor.
     ShowCursor(true);
 
-    if (g_CommandLineOptions->m_Fullscreen)
+    if (g_CommandLineOptions.m_Fullscreen)
     {
         DeactivateFullscreen();
     }

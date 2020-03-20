@@ -40,7 +40,7 @@ bool TerrainRenderer::Render(D3D11* d3d)
 
     m_Terrain->Render(d3d->GetDeviceContext());
 
-    if (g_CommandLineOptions->m_DrawWireframe)
+    if (g_CommandLineOptions.m_DrawWireframe)
     {
         mat4x4 worldMatrix = mat4x4::Identity;
         mat4x4 projectionMatrix;

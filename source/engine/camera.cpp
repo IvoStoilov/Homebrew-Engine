@@ -85,9 +85,9 @@ void Camera::UpdateMovement()
     int32_t mouseDeltaX;
     int32_t mouseDeltaY;
 
-    if (g_InputManager->IsMouseButtonPressed(InputManager::MouseButton::LEFT))
+    if (g_InputManager.IsMouseButtonPressed(InputManager::MouseButton::LEFT))
     {
-        g_InputManager->GetMouseDelta(mouseDeltaX, mouseDeltaY);
+        g_InputManager.GetMouseDelta(mouseDeltaX, mouseDeltaY);
         m_rotationY += mouseDeltaX * -0.1f;
         m_rotationX += mouseDeltaY * +0.1f;
     }
@@ -99,12 +99,12 @@ void Camera::Update(float dt)
 
     UpdateMovement();
 
-    if (g_InputManager->IsKeyJustPressed(InputManager::Key::Q))
+    if (g_InputManager.IsKeyJustPressed(InputManager::Key::Q))
     {
         m_MoveSpeed += .5f;
     }
 
-    if (g_InputManager->IsKeyJustPressed(InputManager::Key::E) && (m_MoveSpeed - .5f) > 0)
+    if (g_InputManager.IsKeyJustPressed(InputManager::Key::E) && (m_MoveSpeed - .5f) > 0)
     {
         m_MoveSpeed -= .5f;
     }
@@ -142,19 +142,19 @@ void Camera::Update(float dt)
     dirZ = vec3::Transform(dirZ, rotationMatrix);
     dirX = vec3::Transform(dirX, rotationMatrix);
 
-    if (g_InputManager->IsKeyPressed(InputManager::Key::W))
+    if (g_InputManager.IsKeyPressed(InputManager::Key::W))
     {
         moveZ += dirZ * m_MoveSpeed * dt;
     }
-    if (g_InputManager->IsKeyPressed(InputManager::Key::A))
+    if (g_InputManager.IsKeyPressed(InputManager::Key::A))
     {
         moveX += dirX * m_MoveSpeed * dt;
     }
-    if (g_InputManager->IsKeyPressed(InputManager::Key::S))
+    if (g_InputManager.IsKeyPressed(InputManager::Key::S))
     {
         moveZ -= dirZ * m_MoveSpeed * dt;
     }
-    if (g_InputManager->IsKeyPressed(InputManager::Key::D))
+    if (g_InputManager.IsKeyPressed(InputManager::Key::D))
     {
         moveX -= dirX * m_MoveSpeed * dt;
     }

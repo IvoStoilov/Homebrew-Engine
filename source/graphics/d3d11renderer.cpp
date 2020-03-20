@@ -16,7 +16,16 @@
 std::string path = "../../resource/ink-splatter-texture.png";
 constexpr f32 WATER_LEVEL = 3.f;
 
-D3D11Renderer* D3D11Renderer::s_Instance = nullptr;
+
+D3D11Renderer::D3D11Renderer()
+{
+    Initialize();
+}
+
+D3D11Renderer::~D3D11Renderer()
+{
+    Shutdown();
+}
 
 bool D3D11Renderer::Initialize()
 {
@@ -189,40 +198,6 @@ bool D3D11Renderer::Render()
     m_D3D->EndScene();
 
     return true;
-}
-
-D3D11Renderer::D3D11Renderer() :
-    m_D3D(nullptr),
-    m_DT(0.f)
-{
-}
-
-D3D11Renderer::~D3D11Renderer()
-{
-}
-
-D3D11Renderer* D3D11Renderer::GetInstance()
-{
-    popAssert(s_Instance, "InputManager Create Instance Not called");
-    return s_Instance;
-}
-
-void D3D11Renderer::CleanInstance()
-{
-    if (s_Instance != nullptr)
-    {
-        s_Instance->Shutdown();
-        delete s_Instance;
-    }
-}
-
-void D3D11Renderer::CreateInstance()
-{
-    if (s_Instance == nullptr)
-    {
-        s_Instance = new D3D11Renderer();
-        s_Instance->Initialize();
-    }
 }
 
 void D3D11Renderer::EnableDebugDisplay(bool shouldEnable)

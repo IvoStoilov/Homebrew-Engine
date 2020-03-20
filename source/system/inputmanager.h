@@ -7,11 +7,12 @@
 #pragma comment(lib, "dxguid.lib")
 
 #include <dinput.h>
-#include <stdint.h>
+#include <system/singleton/singleton.h>
 
 class ViewProvider;
 class InputManager
 {
+    POP_DECLARE_SINGLETON(InputManager)
 public:
     enum class Key
     {
@@ -22,20 +23,8 @@ public:
     {
         LEFT = 0,
         MIDDLE = 1,
-        RIGHT =2
+        RIGHT = 2
     };
-private:
-    static InputManager* s_Instance;
-    InputManager();
-    ~InputManager();
-
-    bool Initialize(ViewProvider& viewProvider);
-    void Shutdown();
-
-public:
-    static InputManager* GetInstance();
-    static void CreateInstance(ViewProvider& viewProvider);
-    static void CleanInstance();
 
     bool Update();
 
@@ -48,15 +37,20 @@ public:
     void GetMouseDelta(int32_t& outXdelta, int32_t& outYdelta);
 
 private:
+    InputManager();
+    ~InputManager();
+
+    bool Initialize(ViewProvider& viewProvider);
+    void Shutdown();
+
     bool ReadKeyboard();
     bool ReadMouse();
 
     void ProcessInput();
-
 private:
-    IDirectInput8* m_DirectInput;
-    IDirectInputDevice8* m_Keyboard;
-    IDirectInputDevice8* m_Mouse;
+    IDirectInput8* m_DirectInput = nullptr;
+    IDirectInputDevice8* m_Keyboard = nullptr;
+    IDirectInputDevice8* m_Mouse = nullptr;
 
     char m_KeyboardState[256];
     char m_KeyBoardStatePrevFrame[256];

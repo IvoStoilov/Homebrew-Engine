@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <windows.h>
 
 #include <projectconfig.h>
 

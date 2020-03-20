@@ -5,20 +5,15 @@
 #include <system/fpscounter.h>
 #include <system/cpuinfo.h>
 #include <system/clock.h>
+#include <system/singleton/singleton.h>
 
 class Camera;
 class Engine
 {
-private:
-    static Engine* s_Instance;
+    POP_DECLARE_SINGLETON(Engine);
+
     Engine();
     ~Engine();
-
-public:
-    static Engine* GetInstance();
-    static void CreateInstance();
-    static void CleanInstnace();
-
 public:
     bool Initialize();
     void Shutdown();
@@ -38,8 +33,8 @@ public:
 private:
     void EndFrame();
 private:
-    Camera* m_Camera;
-    std::vector<Entity*> m_Entities;
+    Camera* m_Camera = nullptr;
+    Array<Entity*> m_Entities;
     
     InputHandler m_InputHandler;
 
@@ -47,7 +42,7 @@ private:
     CPUInfo m_CPUInfo;
     Clock m_WorldClock;
 
-    bool m_HasRequestedQuit;
+    bool m_HasRequestedQuit = false;
 };
 
 #define g_Engine Engine::GetInstance()

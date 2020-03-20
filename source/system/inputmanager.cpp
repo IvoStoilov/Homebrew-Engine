@@ -5,40 +5,17 @@
 
 #define DIRECT_INPUTVERSION 0x0800
 
-InputManager* InputManager::s_Instance = nullptr;
-
-InputManager::InputManager() :
-    m_DirectInput(nullptr),
-    m_Keyboard(nullptr),
-    m_Mouse(nullptr)
-{}
+InputManager::InputManager()
+{
+    memset(m_KeyboardState, 0, sizeof(m_KeyboardState));
+    memset(m_KeyBoardStatePrevFrame, 0, sizeof(m_KeyBoardStatePrevFrame));
+    Initialize(g_ViewProvider);
+}
 
 
 InputManager::~InputManager()
-{}
-
-InputManager* InputManager::GetInstance()
 {
-    popAssert(s_Instance, "InputManager Create Instance Not called");
-    return s_Instance;
-}
-
-void InputManager::CleanInstance()
-{
-    if (s_Instance != nullptr)
-    {
-        s_Instance->Shutdown();
-        delete s_Instance;
-    }
-}
-
-void InputManager::CreateInstance(ViewProvider& viewProvider)
-{
-    if (s_Instance == nullptr)
-    {
-        s_Instance = new InputManager();
-        s_Instance->Initialize(viewProvider);
-    }
+    Shutdown();
 }
 
 bool InputManager::Initialize(ViewProvider& viewProvider)

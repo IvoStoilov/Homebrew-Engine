@@ -1,4 +1,6 @@
 #pragma once
+#include <system/singleton/singleton.h>
+
 #ifdef POP_PROFILE_ENABLED
 struct ProfileInfo
 {
@@ -17,11 +19,9 @@ struct ProfileInfo
 
 class ProfileManager
 {
-public:
-    static ProfileManager& GetInstance() { return *s_Instance; }
-    static void CreateInstance();
-    static void CleanInstance();
+    POP_DECLARE_SINGLETON(ProfileManager);
 
+public:
     inline bool IsSessionActive() const { return m_IsSessionActive; }
     void BeginSession();
     void EndSession();
@@ -29,14 +29,13 @@ public:
     void Register(const ProfileInfo& info);
     
 protected:
+    ProfileManager() = default;
+
     void DumpInfoToJSON();
     void WriteHeader();
     void WriteProfile();
     void WriteFooter();
 protected:
-    ProfileManager() {}
-    static ProfileManager* s_Instance;
-
     bool m_IsSessionActive = false;
     std::ofstream m_OutStream;
     Array<ProfileInfo> m_ProfileInfosDuringSession;
