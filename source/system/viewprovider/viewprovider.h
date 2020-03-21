@@ -40,14 +40,18 @@ public:
 
 #ifdef POP_PLATFORM_WINDOWS
     HWND GetWindowHandle() { return m_Win64_HWND; }
+    //HWND GetChildWindows(const WindowCookie& windowCookie)
     HINSTANCE GetHInstnace() { return m_Win64_hInstnace; }
 private:
     HWND m_Win64_HWND;
+    Array<HWND> m_ChildWindows;
     HINSTANCE m_Win64_hInstnace;
 #else //POP_PLATFORM_WINDOWS
     #error Platform Not Supported!
 #endif
 
+    WindowCookie CreateChildWindow();
+    void ClearChildWindow(WindowCookie& cookie);
 protected:
     WindowResolution GetMonitorResolution();
     bool InitializeInternal();
@@ -55,6 +59,7 @@ protected:
 
     void SetDefaultPositionAndResolution();
 
+    
 protected:
     String m_ApplicationName;
     
@@ -62,7 +67,4 @@ protected:
     u32 m_WindowPosY = 0;
 
     WindowResolution m_WindowResolution;
-
-private:
-    static ViewProvider* sm_ViewProviderInstance;
 };

@@ -64,6 +64,10 @@ bool ViewProvider::InitializeInternal()
         WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP | WS_CAPTION | WS_BORDER | WS_SYSMENU,
         m_WindowPosX, m_WindowPosY, m_WindowResolution.m_Width, m_WindowResolution.m_Height, NULL, NULL, m_Win64_hInstnace, NULL);
 
+    RECT clientRect;
+    GetClientRect(m_Win64_HWND, &clientRect);
+    m_WindowResolution.m_Width = clientRect.right;
+    m_WindowResolution.m_Height = clientRect.bottom;
     // Bring the window up on the screen and set it as main focus.
     ShowWindow(m_Win64_HWND, SW_SHOW);
     SetForegroundWindow(m_Win64_HWND);
