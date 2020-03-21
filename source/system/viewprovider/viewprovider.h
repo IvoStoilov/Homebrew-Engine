@@ -1,4 +1,5 @@
 #pragma once
+#include <system/viewprovider/windowcookie.h>
 #include <system/singleton/singleton.h>
 
 #ifdef POP_PLATFORM_WINDOWS
@@ -38,9 +39,11 @@ public:
     void ActivateFullscreen();
     void DeactivateFullscreen();
 
+    WindowCookie CreateChildWindow();
+    void ClearChildWindow(WindowCookie& cookie);
 #ifdef POP_PLATFORM_WINDOWS
     HWND GetWindowHandle() { return m_Win64_HWND; }
-    //HWND GetChildWindows(const WindowCookie& windowCookie)
+    HWND GetChildWindow(const WindowCookie& windowCookie) { return m_ChildWindows[windowCookie.m_Index]; }
     HINSTANCE GetHInstnace() { return m_Win64_hInstnace; }
 private:
     HWND m_Win64_HWND;
@@ -49,9 +52,6 @@ private:
 #else //POP_PLATFORM_WINDOWS
     #error Platform Not Supported!
 #endif
-
-    WindowCookie CreateChildWindow();
-    void ClearChildWindow(WindowCookie& cookie);
 protected:
     WindowResolution GetMonitorResolution();
     bool InitializeInternal();

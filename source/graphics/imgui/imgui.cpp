@@ -13,8 +13,10 @@ bool ImGuiRenderer::Initialize(ID3D11Device* device, ID3D11DeviceContext* device
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableSetMousePos;
 
+    m_WindowCookie = g_ViewProvider.CreateChildWindow();
+    HWND childHWND = g_ViewProvider.GetChildWindow(m_WindowCookie);
     ImGui::StyleColorsDark();
-    ImGui_ImplWin32_Init(g_ViewProvider.GetWindowHandle());
+    ImGui_ImplWin32_Init(childHWND);
     ImGui_ImplDX11_Init(device, deviceContext);
 
     return true;

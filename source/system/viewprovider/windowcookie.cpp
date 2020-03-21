@@ -16,6 +16,7 @@ WindowCookie& WindowCookie::operator=(WindowCookie&& other)
 {
     m_Index = other.m_Index;
     other.m_Index = INVALID_INDEX;
+    return *this;
 }
 
 WindowCookie::~WindowCookie()
