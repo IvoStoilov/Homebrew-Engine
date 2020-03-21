@@ -1,11 +1,17 @@
-#include "system/precompile.h"
-#include "system/viewprovider/viewprovider.h"
-#include "system/commandline/commandlineoptions.h"
+#include <system/precompile.h>
+#include <system/viewprovider/viewprovider.h>
+#include <system/commandline/commandlineoptions.h>
 
 #ifdef POP_PLATFORM_WINDOWS
 
+// Forward declare message handler from imgui_impl_win32.cpp
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
+    if (ImGui_ImplWin32_WndProcHandler(hwnd, umessage, wparam, lparam))
+        return true;
+
     switch (umessage)
     {
         // Check if the window is being destroyed.

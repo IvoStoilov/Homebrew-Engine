@@ -4,7 +4,6 @@
 
 #include <system/commandline/commandlineparser.h>
 #include <system/commandline/commandlineoptions.h>
-#include <system/error.h>
 
 const std::string INI_PATH = "../homebrew.ini";
 

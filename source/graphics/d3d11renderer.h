@@ -58,6 +58,7 @@ private:
         Water = 2,
         Text = 3,
         DebugDisplay = 4,
+        ImGui = 5,
 
         COUNT,
         Invalid

@@ -2,6 +2,7 @@
 #include <graphics/d3d11renderer.h>
 #include <graphics/d3d11.h>
 #include <graphics/graphicsnode.h>
+
 #include <graphics/isubrenderer.h>
 #include <graphics/terrain/terrainrenderer.h>
 #include <graphics/debugdisplay/debugdisplayrenderer.h>
@@ -9,9 +10,9 @@
 #include <graphics/textrendering/textrenderer.h>
 #include <graphics/water/waterrenderer.h>
 #include <graphics/textrendering/text.h>
+#include <graphics/imgui/imgui.h>
 
 #include <system/viewprovider/viewprovider.h>
-#include <system/error.h>
 
 std::string path = "../../resource/ink-splatter-texture.png";
 constexpr f32 WATER_LEVEL = 3.f;
@@ -61,6 +62,8 @@ bool D3D11Renderer::Initialize()
     m_SubRenderers[SubRendererOrder::DebugDisplay] = debugDisplayRenderer;
     debugDisplayRenderer->SetIsEnabled(false);
 
+    ISubRenderer* imguiRenderer = new ImGuiRenderer();
+    m_SubRenderers[SubRendererOrder::ImGui] = imguiRenderer;
     for (ISubRenderer* subRenderer : m_SubRenderers)
     {
         popAssert(subRenderer->Initialize(m_D3D->GetDevice(), m_D3D->GetDeviceContext()), "subRenderer failed init");

@@ -3,6 +3,7 @@
 #define POP_LOGGING_ENABLED
 #define POP_ASSERT_ENABLED
 #define POP_PROFILE_ENABLED
+#define POP_IMGUI_ENABLED
 
 #define popSTRING(TEXT) #TEXT
 #define popJOIN(A, B) A##B

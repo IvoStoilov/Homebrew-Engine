@@ -17,6 +17,12 @@ project "Graphics"
     {
         MAIN_DIR .. "/source/graphics/**.h",
         MAIN_DIR .. "/source/graphics/**.cpp",
+        
+    }
+
+    includedirs
+    {
+        MAIN_DIR .. "/extern/ImGui/"
     }
 
     links
