@@ -99,20 +99,20 @@ bool TextureShader::SetShaderParametersInternal(ID3D11DeviceContext* deviceConte
 
 void TextureShader::UnSetShaderParametersInternal(ID3D11DeviceContext* deviceContext, const ShaderParamsBase& shaderParams)
 {
-    /*const TextureShaderParams* textureShaderParams = shaderParams.GetAs<TextureShaderParams>();
+    const TextureShaderParams* textureShaderParams = shaderParams.GetAs<TextureShaderParams>();
     if (!textureShaderParams)
     {
-        popAssert(false, "Did not pass TextureShaderParams to skydome shader");
+        popAssert(false, "Did not pass TextureShaderParams to texture shader");
         return;
     }
-    ID3D11ShaderResourceView* clear = nullptr;
-    for (u16 i = 0; i < textureShaderParams->m_VSTextures.size(); ++i)
+    static constexpr ID3D11ShaderResourceView* NULL_SRV = nullptr;
+    for (const TextureShaderParams::TextureIndexPair& pair : textureShaderParams->m_VSTextures)
     {
-        deviceContext->VSSetShaderResources(i, 1, &clear);
+        deviceContext->VSSetShaderResources(pair.second, 1, &NULL_SRV);
     }
 
-    for (u16 i = 0; i < textureShaderParams->m_PSTextures.size(); ++i)
+    for (const TextureShaderParams::TextureIndexPair& pair : textureShaderParams->m_PSTextures)
     {
-        deviceContext->PSSetShaderResources(i, 1, &clear);
-    }*/
+        deviceContext->PSSetShaderResources(pair.second, 1, &NULL_SRV);
+    }
 }

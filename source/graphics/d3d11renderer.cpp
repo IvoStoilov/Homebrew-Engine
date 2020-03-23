@@ -127,7 +127,7 @@ bool D3D11Renderer::RenderReflection()
     mat4x4 worldMatrix, reflectionViewMatrix, projectionMatrix;
     
     m_ReflectionTexture->SetRenderTarget(m_D3D->GetDeviceContext(), m_D3D->GetDepthStencilView());
-    m_ReflectionTexture->ClearRenderTarget(m_D3D->GetDeviceContext(), m_D3D->GetDepthStencilView(), 0.0f, 0.0f, 0.0f, 1.0f);
+    m_ReflectionTexture->BeginFrame(m_D3D->GetDeviceContext(), m_D3D->GetDepthStencilView(), 0.0f, 0.0f, 0.0f, 1.0f);
 
     m_D3D->GetPerspectiveMatrix(projectionMatrix);
     f32 clipPlane[4] = { 0, 1, 0, -WATER_LEVEL };
@@ -144,6 +144,7 @@ bool D3D11Renderer::RenderReflection()
         }
     }
 
+    m_ReflectionTexture->ClearRenderTarget(m_D3D->GetDeviceContext(), m_D3D->GetDepthStencilView());
     m_D3D->SetBackBufferRenderTarget();
 
     return true;
@@ -154,13 +155,14 @@ bool D3D11Renderer::RenderRefractionTexture()
     popProfile(D3D11Renderer::RenderRefractionTexture);
 
     m_RefractionTexture->SetRenderTarget(m_D3D->GetDeviceContext(), m_D3D->GetDepthStencilView());
-    m_RefractionTexture->ClearRenderTarget(m_D3D->GetDeviceContext(), m_D3D->GetDepthStencilView(), 0.f, 0.f, 0.f, 1.f );
+    m_RefractionTexture->BeginFrame(m_D3D->GetDeviceContext(), m_D3D->GetDepthStencilView(), 0.f, 0.f, 0.f, 1.f );
 
     ISubRenderer* terrainRenderer = m_SubRenderers[SubRendererOrder::Terrain];
     terrainRenderer->UpdateViewMatrix(m_ViewMatrix);
     terrainRenderer->SetClipPlane(vec4(0, -1.f, 0, WATER_LEVEL));
     terrainRenderer->Render(m_D3D);
 
+    m_RefractionTexture->ClearRenderTarget(m_D3D->GetDeviceContext(), m_D3D->GetDepthStencilView());
     m_D3D->SetBackBufferRenderTarget();
     return true;
 }

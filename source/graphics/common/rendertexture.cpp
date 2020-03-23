@@ -63,15 +63,19 @@ void RenderTexture::Shutdown()
 void RenderTexture::SetRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView)
 {
     deviceContext->OMSetRenderTargets(1, &m_RenderTargetView, depthStencilView);
-
-    return;
 }
 
-void RenderTexture::ClearRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView,
+void RenderTexture::BeginFrame(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView,
     f32 red, f32 green, f32 blue, f32 alpha)
 {
     float color[4] = {red, green, blue, alpha};
 
     deviceContext->ClearRenderTargetView(m_RenderTargetView, color);
     deviceContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+}
+
+void RenderTexture::ClearRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView)
+{
+    static constexpr ID3D11RenderTargetView* NULL_RTV = nullptr;
+    deviceContext->OMSetRenderTargets(1, &NULL_RTV, depthStencilView);
 }

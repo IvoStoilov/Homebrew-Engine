@@ -10,8 +10,8 @@ public:
     void Shutdown();
 
     void SetRenderTarget(ID3D11DeviceContext* device, ID3D11DepthStencilView* depthStencilView);
-    void ClearRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView, f32 r, f32 g, f32 b, f32 a);
-
+    void BeginFrame(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView, f32 r, f32 g, f32 b, f32 a);
+    void ClearRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView);
 private:
     ID3D11Texture2D* m_RenderTargetTexture;
     ID3D11RenderTargetView* m_RenderTargetView;
