@@ -4,7 +4,7 @@
 #include <engine/entitymodel/components/visualcomponent.h>
 
 //Temp Hack
-#include <graphics/d3d11renderer.h>
+#include <graphics/RenderingEngine.h>
 #include <graphics/terrain/terrain.h>
 
 #include <system/viewprovider/viewprovider.h>
@@ -45,7 +45,7 @@ bool Engine::Initialize()
 
     ViewProvider::CreateInstance();
     InputManager::CreateInstance();
-    D3D11Renderer::CreateInstance();
+    RenderingEngine::CreateInstance();
 
     m_Camera = new Camera();
     popAssert(m_Camera != nullptr, "Memory Alloc Failed");
@@ -119,7 +119,7 @@ void Engine::Update()
 void Engine::Shutdown()
 {
     InputManager::CleanInstance();
-    D3D11Renderer::CleanInstance();
+    RenderingEngine::CleanInstance();
     ProfileManager::CleanInstance();
     ViewProvider::CleanInstance();
 

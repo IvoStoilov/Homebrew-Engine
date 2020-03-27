@@ -1,7 +1,7 @@
 #include <engine/precompile.h>
 #include <engine/input/inputhandler.h>
 
-#include <graphics/d3d11renderer.h>
+#include <graphics/RenderingEngine.h>
 
 #include <system/inputmanager.h>
 

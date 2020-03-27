@@ -1,6 +1,5 @@
 #pragma once
 #include <graphics/common/rendertexture.h>
-
 #include <system/singleton/singleton.h>
 
 const bool FULL_SCREEN = false;
@@ -15,11 +14,11 @@ class ISubRenderer;
 class DebugDisplayRenderer;
 class RenderTexture;
 class WindowHandle;
-class D3D11Renderer
+class RenderingEngine
 {
-    POP_DECLARE_SINGLETON(D3D11Renderer);
-    D3D11Renderer();
-    ~D3D11Renderer();
+    POP_DECLARE_SINGLETON(RenderingEngine);
+    RenderingEngine();
+    ~RenderingEngine();
 
 public:
     DebugDisplayRenderer* GetDebugDisplayRenderer() const;
@@ -78,5 +77,5 @@ private:
     SharedPtr<RenderTexture> m_RefractionTexture;
 };
 
-#define g_DebugDisplay D3D11Renderer::GetInstance().GetDebugDisplayRenderer()
-#define g_RenderEngine D3D11Renderer::GetInstance()
+#define g_DebugDisplay RenderingEngine::GetInstance().GetDebugDisplayRenderer()
+#define g_RenderEngine RenderingEngine::GetInstance()

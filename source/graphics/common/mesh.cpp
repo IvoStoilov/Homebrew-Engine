@@ -1,20 +1,18 @@
 #include <graphics/precompile.h>
+#include <graphics/common/mesh.h>
 
-#include "graphics/common/mesh.h"
+#include <graphics/renderingengine.h>
+#include <graphics/debugdisplay/debugdisplayrenderer.h>
 
-#include "system/modelloader.h"
-#include "system/profiling/profilemanager.h"
-#include "system/commandline/commandlineoptions.h"
+#include <system/modelloader.h>
+#include <system/commandline/commandlineoptions.h>
 
 #include <tuple>
 #include <map>
 #include <fstream>
 #include <d3d11.h>
-#include <directxmath.h>
 
 
-#include "graphics/d3d11renderer.h"
-#include "graphics/debugdisplay/debugdisplayrenderer.h"
 
 constexpr bool REBUILD_HALFEDGELIST_ENABLED = false;
 

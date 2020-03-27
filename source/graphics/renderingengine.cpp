@@ -1,5 +1,5 @@
 #include <graphics/precompile.h>
-#include <graphics/d3d11renderer.h>
+#include <graphics/renderingengine.h>
 #include <graphics/d3d11.h>
 #include <graphics/graphicsnode.h>
 
@@ -18,17 +18,17 @@ std::string path = "../../resource/ink-splatter-texture.png";
 constexpr f32 WATER_LEVEL = 3.f;
 
 
-D3D11Renderer::D3D11Renderer()
+RenderingEngine::RenderingEngine()
 {
     Initialize();
 }
 
-D3D11Renderer::~D3D11Renderer()
+RenderingEngine::~RenderingEngine()
 {
     Shutdown();
 }
 
-bool D3D11Renderer::Initialize()
+bool RenderingEngine::Initialize()
 {
     m_D3D = new D3D11();
     popAssert(m_D3D != nullptr, "Memory Alloc Failed");
@@ -73,7 +73,7 @@ bool D3D11Renderer::Initialize()
 }
 
 
-void D3D11Renderer::Shutdown()
+void RenderingEngine::Shutdown()
 {
     for (GraphicsNode* node : m_Nodes)
     {
@@ -97,32 +97,32 @@ void D3D11Renderer::Shutdown()
     }
 }
 
-void D3D11Renderer::RegisterDrawable(VisualComponent* visComponent)
+void RenderingEngine::RegisterDrawable(VisualComponent* visComponent)
 {
     
 }
 
-void D3D11Renderer::UnregisterDrawable(VisualComponent* visComponents)
+void RenderingEngine::UnregisterDrawable(VisualComponent* visComponents)
 {
 
 }
 
-bool D3D11Renderer::Frame(f32 dt)
+bool RenderingEngine::Frame(f32 dt)
 {
-    popProfile(D3D11Renderer::Frame);
+    popProfile(RenderingEngine::Frame);
     m_DT = dt;
     Render();
     return true;
 }
 
-bool D3D11Renderer::PreFrame()
+bool RenderingEngine::PreFrame()
 {
     return true;
 }
 
-bool D3D11Renderer::RenderReflection()
+bool RenderingEngine::RenderReflection()
 {
-    popProfile(D3D11Renderer::RenderReflection);
+    popProfile(RenderingEngine::RenderReflection);
 
     mat4x4 worldMatrix, reflectionViewMatrix, projectionMatrix;
     
@@ -150,9 +150,9 @@ bool D3D11Renderer::RenderReflection()
     return true;
 }
 
-bool D3D11Renderer::RenderRefractionTexture()
+bool RenderingEngine::RenderRefractionTexture()
 {
-    popProfile(D3D11Renderer::RenderRefractionTexture);
+    popProfile(RenderingEngine::RenderRefractionTexture);
 
     m_RefractionTexture->SetRenderTarget(m_D3D->GetDeviceContext(), m_D3D->GetDepthStencilView());
     m_RefractionTexture->BeginFrame(m_D3D->GetDeviceContext(), m_D3D->GetDepthStencilView(), 0.f, 0.f, 0.f, 1.f );
@@ -167,7 +167,7 @@ bool D3D11Renderer::RenderRefractionTexture()
     return true;
 }
 
-bool D3D11Renderer::Render()
+bool RenderingEngine::Render()
 {
     RenderReflection();
     RenderRefractionTexture();
@@ -205,17 +205,17 @@ bool D3D11Renderer::Render()
     return true;
 }
 
-void D3D11Renderer::EnableDebugDisplay(bool shouldEnable)
+void RenderingEngine::EnableDebugDisplay(bool shouldEnable)
 { 
     GetDebugDisplayRenderer()->SetIsEnabled(shouldEnable);
 }
 
-bool D3D11Renderer::IsEnabledDebugDisplay() const
+bool RenderingEngine::IsEnabledDebugDisplay() const
 {
     return GetDebugDisplayRenderer()->IsEnabled();
 }
 
-DebugDisplayRenderer* D3D11Renderer::GetDebugDisplayRenderer() const
+DebugDisplayRenderer* RenderingEngine::GetDebugDisplayRenderer() const
 {
     return static_cast<DebugDisplayRenderer*>(m_SubRenderers[SubRendererOrder::DebugDisplay]); 
 }

@@ -1,12 +1,10 @@
 #include <graphics/precompile.h>
-#include "graphics/terrain/terrain.h"
-#include "graphics/d3d11renderer.h"
-#include "graphics/common/mesh.h"
-#include "graphics/debugdisplay/DebugDisplayRenderer.h"
+#include <graphics/terrain/terrain.h>
+#include <graphics/renderingengine.h>
+#include <graphics/common/mesh.h>
+#include <graphics/debugdisplay/debugdisplayrenderer.h>
 
-#include "system/error.h"
-#include "system/profiling/profilemanager.h"
-#include "system/commandline/commandlineoptions.h"
+#include <system/commandline/commandlineoptions.h>
 
 //Temp Hack for the Half size. Need to figure out how to store meta data for the mesh or probrably for the terrain
 constexpr f32 TERRAIN_HALF_SIZE = 128.f; 
