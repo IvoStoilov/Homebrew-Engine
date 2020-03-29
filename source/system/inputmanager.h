@@ -57,13 +57,13 @@ private:
 
     DIMOUSESTATE m_MouseState;
 
-    uint32_t m_Height = 0;
-    uint32_t m_Width = 0;
-    int32_t m_WindowPosX = 0;
-    int32_t m_WindowPosY = 0;
+    u32 m_Height = 0;
+    u32 m_Width = 0;
+    s32 m_WindowPosX = 0;
+    s32 m_WindowPosY = 0;
 
-    int32_t m_MouseX = 0;
-    int32_t m_MouseY = 0;
+    s32 m_MouseX = 0;
+    s32 m_MouseY = 0;
 };
 
 #define g_InputManager InputManager::GetInstance()

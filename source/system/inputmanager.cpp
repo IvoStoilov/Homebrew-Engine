@@ -7,6 +7,7 @@
 
 InputManager::InputManager()
 {
+    memset(&m_MouseState, 0, sizeof(m_MouseState));
     memset(m_KeyboardState, 0, sizeof(m_KeyboardState));
     memset(m_KeyBoardStatePrevFrame, 0, sizeof(m_KeyBoardStatePrevFrame));
     Initialize(g_ViewProvider);

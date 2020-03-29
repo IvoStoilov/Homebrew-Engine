@@ -44,7 +44,7 @@ void ViewProvider::Shutdown()
 }
 
 extern LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam);
-WindowCookie ViewProvider::CreateChildWindow()
+WindowCookie ViewProvider::CreateChildWindow(u32 width, u32 height, const String& windowName, bool sysMenu, bool border)
 {
     WNDCLASSEX wc;
     wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
@@ -63,10 +63,20 @@ WindowCookie ViewProvider::CreateChildWindow()
     // Register the window class.
     RegisterClassEx(&wc);
 
+    DWORD style = 0l;
+
+    style |= WS_CLIPSIBLINGS;
+    style |= WS_CLIPCHILDREN;
+    style |= WS_POPUP;
+    style |= WS_CAPTION;
+    style |= (border) ? WS_BORDER : 0l;
+    style |= (sysMenu) ? WS_SYSMENU : 0l;
+
     // Create the window with the screen settings and get the handle to it.
-    HWND childWindowHWND = CreateWindowEx(WS_EX_APPWINDOW, m_ApplicationName.c_str(), m_ApplicationName.c_str(),
-        WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP | WS_CAPTION | WS_BORDER | WS_SYSMENU,
-        m_WindowPosX, m_WindowPosY, m_WindowResolution.m_Width, m_WindowResolution.m_Height, NULL, NULL, m_Win64_hInstnace, NULL);
+    HWND childWindowHWND = CreateWindowEx(WS_EX_APPWINDOW, "Child Window", windowName.c_str(),
+       style, m_WindowPosX, m_WindowPosY, width, height, NULL, NULL, m_Win64_hInstnace, NULL);
+
+    popAssert(childWindowHWND, "Child Window was not created. Error : {}", GetLastError());
 
     RECT clientRect;
     GetClientRect(childWindowHWND, &clientRect);

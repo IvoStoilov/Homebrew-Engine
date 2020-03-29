@@ -1,22 +1,27 @@
 #include <graphics/precompile.h>
 #include <graphics/imgui/imgui.h>
 #include <graphics/imgui/base/externimgui.h>
+#include <graphics/d3d11.h>
 
 #include <system/viewprovider/viewprovider.h>
 
 #ifdef POP_IMGUI_ENABLED
 bool ImGuiRenderer::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
+    GfxWindowData windowData;
+    windowData.m_Name = "ImGui Window";
+    windowData.m_Width = 680u;
+    windowData.m_Height = 550u;
+    m_Window.Initialize(device, windowData);
+
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableSetMousePos;
-
-    //m_WindowCookie = g_ViewProvider.CreateChildWindow();
-    //HWND childHWND = g_ViewProvider.GetChildWindow(m_WindowCookie);
+    ImGui::SetNextWindowPos(ImVec2::ImVec2(0, 0), ImGuiCond_Always);
     ImGui::StyleColorsDark();
-    ImGui_ImplWin32_Init(g_ViewProvider.GetWindowHandle());
+    ImGui_ImplWin32_Init(g_ViewProvider.GetChildWindow(m_Window.GetWindowCookie()));
     ImGui_ImplDX11_Init(device, deviceContext);
 
     return true;
@@ -24,6 +29,7 @@ bool ImGuiRenderer::Initialize(ID3D11Device* device, ID3D11DeviceContext* device
 
 bool ImGuiRenderer::Render(D3D11* d3d)
 {
+    m_Window.SetRenderTargetView(d3d->GetDeviceContext());
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
@@ -32,7 +38,9 @@ bool ImGuiRenderer::Render(D3D11* d3d)
 
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
+    m_Window.PresentSwapChain();
+    m_Window.UnsetRenderTargetView(d3d->GetDeviceContext());
+    d3d->SetBackBufferRenderTarget();
     return true;
 }
 
@@ -41,5 +49,6 @@ void ImGuiRenderer::Shutdown()
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
+    m_Window.Shutdown();
 }
 #endif //POP_IMGUI_ENABLED

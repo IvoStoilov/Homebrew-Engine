@@ -1,6 +1,8 @@
 #pragma once
 #ifdef POP_IMGUI_ENABLED
 #include <graphics/isubrenderer.h>
+#include <graphics/common/gfxwindow/gfxwindow.h>
+
 #include <system/viewprovider/windowcookie.h>
 class ImGuiRenderer : public ISubRenderer
 {
@@ -10,6 +12,6 @@ public:
     virtual void Shutdown() override;
 
 private:
-    WindowCookie m_WindowCookie;
+    GfxWindow m_Window;
 };
 #endif //POP_IMGUI_ENABLED

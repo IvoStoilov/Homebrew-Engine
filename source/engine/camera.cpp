@@ -82,8 +82,8 @@ mat4x4 Camera::ComputeReflectionMatrix(f32 planeHeight) const
 
 void Camera::UpdateMovement()
 {
-    int32_t mouseDeltaX;
-    int32_t mouseDeltaY;
+    s32 mouseDeltaX;
+    s32 mouseDeltaY;
 
     if (g_InputManager.IsMouseButtonPressed(InputManager::MouseButton::LEFT))
     {

@@ -39,8 +39,9 @@ public:
     void ActivateFullscreen();
     void DeactivateFullscreen();
 
-    WindowCookie CreateChildWindow();
+    WindowCookie CreateChildWindow(u32 width, u32 height, const String& windowName, bool sysMenu, bool border);
     void ClearChildWindow(WindowCookie& cookie);
+
 #ifdef POP_PLATFORM_WINDOWS
     HWND GetWindowHandle() { return m_Win64_HWND; }
     HWND GetChildWindow(const WindowCookie& windowCookie) { return m_ChildWindows[windowCookie.m_Index]; }
@@ -52,6 +53,8 @@ private:
 #else //POP_PLATFORM_WINDOWS
     #error Platform Not Supported!
 #endif
+
+
 protected:
     WindowResolution GetMonitorResolution();
     bool InitializeInternal();
