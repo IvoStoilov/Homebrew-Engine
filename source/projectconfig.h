@@ -33,5 +33,8 @@ using String = std::string;
 template<class T>
 using Array = std::vector<T>;
 
+template<class T, std::size_t N>
+using InplaceArray = std::array<T, N>;
+
 #define popObjectDynamicCast(ToType, ObjPtr) dynamic_cast<ToType*>(ObjPtr)
 #define popObjectCast(ToType, ObjPtr) static_cast<ToType*>(ObjPtr)

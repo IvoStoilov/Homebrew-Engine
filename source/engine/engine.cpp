@@ -46,6 +46,10 @@ bool Engine::Initialize()
     ViewProvider::CreateInstance();
     InputManager::CreateInstance();
     RenderingEngine::CreateInstance();
+    g_RenderEngine.Initialize();
+    GfxWindow& gameWindow = g_RenderEngine.GetGameWindow();
+    Window& window = g_ViewProvider.GetWindow(gameWindow.GetWindowCookie());
+    g_InputManager.AttachToWindow(window);
 
     m_Camera = new Camera();
     popAssert(m_Camera != nullptr, "Memory Alloc Failed");

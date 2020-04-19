@@ -6,7 +6,6 @@
 
 // Forward declare message handler from imgui_impl_win32.cpp
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
     if (ImGui_ImplWin32_WndProcHandler(hwnd, umessage, wparam, lparam))
@@ -37,11 +36,45 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
     }
 }
 
-bool ViewProvider::InitializeInternal()
+WindowCookie ViewProvider::ConstructWindow(const WindowData& windowData)
 {
-    m_Win64_hInstnace = GetModuleHandle(NULL);
+    Window& window = m_Windows.emplace_back();
+    window.m_Data = windowData;
+    
+    DWORD style = 0l;
+    style |= WS_CLIPSIBLINGS;
+    style |= WS_CLIPCHILDREN;
+    style |= WS_POPUP;
+    style |= WS_CAPTION;
+    style |= (windowData.m_HasBorder) ? WS_BORDER : 0l;
+    style |= (windowData.m_HasSystemMenu) ? WS_SYSMENU : 0l;
 
-    // Setup the windows class with default settings.
+    constexpr HWND NULL_PARENT = nullptr;
+    constexpr HMENU NULL_MENU = nullptr;
+    constexpr LPVOID NULL_PARAM = nullptr;
+    window.m_WindowHandle = CreateWindowEx(WS_EX_APPWINDOW, m_ApplicationName.c_str(), windowData.m_WindowName.c_str(),
+        style, windowData.m_PosX, windowData.m_PosY, windowData.m_WindowResolution.w, windowData.m_WindowResolution.h,
+        NULL_PARENT, NULL_MENU, m_Win64_hInstnace, NULL_PARAM);
+
+    popAssert(window.m_WindowHandle, "Child Window was not created. Error : {}", GetLastError());
+
+    RECT clientRect;
+    GetClientRect(window.m_WindowHandle, &clientRect);
+    window.m_RenderingResolution.w = clientRect.right;
+    window.m_RenderingResolution.h = clientRect.bottom;
+    
+    ShowWindow(window.m_WindowHandle, SW_SHOW);
+    SetForegroundWindow(window.m_WindowHandle);
+    SetFocus(window.m_WindowHandle);
+ 
+    return WindowCookie(static_cast<u32>(m_Windows.size() - 1));
+}
+
+void ViewProvider::InitializeInternal()
+{
+    static constexpr LPCSTR NULLPTR_MODULENAME = nullptr;
+    m_Win64_hInstnace = GetModuleHandle(NULLPTR_MODULENAME);
+
     WNDCLASSEX wc;
     wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
     wc.lpfnWndProc = WndProc;
@@ -56,45 +89,20 @@ bool ViewProvider::InitializeInternal()
     wc.lpszClassName = m_ApplicationName.c_str();
     wc.cbSize = sizeof(WNDCLASSEX);
 
-    // Register the window class.
     RegisterClassEx(&wc);
-
-    // Create the window with the screen settings and get the handle to it.
-    m_Win64_HWND = CreateWindowEx(WS_EX_APPWINDOW, m_ApplicationName.c_str(), m_ApplicationName.c_str(),
-        WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP | WS_CAPTION | WS_BORDER | WS_SYSMENU,
-        m_WindowPosX, m_WindowPosY, m_WindowResolution.m_Width, m_WindowResolution.m_Height, NULL, NULL, m_Win64_hInstnace, NULL);
-
-    RECT clientRect;
-    GetClientRect(m_Win64_HWND, &clientRect);
-    m_WindowResolution.m_Width = clientRect.right;
-    m_WindowResolution.m_Height = clientRect.bottom;
-    // Bring the window up on the screen and set it as main focus.
-    ShowWindow(m_Win64_HWND, SW_SHOW);
-    SetForegroundWindow(m_Win64_HWND);
-    SetFocus(m_Win64_HWND);
-
-    // Hide the mouse cursor.
-    ShowCursor(g_CommandLineOptions.m_ShowCursor);
-
-    return true;
 }
 
 void ViewProvider::ShutdownInternal()
 {
-    // Show the mouse cursor.
-    ShowCursor(true);
-
-    if (g_CommandLineOptions.m_Fullscreen)
+    for (Window& window : m_Windows)
     {
-        DeactivateFullscreen();
+        DestroyWindow(window.m_WindowHandle);
+        window.m_WindowHandle = nullptr;
     }
+    m_Windows.clear();
 
-    DestroyWindow(m_Win64_HWND);
-    m_Win64_HWND = NULL;
-
-    // Remove the application instance.
     UnregisterClass(m_ApplicationName.c_str(), m_Win64_hInstnace);
-    m_Win64_hInstnace = NULL;
+    m_Win64_hInstnace = nullptr;
 }
 
 void ViewProvider::Update()
@@ -117,36 +125,9 @@ void ViewProvider::Update()
     }
 }
 
-void ViewProvider::ActivateFullscreen()
+Resolution ViewProvider::GetMonitorResolution()
 {
-    // Determine the resolution of the clients desktop screen.
-    m_WindowResolution = GetMonitorResolution();
-
-    DEVMODE dmScreenSettings;
-    // If full screen set the screen to maximum size of the users desktop and 32bit.
-    memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
-    dmScreenSettings.dmSize = sizeof(dmScreenSettings);
-    dmScreenSettings.dmPelsWidth = static_cast<DWORD>(m_WindowResolution.m_Width);
-    dmScreenSettings.dmPelsHeight = static_cast<DWORD>(m_WindowResolution.m_Height);
-    dmScreenSettings.dmBitsPerPel = 32;
-    dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
-
-    // Change the display settings to full screen.
-    ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);
-
-    // Set the position of the window to the top left corner.
-    m_WindowPosX = m_WindowPosY = 0;
-}
-
-void ViewProvider::DeactivateFullscreen()
-{
-    // Fix the display settings if leaving full screen mode.
-    ChangeDisplaySettings(NULL, 0);
-}
-
-ViewProvider::WindowResolution ViewProvider::GetMonitorResolution()
-{
-    return ViewProvider::WindowResolution(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN));
+    return Resolution{ GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
 }                                         
 
 #endif //POP_PLATFORM_WINDOWS

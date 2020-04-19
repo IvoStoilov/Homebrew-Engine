@@ -1,121 +1,61 @@
 #include <graphics/precompile.h>
 #include <graphics/d3d11.h>
 
-#include <system/viewprovider/viewprovider.h>
+#include <system/viewprovider/window.h>
 #include <system/math/mathutil.h>
 
-D3D11::D3D11() :
-    m_SwapChain(nullptr),
-    m_Device(nullptr),
-    m_DeviceContext(nullptr),
-    m_RenderTargetView(nullptr),
-    m_DepthStencilBuffer(nullptr),
-    m_DepthStencilState(nullptr),
-    m_DepthDisabledStencilState(nullptr),
-    m_DepthStencilView(nullptr),
-    m_RasterState(nullptr),
-    m_AlphaBlendingStateEnable(nullptr),
-    m_AlphaBlendingStateDisable(nullptr)
+void D3D11::InitializeDeviceAndStates()
 {
+    InitDeviceAndContext();
+    InitDepthStencilState();
+    InitDepthDisabledStencilState();
+    InitRasterizerState();
+    InitAlphaBlendingStates();
 }
 
-D3D11::~D3D11()
+void D3D11::InitializeViewPortAndMatrices(const Resolution& renderingResolution, float screenDepth, float screenNear)
 {
+    u32 numerator, denominator;
+
+    InitGraphicsCardProperties(renderingResolution.w, renderingResolution.h, numerator, denominator);
+    InitViewPort(renderingResolution.w, renderingResolution.h);
+    InitMatrices(renderingResolution.w, renderingResolution.h, screenNear, screenDepth);
 }
 
-bool D3D11::Initialize(uint32_t screenWidth, uint32_t screenHeight, bool vsync, bool fullscreen, float screenDepth, float screenNear)
-{
-    uint32_t numerator, denominator;
-    
-    m_vsync_enabled = vsync;
-
-    if (!InitGraphicsCardProperties(screenWidth, screenHeight, numerator, denominator))
-        return false;
-
-    if (!InitDeviceAndSwapchain(screenWidth, screenHeight, fullscreen, numerator, denominator))
-        return false;
-
-    if (!InitDepthStencilView(screenWidth, screenHeight))
-        return false;
-   
-    if (!InitDepthStencilState())
-        return false;
-
-    if (!InitDepthDisabledStencilState())
-        return false;
-
-    if (!InitRasterizerState())
-        return false;
-
-    if (!InitAlphaBlendingStates())
-        return false;
-
-    InitViewPort(screenWidth, screenHeight);
-
-    InitMatrices(screenWidth, screenHeight, screenNear, screenDepth);
-
-    return true;
-}
-
-bool D3D11::InitGraphicsCardProperties(uint32_t screenWidth, uint32_t screenHeight, uint32_t& outNumerator, uint32_t& outDenominator)
+void D3D11::InitGraphicsCardProperties(u32 screenWidth, u32 screenHeight, u32& outNumerator, u32& outDenominator)
 {
     HRESULT result;
-    IDXGIFactory* factory;
-    IDXGIAdapter* adapter;
-    IDXGIOutput* adapterOutput;
-
-    DXGI_MODE_DESC* displayModeList;
-
-    DXGI_ADAPTER_DESC adapterDesc;
-
-    uint32_t numModes = 0;
-    int error;
 
     // Create a DirectX graphics interface factory.
+    IDXGIFactory* factory = nullptr;
     result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
-    if (FAILED(result))
-    {
-        return false;
-    }
+    popAssert(!FAILED(result),"CreateDXGIFactory failed");
 
     // Use the factory to create an adapter for the primary graphics interface (video card).
+    IDXGIAdapter* adapter = nullptr;
     result = factory->EnumAdapters(0, &adapter);
-    if (FAILED(result))
-    {
-        return false;
-    }
+    popAssert(!FAILED(result), "EnumAdapters failed");
 
     // Enumerate the primary adapter output (monitor).
+    IDXGIOutput* adapterOutput = nullptr;
     result = adapter->EnumOutputs(0, &adapterOutput);
-    if (FAILED(result))
-    {
-        return false;
-    }
+    popAssert(!FAILED(result), "EnumOutputs failed");
 
     // Get the number of modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM display format for the adapter output (monitor).
+    u32 numModes = 0;
     result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL);
-    if (FAILED(result))
-    {
-        return false;
-    }
+    popAssert(!FAILED(result), "GetDisplayModeList failed");
 
     // Create a list to hold all the possible display modes for this monitor/video card combination.
-    displayModeList = new DXGI_MODE_DESC[numModes];
-    if (!displayModeList)
-    {
-        return false;
-    }
+    DXGI_MODE_DESC* displayModeList = new DXGI_MODE_DESC[numModes];
 
     // Now fill the display mode list structures.
     result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList);
-    if (FAILED(result))
-    {
-        return false;
-    }
+    popAssert(!FAILED(result), "GetDisplayModeList failed");
 
     // Now go through all the display modes and find the one that matches the screen width and height.
     // When a match is found store the numerator and denominator of the refresh rate for that monitor.
-    for (uint32_t i = 0; i < numModes; i++)
+    for (u32 i = 0; i < numModes; i++)
     {
         if (displayModeList[i].Width == (unsigned int)screenWidth)
         {
@@ -126,23 +66,19 @@ bool D3D11::InitGraphicsCardProperties(uint32_t screenWidth, uint32_t screenHeig
             }
         }
     }
+
     // Get the adapter (video card) description.
+    DXGI_ADAPTER_DESC adapterDesc;
     result = adapter->GetDesc(&adapterDesc);
-    if (FAILED(result))
-    {
-        return false;
-    }
+    popAssert(!FAILED(result), "adapter->GetDesc failed");
 
     // Store the dedicated video card memory in megabytes.
     m_VideoCardMemory = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
 
     // Convert the name of the video card to a character array and store it.
     size_t stringLength;
-    error = wcstombs_s(&stringLength, m_VideoCardDescription, 128, adapterDesc.Description, 128);
-    if (error != 0)
-    {
-        return false;
-    }
+    s32 error = wcstombs_s(&stringLength, m_VideoCardDescription, 128, adapterDesc.Description, 128);
+    popAssert(error == 0, "wcstombs_s failed");
 
     // Release the display mode list.
     delete[] displayModeList;
@@ -159,162 +95,25 @@ bool D3D11::InitGraphicsCardProperties(uint32_t screenWidth, uint32_t screenHeig
     // Release the factory.
     factory->Release();
     factory = nullptr;
-
-    return true;
 }
 
-bool D3D11::InitDeviceAndSwapchain(uint32_t screenWidth, uint32_t screenHeight, bool fullscreen, uint32_t numerator, uint32_t denominator)
+void D3D11::InitDeviceAndContext()
 {
-    DXGI_SWAP_CHAIN_DESC swapChainDesc;
-    D3D_FEATURE_LEVEL featureLevel;
-
-    // Initialize the swap chain description.
-    ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
-
-    // Set to a single back buffer.
-    swapChainDesc.BufferCount = 1;
-
-    // Set the width and height of the back buffer.
-    swapChainDesc.BufferDesc.Width = screenWidth;
-    swapChainDesc.BufferDesc.Height = screenHeight;
-
-    // Set regular 32-bit surface for the back buffer.
-    swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-
-    // Set the refresh rate of the back buffer.
-    if (m_vsync_enabled)
-    {
-        swapChainDesc.BufferDesc.RefreshRate.Numerator = numerator;
-        swapChainDesc.BufferDesc.RefreshRate.Denominator = denominator;
-    }
-    else
-    {
-        swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
-        swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-    }
-
-    // Set the usage of the back buffer.
-    swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-
-    // Set the handle for the window to render to.
-#ifdef POP_PLATFORM_WINDOWS
-    swapChainDesc.OutputWindow = g_ViewProvider.GetWindowHandle();
-#else
-#error Platform not supported!
-#endif//POP_PLATFORM_WINDOWS
-
-    // Turn multisampling off.
-    swapChainDesc.SampleDesc.Count = 1;
-    swapChainDesc.SampleDesc.Quality = 0;
-
-    // Set to full screen or windowed mode.
-    if (fullscreen)
-    {
-        swapChainDesc.Windowed = false;
-    }
-    else
-    {
-        swapChainDesc.Windowed = true;
-    }
-
-    // Set the scan line ordering and scaling to unspecified.
-    swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-    swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-
-    // Discard the back buffer contents after presenting.
-    swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-
-    // Don't set the advanced flags.
-    swapChainDesc.Flags = 0;
-
-    // Set the feature level to DirectX 11.
-    featureLevel = D3D_FEATURE_LEVEL_11_0;
-
-    // Create the swap chain, Direct3D device, and Direct3D device context.
+    constexpr IDXGIAdapter* DEFAULT_ADAPTER = nullptr;
+    constexpr HMODULE NO_SOFTWARE = nullptr;
 #ifdef POP_DEBUG
-    constexpr uint32_t enableDebugFlag = D3D11_CREATE_DEVICE_DEBUG;
+    constexpr u32 enableDebugFlag = D3D11_CREATE_DEVICE_DEBUG;
 #elif POP_RELEASE
-    constexpr uint32_t enableDebugFlag = 0;
+    constexpr u32 enableDebugFlag = 0;
 #endif
-    HRESULT result = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, enableDebugFlag, &featureLevel, 1,
-        D3D11_SDK_VERSION, &swapChainDesc, &m_SwapChain, &m_Device, NULL, &m_DeviceContext);
-    if (FAILED(result))
-    {
-        return false;
-    }
+    const InplaceArray<D3D_FEATURE_LEVEL, 1> FEATURE_LEVELS = { D3D_FEATURE_LEVEL_11_0 };
+    const u32 FEATURE_LEVEL_SIZE = static_cast<u32>(FEATURE_LEVELS.size());
+    HRESULT result = D3D11CreateDevice(DEFAULT_ADAPTER, D3D_DRIVER_TYPE_HARDWARE, NO_SOFTWARE, enableDebugFlag, 
+        FEATURE_LEVELS.data(), FEATURE_LEVEL_SIZE, D3D11_SDK_VERSION, &m_Device, nullptr, &m_DeviceContext);
 
-    return true;
+    popAssert(!FAILED(result), "Failed to create Device and Context");
 }
-
-bool D3D11::InitDepthStencilView(uint32_t screenWidth, uint32_t screenHeight)
-{
-    HRESULT result;
-    ID3D11Texture2D* backBufferPtr;
-    D3D11_TEXTURE2D_DESC depthBufferDesc;
-    D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
-
-    // Get the pointer to the back buffer.
-    result = m_SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferPtr);
-    if (FAILED(result))
-    {
-        return false;
-    }
-
-    // Create the render target view with the back buffer pointer.
-    result = m_Device->CreateRenderTargetView(backBufferPtr, NULL, &m_RenderTargetView);
-    if (FAILED(result))
-    {
-        return false;
-    }
-
-    // Release pointer to the back buffer as we no longer need it.
-    backBufferPtr->Release();
-    backBufferPtr = 0;
-
-    // Initialize the description of the depth buffer.
-    ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
-
-    // Set up the description of the depth buffer.
-    depthBufferDesc.Width = screenWidth;
-    depthBufferDesc.Height = screenHeight;
-    depthBufferDesc.MipLevels = 1;
-    depthBufferDesc.ArraySize = 1;
-    depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    depthBufferDesc.SampleDesc.Count = 1;
-    depthBufferDesc.SampleDesc.Quality = 0;
-    depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-    depthBufferDesc.CPUAccessFlags = 0;
-    depthBufferDesc.MiscFlags = 0;
-
-    // Create the texture for the depth buffer using the filled out description.
-    result = m_Device->CreateTexture2D(&depthBufferDesc, NULL, &m_DepthStencilBuffer);
-    if (FAILED(result))
-    {
-        return false;
-    }
-
-    // Initailze the depth stencil view.
-    ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
-
-    // Set up the depth stencil view description.
-    depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-    depthStencilViewDesc.Texture2D.MipSlice = 0;
-
-    // Create the depth stencil view.
-    result = m_Device->CreateDepthStencilView(m_DepthStencilBuffer, &depthStencilViewDesc, &m_DepthStencilView);
-    if (FAILED(result))
-    {
-        return false;
-    }
-
-    m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView);
-
-    return true;
-}
-
-bool D3D11::InitDepthStencilState()
+void D3D11::InitDepthStencilState()
 {
     HRESULT result;
     D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
@@ -345,18 +144,13 @@ bool D3D11::InitDepthStencilState()
 
     // Create the depth stencil state.
     result = m_Device->CreateDepthStencilState(&depthStencilDesc, &m_DepthStencilState);
-    if (FAILED(result))
-    {
-        return false;
-    }
+    popAssert(!FAILED(result), "Failed to create Depth Stencil State");
 
     // Set the depth stencil state.
     m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState, 1);
-
-    return true;
 }
 
-bool D3D11::InitDepthDisabledStencilState()
+void D3D11::InitDepthDisabledStencilState()
 {
     HRESULT result;
     D3D11_DEPTH_STENCIL_DESC depthDisabledStencilDesc;
@@ -383,15 +177,10 @@ bool D3D11::InitDepthDisabledStencilState()
 
     // Create the state using the device.
     result = m_Device->CreateDepthStencilState(&depthDisabledStencilDesc, &m_DepthDisabledStencilState);
-    if (FAILED(result))
-    {
-        return false;
-    }
-
-    return true;
+    popAssert(!FAILED(result), "Failed to create Depth Stencil State");
 }
 
-bool D3D11::InitRasterizerState()
+void D3D11::InitRasterizerState()
 {
     HRESULT result;
     D3D11_RASTERIZER_DESC rasterDesc;
@@ -410,17 +199,12 @@ bool D3D11::InitRasterizerState()
 
     // Create the rasterizer state from the description we just filled out.
     result = m_Device->CreateRasterizerState(&rasterDesc, &m_RasterState);
-    if (FAILED(result))
-    {
-        return false;
-    }
+    popAssert(!FAILED(result), "Failed CreateRasterizerState");
 
-    // Now set the rasterizer state.
     m_DeviceContext->RSSetState(m_RasterState);
-    return true;
 }
 
-bool D3D11::InitAlphaBlendingStates()
+void D3D11::InitAlphaBlendingStates()
 {
     D3D11_BLEND_DESC blendStateDescription;
     HRESULT result;
@@ -436,22 +220,14 @@ bool D3D11::InitAlphaBlendingStates()
     blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
 
     result = m_Device->CreateBlendState(&blendStateDescription, &m_AlphaBlendingStateEnable);
-    if (FAILED(result))
-    {
-        return false;
-    }
+    popAssert(!FAILED(result), "Failed CreateBlendState");
 
     blendStateDescription.RenderTarget[0].BlendEnable = FALSE;
     result = m_Device->CreateBlendState(&blendStateDescription, &m_AlphaBlendingStateDisable);
-    if (FAILED(result))
-    {
-        return false;
-    }
-
-    return true;
+    popAssert(!FAILED(result), "Failed CreateBlendState");
 }
 
-void D3D11::InitViewPort(uint32_t screenWidth, uint32_t screenHeight)
+void D3D11::InitViewPort(u32 screenWidth, u32 screenHeight)
 {
     D3D11_VIEWPORT viewport;
 
@@ -467,7 +243,7 @@ void D3D11::InitViewPort(uint32_t screenWidth, uint32_t screenHeight)
     m_DeviceContext->RSSetViewports(1, &viewport);
 }
 
-void D3D11::InitMatrices(uint32_t screenWidth, uint32_t screenHeight, float screenNear, float screenDepth)
+void D3D11::InitMatrices(u32 screenWidth, u32 screenHeight, f32 screenNear, f32 screenDepth)
 {
     float fieldOfView, screenAspect;
 
@@ -481,12 +257,6 @@ void D3D11::InitMatrices(uint32_t screenWidth, uint32_t screenHeight, float scre
 
 void D3D11::Shutdown()
 {
-    // Before shutting down set to windowed mode or when you release the swap chain it will throw an exception.
-    if (m_SwapChain)
-    {
-        m_SwapChain->SetFullscreenState(false, NULL);
-    }
-
     if (m_AlphaBlendingStateEnable)
     {
         m_AlphaBlendingStateEnable->Release();
@@ -511,28 +281,10 @@ void D3D11::Shutdown()
         m_RasterState = nullptr;
     }
 
-    if (m_DepthStencilView)
-    {
-        m_DepthStencilView->Release();
-        m_DepthStencilView = nullptr;
-    }
-
     if (m_DepthStencilState)
     {
         m_DepthStencilState->Release();
         m_DepthStencilState = nullptr;
-    }
-
-    if (m_DepthStencilBuffer)
-    {
-        m_DepthStencilBuffer->Release();
-        m_DepthStencilBuffer = nullptr;
-    }
-
-    if (m_RenderTargetView)
-    {
-        m_RenderTargetView->Release();
-        m_RenderTargetView = nullptr;
     }
 
     if (m_DeviceContext)
@@ -545,46 +297,6 @@ void D3D11::Shutdown()
     {
         m_Device->Release();
         m_Device = nullptr;
-    }
-
-    if (m_SwapChain)
-    {
-        m_SwapChain->Release();
-        m_SwapChain = nullptr;
-    }
-
-    return;
-}
-
-void D3D11::BeginScene(float red, float green, float blue, float alpha)
-{
-    float color[4];
-
-    // Setup the color to clear the buffer to.
-    color[0] = red;
-    color[1] = green;
-    color[2] = blue;
-    color[3] = alpha;
-
-    // Clear the back buffer.
-    m_DeviceContext->ClearRenderTargetView(m_RenderTargetView, color);
-
-    // Clear the depth buffer.
-    m_DeviceContext->ClearDepthStencilView(m_DepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-}
-
-void D3D11::EndScene()
-{
-    // Present the back buffer to the screen since rendering is complete.
-    if (m_vsync_enabled)
-    {
-        // Lock to screen refresh rate.
-        m_SwapChain->Present(1, 0);
-    }
-    else
-    {
-        // Present as fast as possible.
-        m_SwapChain->Present(0, 0);
     }
 }
 
@@ -633,9 +345,4 @@ void D3D11::TurnAlphaBlendingOff()
 
     // Turn off the alpha blending.
     m_DeviceContext->OMSetBlendState(m_AlphaBlendingStateDisable, blendFactor, 0xffffffff);
-}
-
-void D3D11::SetBackBufferRenderTarget()
-{
-    m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView);
 }

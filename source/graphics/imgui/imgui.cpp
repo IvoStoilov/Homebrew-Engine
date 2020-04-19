@@ -8,11 +8,11 @@
 #ifdef POP_IMGUI_ENABLED
 bool ImGuiRenderer::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
-    GfxWindowData windowData;
-    windowData.m_Name = "ImGui Window";
-    windowData.m_Width = 680u;
-    windowData.m_Height = 550u;
-    m_Window.Initialize(device, windowData);
+    GfxWindowData gfxWindowData;
+    gfxWindowData.m_WindowData.m_WindowName = "ImGui Window";
+    gfxWindowData.m_WindowData.m_WindowResolution.w = 680u;
+    gfxWindowData.m_WindowData.m_WindowResolution.h = 550u;
+    m_Window.Initialize(device, gfxWindowData);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -21,7 +21,7 @@ bool ImGuiRenderer::Initialize(ID3D11Device* device, ID3D11DeviceContext* device
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableSetMousePos;
     ImGui::SetNextWindowPos(ImVec2::ImVec2(0, 0), ImGuiCond_Always);
     ImGui::StyleColorsDark();
-    ImGui_ImplWin32_Init(g_ViewProvider.GetChildWindow(m_Window.GetWindowCookie()));
+    ImGui_ImplWin32_Init(g_ViewProvider.GetWindow(m_Window.GetWindowCookie()).m_WindowHandle);
     ImGui_ImplDX11_Init(device, deviceContext);
 
     return true;
@@ -38,9 +38,9 @@ bool ImGuiRenderer::Render(D3D11* d3d)
 
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-    m_Window.PresentSwapChain();
+    
     m_Window.UnsetRenderTargetView(d3d->GetDeviceContext());
-    d3d->SetBackBufferRenderTarget();
+
     return true;
 }
 

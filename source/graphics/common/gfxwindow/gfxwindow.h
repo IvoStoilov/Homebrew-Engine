@@ -13,17 +13,19 @@ public:
     void Initialize(ID3D11Device* device, const GfxWindowData& windowData);
     void Shutdown();
 
+    void BeginFrame(ID3D11DeviceContext* context, const vec4& clearColor);
+    void EndFrame();
+
     void SetRenderTargetView(ID3D11DeviceContext* context);
     void UnsetRenderTargetView(ID3D11DeviceContext* context);
 
-    void PresentSwapChain();
     inline const WindowCookie& GetWindowCookie() const { return m_WindowCookie; }
 
 private:
-    void InitWindow(const GfxWindowData& windowData);
-    void InitSwapChain(ID3D11Device* device, const GfxWindowData& windowData);
+    void InitWindow(const GfxWindowData& gfxWindowData);
+    void InitSwapChain(ID3D11Device* device, const GfxWindowData& windowData, const Resolution& renderingResolution);
     void InitRenderTargetView(ID3D11Device* device);
-    void InitDepthStencilView(ID3D11Device* device, const GfxWindowData& windowData);
+    void InitDepthStencilView(ID3D11Device* device, const GfxWindowData& windowData, const Resolution& renderingResolution);
 
     //Maybe move to a helper or a wrapper of the device
     IDXGIFactory2* GetFactoryFromDevice(ID3D11Device* device);

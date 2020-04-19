@@ -1,7 +1,14 @@
 #include <system/precompile.h>
 #include <system/inputmanager.h>
+#include <system/viewprovider/window.h>
 #include <system/viewprovider/viewprovider.h>
-#include <system/error.h>
+
+/////////////
+// LINKING //
+/////////////
+#pragma comment(lib, "dinput8.lib")
+#pragma comment(lib, "dxguid.lib")
+
 
 #define DIRECT_INPUTVERSION 0x0800
 
@@ -10,29 +17,26 @@ InputManager::InputManager()
     memset(&m_MouseState, 0, sizeof(m_MouseState));
     memset(m_KeyboardState, 0, sizeof(m_KeyboardState));
     memset(m_KeyBoardStatePrevFrame, 0, sizeof(m_KeyBoardStatePrevFrame));
-    Initialize(g_ViewProvider);
 }
-
 
 InputManager::~InputManager()
 {
     Shutdown();
 }
 
-bool InputManager::Initialize(ViewProvider& viewProvider)
+void InputManager::AttachToWindow(Window& window)
 {
-    m_Width = viewProvider.GetWindowWidth();
-    m_Height = viewProvider.GetWindowHeight();
-
-    m_WindowPosX = viewProvider.GetWindowPosX();
-    m_WindowPosY = viewProvider.GetWindowPosY();
+    m_Width = window.m_RenderingResolution.w;
+    m_Height = window.m_RenderingResolution.h;
 
     m_MouseX = 0;
     m_MouseY = 0;
 
 #ifdef POP_PLATFORM_WINDOWS
+    SetFocus(window.m_WindowHandle);
+
     HRESULT result;
-    result = DirectInput8Create(viewProvider.GetHInstnace(), DIRECT_INPUTVERSION, IID_IDirectInput8, (void**)& m_DirectInput, nullptr);
+    result = DirectInput8Create(g_ViewProvider.GetHInstnace(), DIRECT_INPUTVERSION, IID_IDirectInput8, (void**)& m_DirectInput, nullptr);
     popAssert(!FAILED(result), "InputManager::Initialize Failed.");
 
     //Keyboard setup
@@ -42,7 +46,7 @@ bool InputManager::Initialize(ViewProvider& viewProvider)
     result = m_Keyboard->SetDataFormat(&c_dfDIKeyboard);
     popAssert(!FAILED(result), "InputManager::SetDataFormat Failed.");
 
-    result = m_Keyboard->SetCooperativeLevel(viewProvider.GetWindowHandle(), DISCL_FOREGROUND | DISCL_EXCLUSIVE);
+    result = m_Keyboard->SetCooperativeLevel(window.m_WindowHandle, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
     popAssert(!FAILED(result), "InputManager::SetCooperativeLevel Failed.");
 
     result = m_Keyboard->Acquire();
@@ -55,16 +59,12 @@ bool InputManager::Initialize(ViewProvider& viewProvider)
     result = m_Mouse->SetDataFormat(&c_dfDIMouse);
     popAssert(!FAILED(result), "InputManager::SetDataFormat Failed.");
 
-    result = m_Mouse->SetCooperativeLevel(viewProvider.GetWindowHandle(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+    result = m_Mouse->SetCooperativeLevel(window.m_WindowHandle, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
     popAssert(!FAILED(result), "InputManager::SetCooperativeLevel Failed.");
 
     result = m_Mouse->Acquire();
     popAssert(!FAILED(result), "InputManager::Acquire Failed.");
-
-    return true;
 #endif //POP_PLATFROM_WINDOWS
-
-    return false;
 }
 
 void InputManager::Shutdown()

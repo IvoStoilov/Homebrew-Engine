@@ -1,11 +1,7 @@
 #pragma once
 #include <graphics/common/rendertexture.h>
+#include <graphics/common/gfxwindow/gfxwindow.h>
 #include <system/singleton/singleton.h>
-
-const bool FULL_SCREEN = false;
-const bool VSYNC_ENABLED = false;
-const float SCREEN_DEPTH = 1000.0f;
-const float SCREEN_NEAR = 0.1f;
 
 class D3D11;
 class GraphicsNode;
@@ -21,6 +17,8 @@ class RenderingEngine
     ~RenderingEngine();
 
 public:
+    bool Initialize();
+
     DebugDisplayRenderer* GetDebugDisplayRenderer() const;
 
     bool IsEnabledDebugDisplay() const;
@@ -28,7 +26,7 @@ public:
 
     void RegisterDrawable(VisualComponent* visComponent);
     void UnregisterDrawable(VisualComponent* visComponent);
-    
+
     bool PreFrame();
     bool Frame(f32 dt);
 
@@ -38,12 +36,16 @@ public:
     inline const SharedPtr<RenderTexture>& GetRefractionTexture() const { return m_RefractionTexture; }
     inline SharedPtr<RenderTexture>& GetRefractionTexture() { return m_RefractionTexture; }
 
+    void RegisterGfxWindow(GfxWindow* gfxWindow) { m_ActiveWindows.push_back(gfxWindow); }
+    void UnregisterGfxWindow(GfxWindow* gfxWindow);
+
+    inline GfxWindow& GetGameWindow() { return m_GameWindow; }
+
     inline void SetViewMatrix(const mat4x4 viewMatrix) { m_ViewMatrix = viewMatrix; }
     inline void SetReflectedViewMatrix(const mat4x4 reflectedViewMatrix) { m_ReflectedViewMatrix = reflectedViewMatrix; }
     inline const f32 GetDT() const { return m_DT; }
 
 private:
-    bool Initialize();
     void Shutdown();
 
     bool Render();
@@ -73,6 +75,8 @@ private:
 
     Array<GraphicsNode*> m_Nodes;
     Array<ISubRenderer*> m_SubRenderers;
+    Array<GfxWindow*> m_ActiveWindows;
+    GfxWindow m_GameWindow;
     SharedPtr<RenderTexture> m_ReflectionTexture;
     SharedPtr<RenderTexture> m_RefractionTexture;
 };

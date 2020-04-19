@@ -1,15 +1,12 @@
 #pragma once
+
+struct Resolution;
 class D3D11
 {
 public:
-    D3D11();
-    ~D3D11();
-
-    bool Initialize(uint32_t screenWidth, uint32_t screenHeight, bool vsync, bool fullscreen, float screenDepth, float screenNear);
+    void InitializeDeviceAndStates();
+    void InitializeViewPortAndMatrices(const Resolution& renderingResolution, float screenDepth, float screenNear);
     void Shutdown();
-
-    void BeginScene(float r, float g, float b, float a);
-    void EndScene();
 
     void TurnDepthTestOn();
     void TurnDepthTestOff();
@@ -17,12 +14,9 @@ public:
     void TurnAlphaBlendingOn();
     void TurnAlphaBlendingOff();
 
-    void SetBackBufferRenderTarget();
-
     inline ID3D11Device* GetDevice() { return m_Device; }
     inline ID3D11DeviceContext* GetDeviceContext() { return m_DeviceContext; }
-    inline ID3D11DepthStencilView* GetDepthStencilView() { return m_DepthStencilView; }
-
+    
     inline const mat4x4& GetPerspectiveMatrix() const { return m_PerspectiveMatrix; }
     inline void GetPerspectiveMatrix(mat4x4& outPerspectiveMatrix) const { outPerspectiveMatrix = m_PerspectiveMatrix; }
     inline const mat4x4& GetOrthoMatrix() const { return m_OrthoMatrix; }
@@ -30,31 +24,26 @@ public:
     void GetVideoCardInfo(char* outCardName, int& outMemorySize);
 
 private:
-    bool InitGraphicsCardProperties(uint32_t screenWidth, uint32_t screenHeight, uint32_t& outNumerator, uint32_t& outDenominator);
-    bool InitDeviceAndSwapchain(uint32_t screenWidth, uint32_t screenHeight, bool fullscreen, uint32_t numerator, uint32_t denominator);
-    bool InitDepthStencilView(uint32_t screenWidth, uint32_t screenHeight);
-    bool InitDepthStencilState();
-    bool InitDepthDisabledStencilState();
-    bool InitRasterizerState();
-    bool InitAlphaBlendingStates();
-    void InitViewPort(uint32_t screenWidth, uint32_t screenHeight);
-    void InitMatrices(uint32_t screenWidth, uint32_t screenHeight, float screenNear, float screenDepth);
+    void InitDeviceAndContext();
+    void InitDepthStencilState();
+    void InitDepthDisabledStencilState();
+    void InitRasterizerState();
+    void InitAlphaBlendingStates();
+
+    void InitGraphicsCardProperties(u32 screenWidth, u32 screenHeight, u32& outNumerator, u32& outDenominator);
+    void InitViewPort(u32 screenWidth, u32 screenHeight);
+    void InitMatrices(u32 screenWidth, u32 screenHeight, f32 screenNear, f32 screenDepth);
 
 private:
-    bool m_vsync_enabled;
-    int m_VideoCardMemory;
+    s32 m_VideoCardMemory = 0;
     char m_VideoCardDescription[128];
-    IDXGISwapChain* m_SwapChain;
-    ID3D11Device* m_Device;
-    ID3D11DeviceContext* m_DeviceContext;
-    ID3D11RenderTargetView* m_RenderTargetView;
-    ID3D11Texture2D* m_DepthStencilBuffer;
-    ID3D11DepthStencilState* m_DepthStencilState;
-    ID3D11DepthStencilState* m_DepthDisabledStencilState;
-    ID3D11DepthStencilView* m_DepthStencilView;
-    ID3D11RasterizerState* m_RasterState;
-    ID3D11BlendState* m_AlphaBlendingStateEnable;
-    ID3D11BlendState* m_AlphaBlendingStateDisable;
+    ID3D11Device* m_Device = nullptr;
+    ID3D11DeviceContext* m_DeviceContext = nullptr;
+    ID3D11DepthStencilState* m_DepthStencilState = nullptr;
+    ID3D11DepthStencilState* m_DepthDisabledStencilState = nullptr;
+    ID3D11RasterizerState* m_RasterState = nullptr;
+    ID3D11BlendState* m_AlphaBlendingStateEnable = nullptr;
+    ID3D11BlendState* m_AlphaBlendingStateDisable = nullptr;
 
     mat4x4 m_PerspectiveMatrix;
     mat4x4 m_OrthoMatrix;

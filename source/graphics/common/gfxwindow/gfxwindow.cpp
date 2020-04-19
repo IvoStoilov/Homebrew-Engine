@@ -1,5 +1,6 @@
 #include <graphics/precompile.h>
 #include <graphics/common/gfxwindow/gfxwindow.h>
+#include <graphics/renderingengine.h>
 
 #include <system/viewprovider/viewprovider.h>
 
@@ -7,9 +8,11 @@ void GfxWindow::Initialize(ID3D11Device* device, const GfxWindowData& windowData
 {
     m_Data = windowData;
     InitWindow(windowData);
-    InitSwapChain(device, windowData);
+    const Resolution& renderingResolition = g_ViewProvider.GetWindow(m_WindowCookie).m_RenderingResolution;
+    InitSwapChain(device, windowData, renderingResolition);
     InitRenderTargetView(device);
-    InitDepthStencilView(device, windowData);
+    InitDepthStencilView(device, windowData, renderingResolition);
+    g_RenderEngine.RegisterGfxWindow(this);
 }
 
 void GfxWindow::SetRenderTargetView(ID3D11DeviceContext* context)
@@ -27,13 +30,10 @@ void GfxWindow::UnsetRenderTargetView(ID3D11DeviceContext* context)
     context->OMSetRenderTargets(1u, &NULL_RTV, NULL_DSV);
 }
 
-void GfxWindow::PresentSwapChain()
-{
-    m_SwapChain->Present(0, 0);
-}
-
 void GfxWindow::Shutdown()
 {
+    g_RenderEngine.UnregisterGfxWindow(this);
+
     if (m_SwapChain)
     {
         m_SwapChain->SetFullscreenState(false, NULL);
@@ -64,20 +64,32 @@ void GfxWindow::Shutdown()
     }
 }
 
-void GfxWindow::InitWindow(const GfxWindowData& windowData)
+void GfxWindow::BeginFrame(ID3D11DeviceContext* context, const vec4& clearColor)
 {
-    m_WindowCookie = g_ViewProvider.CreateChildWindow(windowData.m_Width, windowData.m_Height, windowData.m_Name, windowData.m_HasSysMenu, windowData.m_HasBorder);
+    InplaceArray<f32, 4> color = { clearColor.x, clearColor.y, clearColor.z, clearColor.w };
+    context->ClearRenderTargetView(m_RenderTargetView, color.data());
+    context->ClearDepthStencilView(m_DepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
-void GfxWindow::InitSwapChain(ID3D11Device* device, const GfxWindowData& windowData)
+void GfxWindow::EndFrame()
+{
+    m_SwapChain->Present(0, 0);
+}
+
+void GfxWindow::InitWindow(const GfxWindowData& gfxWindowData)
+{
+    m_WindowCookie = g_ViewProvider.ConstructWindow(gfxWindowData.m_WindowData);
+}
+
+void GfxWindow::InitSwapChain(ID3D11Device* device, const GfxWindowData& gfxWindowData, const Resolution& renderingResolution)
 {
     DXGI_SWAP_CHAIN_DESC1 swapChainDesc;
     ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
 
     constexpr bool NO_STEREO = false;
     constexpr u32 NO_FLAGS = 0u;
-    swapChainDesc.Width = windowData.m_Width;
-    swapChainDesc.Height = windowData.m_Height;
+    swapChainDesc.Width = renderingResolution.w;
+    swapChainDesc.Height = renderingResolution.h;
     swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
     swapChainDesc.Stereo = NO_STEREO;
     swapChainDesc.SampleDesc.Count = 1;
@@ -92,11 +104,11 @@ void GfxWindow::InitSwapChain(ID3D11Device* device, const GfxWindowData& windowD
     IDXGIFactory2* DXGIFactory = GetFactoryFromDevice(device);
     popAssert(DXGIFactory, "DXGIFactory is nullptr. Check if the device is created from such a factory");
 
-    HWND hwnd = g_ViewProvider.GetChildWindow(m_WindowCookie);
+    HWND hwnd = g_ViewProvider.GetWindow(m_WindowCookie).m_WindowHandle;
     constexpr DXGI_SWAP_CHAIN_FULLSCREEN_DESC* NULL_FULLSCREEN_DESC = nullptr;
     constexpr IDXGIOutput* NO_RESTRICT_TO_OUTPUT = nullptr;
     HRESULT result = DXGIFactory->CreateSwapChainForHwnd(device, hwnd, &swapChainDesc, NULL_FULLSCREEN_DESC, NO_RESTRICT_TO_OUTPUT, &m_SwapChain);
-    popAssert(!FAILED(result), "Could not create window: {0} with error {1:x}", windowData.m_Name, result);
+    popAssert(!FAILED(result), "Could not create window: {0} with error {1:x}", gfxWindowData.m_WindowData.m_WindowName, result);
 }
 
 void GfxWindow::InitRenderTargetView(ID3D11Device* device)
@@ -114,14 +126,14 @@ void GfxWindow::InitRenderTargetView(ID3D11Device* device)
     backBufferPtr->Release();
 }
 
-void GfxWindow::InitDepthStencilView(ID3D11Device* device, const GfxWindowData& windowData)
+void GfxWindow::InitDepthStencilView(ID3D11Device* device, const GfxWindowData& gfxWindowData, const Resolution& renderingResolution)
 {
     D3D11_TEXTURE2D_DESC depthBufferDesc;
     ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
 
     constexpr u32 NO_FLAGS = 0u;
-    depthBufferDesc.Width =  windowData.m_Width;
-    depthBufferDesc.Height = windowData.m_Height;
+    depthBufferDesc.Width = renderingResolution.w;
+    depthBufferDesc.Height = renderingResolution.h;
     depthBufferDesc.MipLevels = 1;
     depthBufferDesc.ArraySize = 1;
     depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -133,7 +145,7 @@ void GfxWindow::InitDepthStencilView(ID3D11Device* device, const GfxWindowData& 
     depthBufferDesc.MiscFlags = NO_FLAGS;
 
     HRESULT result = device->CreateTexture2D(&depthBufferDesc, NULL, &m_DepthStencilBuffer);
-    popAssert(!FAILED(result), "Failed to create window Depth buffer for {}", windowData.m_Name);
+    popAssert(!FAILED(result), "Failed to create window Depth buffer for {}", gfxWindowData.m_WindowData.m_WindowName);
 
     D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
     ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
@@ -142,7 +154,7 @@ void GfxWindow::InitDepthStencilView(ID3D11Device* device, const GfxWindowData& 
     depthStencilViewDesc.Texture2D.MipSlice = 0;
 
     result = device->CreateDepthStencilView(m_DepthStencilBuffer, &depthStencilViewDesc, &m_DepthStencilView);
-    popAssert(!FAILED(result), "Failed to create window Depth Stencil View for {}", windowData.m_Name);
+    popAssert(!FAILED(result), "Failed to create window Depth Stencil View for {}", gfxWindowData.m_WindowData.m_WindowName);
 }
 
 IDXGIFactory2* GfxWindow::GetFactoryFromDevice(ID3D11Device* device)

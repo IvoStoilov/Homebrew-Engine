@@ -1,15 +1,11 @@
 #pragma once
 
-/////////////
-// LINKING //
-/////////////
-#pragma comment(lib, "dinput8.lib")
-#pragma comment(lib, "dxguid.lib")
-
 #include <dinput.h>
 #include <system/singleton/singleton.h>
 
-class ViewProvider;
+#define g_InputManager InputManager::GetInstance()
+
+struct Window;
 class InputManager
 {
     POP_DECLARE_SINGLETON(InputManager)
@@ -36,11 +32,11 @@ public:
     void GetMouseLocation(int32_t& outX, int32_t& outY);
     void GetMouseDelta(int32_t& outXdelta, int32_t& outYdelta);
 
+    void AttachToWindow(Window& window);
 private:
     InputManager();
     ~InputManager();
 
-    bool Initialize(ViewProvider& viewProvider);
     void Shutdown();
 
     bool ReadKeyboard();
@@ -59,11 +55,7 @@ private:
 
     u32 m_Height = 0;
     u32 m_Width = 0;
-    s32 m_WindowPosX = 0;
-    s32 m_WindowPosY = 0;
-
+    
     s32 m_MouseX = 0;
     s32 m_MouseY = 0;
 };
-
-#define g_InputManager InputManager::GetInstance()

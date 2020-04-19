@@ -1,5 +1,6 @@
 #pragma once
 #include <system/viewprovider/windowcookie.h>
+#include <system/viewprovider/window.h>
 #include <system/singleton/singleton.h>
 
 #ifdef POP_PLATFORM_WINDOWS
@@ -13,61 +14,38 @@ class ViewProvider
     POP_DECLARE_SINGLETON(ViewProvider)
 
 public:
-    struct WindowResolution
-    {
-        WindowResolution() = default;
-        explicit WindowResolution(s32 w, s32 h) : m_Width(w), m_Height(h) {}
-        
-        s32 m_Width = 0;
-        s32 m_Height = 0;
-    };
+    void Update();
 
-public:
+    WindowCookie ConstructWindow(const WindowData& windowData);
+    inline Window& GetWindow(const WindowCookie& windowCookie) { return m_Windows[windowCookie.m_Index]; }
+    void ClearChildWindow(WindowCookie& cookie);
+
+    static Resolution GetMonitorResolution();
+private:
     ViewProvider();
     ~ViewProvider();
 
     bool Initialize();
     void Shutdown();
-    void Update();
 
-    inline const WindowResolution& GetWindowResolution() const { return m_WindowResolution; }
-    inline u32 GetWindowWidth() const { return m_WindowResolution.m_Width; }
-    inline u32 GetWindowHeight() const { return m_WindowResolution.m_Height; }
-    inline u32 GetWindowPosX() const { return m_WindowPosX; }
-    inline u32 GetWindowPosY() const { return m_WindowPosY; }
+    
+    void InitializeInternal();
+    void ShutdownInternal();
 
-    void ActivateFullscreen();
-    void DeactivateFullscreen();
+private:
+    String m_ApplicationName;
+    Array<Window> m_Windows;
 
-    WindowCookie CreateChildWindow(u32 width, u32 height, const String& windowName, bool sysMenu, bool border);
-    void ClearChildWindow(WindowCookie& cookie);
-
+//==============================================
+//=============== Win64 ========================
+//==============================================
 #ifdef POP_PLATFORM_WINDOWS
-    HWND GetWindowHandle() { return m_Win64_HWND; }
-    HWND GetChildWindow(const WindowCookie& windowCookie) { return m_ChildWindows[windowCookie.m_Index]; }
+public:
     HINSTANCE GetHInstnace() { return m_Win64_hInstnace; }
 private:
-    HWND m_Win64_HWND;
-    Array<HWND> m_ChildWindows;
-    HINSTANCE m_Win64_hInstnace;
+    
+    HINSTANCE m_Win64_hInstnace = nullptr;
 #else //POP_PLATFORM_WINDOWS
     #error Platform Not Supported!
 #endif
-
-
-protected:
-    WindowResolution GetMonitorResolution();
-    bool InitializeInternal();
-    void ShutdownInternal();
-
-    void SetDefaultPositionAndResolution();
-
-    
-protected:
-    String m_ApplicationName;
-    
-    u32 m_WindowPosX = 0;
-    u32 m_WindowPosY = 0;
-
-    WindowResolution m_WindowResolution;
 };
