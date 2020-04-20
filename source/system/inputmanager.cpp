@@ -190,6 +190,7 @@ bool InputManager::IsKeyPressed(InputManager::Key key)
         case Key::Q : return (m_KeyboardState[DIK_Q] & 0x80); break;
         case Key::E : return (m_KeyboardState[DIK_E] & 0x80); break;
         case Key::F1: return (m_KeyboardState[DIK_F1] & 0x80); break;
+        case Key::P: return (m_KeyboardState[DIK_P] & 0x80); break;
 
         default:
             popAssert(false, "InputManager::IsKeyPressed does not support key");
@@ -210,7 +211,7 @@ bool InputManager::IsKeyJustPressed(InputManager::Key key)
         case Key::Q:  return (m_KeyboardState[DIK_Q]  & 0x80) && (!static_cast<bool>(m_KeyBoardStatePrevFrame[DIK_Q]  & 0x80));
         case Key::E:  return (m_KeyboardState[DIK_E]  & 0x80) && (!static_cast<bool>(m_KeyBoardStatePrevFrame[DIK_E]  & 0x80));
         case Key::F1: return (m_KeyboardState[DIK_F1] & 0x80) && (!static_cast<bool>(m_KeyBoardStatePrevFrame[DIK_F1] & 0x80));
-
+        case Key::P:  return (m_KeyboardState[DIK_P]  & 0x80) && (!static_cast<bool>(m_KeyBoardStatePrevFrame[DIK_P]  & 0x80));
         default:
         popAssert(false, "InputManager::IsKeyJustPressed does not support key");
     }

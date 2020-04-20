@@ -38,14 +38,17 @@ void ProfileManager::WriteProfile()
         String name = info.m_Name;
         std::replace(name.begin(), name.end(), '"', '\'');
 
+        Nanoseconds tsNS = info.m_Start.time_since_epoch();
+        Microseconds tsUs = popDurationCast(Microseconds, tsNS);
+
         m_OutStream << "{";
         m_OutStream << "\"cat\":\"function\",";
-        m_OutStream << "\"dur\":" << (info.m_End - info.m_Start) << ',';
+        m_OutStream << "\"dur\":" << info.m_Duration.count() << ',';
         m_OutStream << "\"name\":\"" << name << "\",";
         m_OutStream << "\"ph\":\"X\",";
         m_OutStream << "\"pid\":0,";
         m_OutStream << "\"tid\":" << info.m_ThreadID << ",";
-        m_OutStream << "\"ts\":" << info.m_Start;
+        m_OutStream << "\"ts\":" << tsUs.count();
         m_OutStream << "}";
     }
 

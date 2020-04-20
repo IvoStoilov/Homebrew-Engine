@@ -85,12 +85,12 @@ void Engine::Update()
 {
     do
     {
-        popProfile(Frame);
+        popProfile(Engine::Update);
         if (g_CommandLineOptions.m_QuitAfterInit)
             return;
 
-        m_WorldClock.Update();
-        float dt = GetFrameTimeInS();
+        m_FrameTime.BeginFrame();
+        f32 dt = m_FrameTime.GetDT().count();
 
         ViewProvider::GetInstance().Update();
 
@@ -153,14 +153,13 @@ void Engine::GetCameraViewMatrix(mat4x4& outMatrix)
 void Engine::EndFrame()
 {
     popProfile(Engine::EndFrame);
-    float delta = m_WorldClock.GetDeltaTime();
-    while (delta < 16.6666)
-    {
+    //Sleep granularity is very rough and leads to artificial FPS drop from 60 to 30
+    //Going with an artificial Spin Lock instead of
+    //std::this_thread::sleep_for(std::chrono::milliseconds(17 - delta));
 
-        delta = m_WorldClock.GetDeltaTime();
-        //Sleep granularity of very rough and leads to artificial FPS drop from 60 to 30
-        //Going with a crappy solution for a while cycle. 
-        //Not sure what is the implementation of the VSYNC and what are the tradeoffs.
-        //std::this_thread::sleep_for(std::chrono::milliseconds(17 - delta));
+    Milliseconds elapsedFrameTime = m_FrameTime.GetCurrentFrameElapsedTime();
+    while (elapsedFrameTime < Milliseconds(16.6666f))
+    {
+        elapsedFrameTime = m_FrameTime.GetCurrentFrameElapsedTime();
     }
 }

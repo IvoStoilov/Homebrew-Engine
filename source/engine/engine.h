@@ -20,8 +20,6 @@ public:
 
     inline bool          HasRequestedQuit() const { return m_HasRequestedQuit; }
     inline const Camera* GetCamera()        const { return m_Camera; }
-    inline float         GetFrameTimeInS()  const { return m_WorldClock.GetFrameTimeInS(); }
-    inline float         GetFrameTimeInMS() const { return m_WorldClock.GetFrameTimeInMs(); }
     inline int32_t       GetCPUUsage()      const { return m_CPUInfo.GetCpuPercentage(); }
     inline int32_t       GetFPS()           const { return m_FPSCounter.GetFPS(); }
     inline unsigned long GetFrameNumber()   const { return m_FPSCounter.GetFrameNumber(); }
@@ -38,10 +36,10 @@ private:
     
     InputHandler m_InputHandler;
 
+    FrameTime m_FrameTime;
     FPSCounter m_FPSCounter;
     CPUInfo m_CPUInfo;
-    Clock m_WorldClock;
-
+    
     bool m_HasRequestedQuit = false;
 };
 

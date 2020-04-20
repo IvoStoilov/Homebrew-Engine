@@ -1,19 +1,20 @@
 #pragma once
 #include <system/singleton/singleton.h>
+#include <system/clock.h>
 
 #ifdef POP_PROFILE_ENABLED
 struct ProfileInfo
 {
-    explicit ProfileInfo(const String& name, s64 start, s64 end, u32 threadID) :
+    explicit ProfileInfo(const String& name, TimePoint start, Microseconds duration, u32 threadID) :
         m_Name(name),
         m_Start(start),
-        m_End(end),
+        m_Duration(duration),
         m_ThreadID(threadID)
     {}
 
     const String m_Name = "";
-    const s64 m_Start = 0;
-    const s64 m_End = 0;
+    const TimePoint m_Start;
+    const Microseconds m_Duration;
     const u32 m_ThreadID = 0u;
 };
 
@@ -46,22 +47,23 @@ protected:
 struct ProfilingObject
 {
     const char* m_Name;
-    std::chrono::microseconds m_Start;
-    std::chrono::microseconds m_End;
+    TimePoint m_Start;
+    TimePoint m_End;
 
     ProfilingObject(const char* name) :
         m_Name(name)
     {
-        m_Start = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
+        m_Start = FrameTime::GetNow();
         m_End = m_Start;
     }
     ~ProfilingObject()
     {
         if (g_ProfileManager.IsSessionActive())
         {
-            m_End = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
+            m_End = FrameTime::GetNow();
+            Microseconds duration = popDurationCast(Microseconds, m_End - m_Start);
             u32 threadID = static_cast<u32>(std::hash<std::thread::id>{}(std::this_thread::get_id()));
-            ProfileInfo result(m_Name, m_Start.count(), m_End.count(), threadID);
+            ProfileInfo result(m_Name, m_Start, duration, threadID);
             g_ProfileManager.Register(result);
         }
     }

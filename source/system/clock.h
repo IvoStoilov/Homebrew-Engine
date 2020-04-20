@@ -1,10 +1,34 @@
 #pragma once
-#include <windows.h>
-#include <stdint.h>
+
+using Nanoseconds  = std::chrono::nanoseconds;
+using Microseconds = std::chrono::duration<s64, std::micro>;
+using Milliseconds = std::chrono::duration<f32, std::milli>;
+using Seconds      = std::chrono::duration<f32>;
+
+using SteadyClock = std::chrono::steady_clock;
+using TimePoint   = std::chrono::time_point<SteadyClock>;
+
+#define popDurationCast(durationType, value) std::chrono::duration_cast<durationType>((value))
+
+class FrameTime
+{
+public:
+    static TimePoint GetNow() { return SteadyClock::now(); }
+    void BeginFrame();
+    
+    Seconds GetDT() const { return m_DT; }
+    Milliseconds GetCurrentFrameElapsedTime() const;
+    
+private:
+    TimePoint m_FrameBegin;
+    TimePoint m_FrameEnd;
+    Seconds m_DT;
+};
 
 class Clock
 {
 public:
+    
     Clock();
     ~Clock();
 

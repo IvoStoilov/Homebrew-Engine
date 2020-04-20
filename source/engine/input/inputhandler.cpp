@@ -12,5 +12,14 @@ void InputHandler::Update()
         bool isEnabled = g_RenderEngine.IsEnabledDebugDisplay();
         g_RenderEngine.EnableDebugDisplay(!isEnabled);
     }
+
+    if (g_InputManager.IsKeyJustPressed(InputManager::Key::P))
+    {
+        m_IsInProfiling = !m_IsInProfiling;
+        if (m_IsInProfiling)
+            g_ProfileManager.BeginSession();
+        else
+            g_ProfileManager.EndSession();
+    }
 }
 

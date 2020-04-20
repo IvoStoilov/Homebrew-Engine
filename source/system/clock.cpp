@@ -1,5 +1,18 @@
 #include <system/precompile.h>
-#include "system/clock.h"
+#include <system/clock.h>
+
+void FrameTime::BeginFrame()
+{
+    m_FrameEnd = FrameTime::GetNow();
+    m_DT = popDurationCast(Seconds, m_FrameEnd - m_FrameBegin);
+    m_FrameBegin = m_FrameEnd;
+}
+
+Milliseconds FrameTime::GetCurrentFrameElapsedTime() const
+{
+    TimePoint now = FrameTime::GetNow();
+    return popDurationCast(Milliseconds, now - m_FrameBegin);
+}
 
 Clock::Clock()
 {
@@ -39,3 +52,4 @@ float Clock::GetDeltaTime() const
     QueryPerformanceCounter((LARGE_INTEGER*)&currentTime);
     return ((float)(currentTime - m_StartTime) / m_TicksPerMs);
 }
+
