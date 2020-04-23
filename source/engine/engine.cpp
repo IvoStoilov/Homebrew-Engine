@@ -4,7 +4,7 @@
 #include <engine/entitymodel/components/visualcomponent.h>
 
 //Temp Hack
-#include <graphics/RenderingEngine.h>
+#include <graphics/renderingengine.h>
 #include <graphics/terrain/terrain.h>
 
 #include <system/viewprovider/viewprovider.h>

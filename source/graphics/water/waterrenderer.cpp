@@ -3,9 +3,10 @@
 
 #include <graphics/common/mesh.h>
 #include <graphics/common/reflectionshader.h>
+#include <graphics/common/rendertexture.h>
 
 #include <graphics/d3d11.h>
-#include <graphics/RenderingEngine.h>
+#include <graphics/renderingengine.h>
 
 const String QUAD_PATH = "../../resource/terrain/objExports/terrainplane3x3.obj";
 const String DUDV_WATER_PATH = "../../resource/terrain/islands2/waterDUDV.png";

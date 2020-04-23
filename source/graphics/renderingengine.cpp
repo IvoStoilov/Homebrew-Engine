@@ -3,6 +3,7 @@
 #include <graphics/d3d11.h>
 #include <graphics/graphicsnode.h>
 #include <graphics/common/colors.h>
+#include <graphics/common/rendertexture.h>
 
 #include <graphics/isubrenderer.h>
 #include <graphics/terrain/terrainrenderer.h>

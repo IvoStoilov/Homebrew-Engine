@@ -1,5 +1,4 @@
 #pragma once
-#include <graphics/common/rendertexture.h>
 #include <graphics/common/gfxwindow/gfxwindow.h>
 #include <system/singleton/singleton.h>
 
