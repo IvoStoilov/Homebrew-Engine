@@ -24,35 +24,28 @@ void D3D11::InitializeViewPortAndMatrices(const Resolution& renderingResolution,
 
 void D3D11::InitGraphicsCardProperties(u32 screenWidth, u32 screenHeight, u32& outNumerator, u32& outDenominator)
 {
-    HRESULT result;
-
     // Create a DirectX graphics interface factory.
-    IDXGIFactory* factory = nullptr;
-    result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
-    popAssert(!FAILED(result),"CreateDXGIFactory failed");
-
+    ComPtr<IDXGIFactory> factory;
+    popGfxVerify(CreateDXGIFactory(__uuidof(IDXGIFactory), &factory));
+    
     // Use the factory to create an adapter for the primary graphics interface (video card).
-    IDXGIAdapter* adapter = nullptr;
-    result = factory->EnumAdapters(0, &adapter);
-    popAssert(!FAILED(result), "EnumAdapters failed");
-
+    ComPtr<IDXGIAdapter> adapter;
+    popGfxVerify(factory->EnumAdapters(0, &adapter));
+    
     // Enumerate the primary adapter output (monitor).
-    IDXGIOutput* adapterOutput = nullptr;
-    result = adapter->EnumOutputs(0, &adapterOutput);
-    popAssert(!FAILED(result), "EnumOutputs failed");
-
+    ComPtr<IDXGIOutput> adapterOutput;
+    popGfxVerify(adapter->EnumOutputs(0, &adapterOutput));
+    
     // Get the number of modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM display format for the adapter output (monitor).
     u32 numModes = 0;
-    result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL);
-    popAssert(!FAILED(result), "GetDisplayModeList failed");
-
+    popGfxVerify(adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL));
+    
     // Create a list to hold all the possible display modes for this monitor/video card combination.
     DXGI_MODE_DESC* displayModeList = new DXGI_MODE_DESC[numModes];
 
     // Now fill the display mode list structures.
-    result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList);
-    popAssert(!FAILED(result), "GetDisplayModeList failed");
-
+    popGfxVerify(adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList));
+    
     // Now go through all the display modes and find the one that matches the screen width and height.
     // When a match is found store the numerator and denominator of the refresh rate for that monitor.
     for (u32 i = 0; i < numModes; i++)
@@ -69,11 +62,10 @@ void D3D11::InitGraphicsCardProperties(u32 screenWidth, u32 screenHeight, u32& o
 
     // Get the adapter (video card) description.
     DXGI_ADAPTER_DESC adapterDesc;
-    result = adapter->GetDesc(&adapterDesc);
-    popAssert(!FAILED(result), "adapter->GetDesc failed");
-
+    popGfxVerify(adapter->GetDesc(&adapterDesc));
+    
     // Store the dedicated video card memory in megabytes.
-    m_VideoCardMemory = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
+    m_VideoCardMemory = (s32)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
 
     // Convert the name of the video card to a character array and store it.
     size_t stringLength;
@@ -83,18 +75,6 @@ void D3D11::InitGraphicsCardProperties(u32 screenWidth, u32 screenHeight, u32& o
     // Release the display mode list.
     delete[] displayModeList;
     displayModeList = nullptr;
-
-    // Release the adapter output.
-    adapterOutput->Release();
-    adapterOutput = nullptr;
-
-    // Release the adapter.
-    adapter->Release();
-    adapter = nullptr;
-
-    // Release the factory.
-    factory->Release();
-    factory = nullptr;
 }
 
 void D3D11::InitDeviceAndContext()
@@ -108,17 +88,13 @@ void D3D11::InitDeviceAndContext()
 #endif
     const InplaceArray<D3D_FEATURE_LEVEL, 1> FEATURE_LEVELS = { D3D_FEATURE_LEVEL_11_0 };
     const u32 FEATURE_LEVEL_SIZE = static_cast<u32>(FEATURE_LEVELS.size());
-    HRESULT result = D3D11CreateDevice(DEFAULT_ADAPTER, D3D_DRIVER_TYPE_HARDWARE, NO_SOFTWARE, enableDebugFlag, 
-        FEATURE_LEVELS.data(), FEATURE_LEVEL_SIZE, D3D11_SDK_VERSION, &m_Device, nullptr, &m_DeviceContext);
+    popGfxVerify(D3D11CreateDevice(DEFAULT_ADAPTER, D3D_DRIVER_TYPE_HARDWARE, NO_SOFTWARE, enableDebugFlag, 
+        FEATURE_LEVELS.data(), FEATURE_LEVEL_SIZE, D3D11_SDK_VERSION, &m_Device, nullptr, &m_DeviceContext));
 
-    popAssert(!FAILED(result), "Failed to create Device and Context");
 }
 void D3D11::InitDepthStencilState()
 {
-    HRESULT result;
     D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
-
-    // Initialize the description of the stencil state.
     ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
 
     // Set up the description of the stencil state.
@@ -142,20 +118,14 @@ void D3D11::InitDepthStencilState()
     depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
     depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
-    // Create the depth stencil state.
-    result = m_Device->CreateDepthStencilState(&depthStencilDesc, &m_DepthStencilState);
-    popAssert(!FAILED(result), "Failed to create Depth Stencil State");
+    popGfxVerify(m_Device->CreateDepthStencilState(&depthStencilDesc, &m_DepthStencilState));
 
-    // Set the depth stencil state.
-    m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState, 1);
+    m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState.Get(), 1);
 }
 
 void D3D11::InitDepthDisabledStencilState()
 {
-    HRESULT result;
     D3D11_DEPTH_STENCIL_DESC depthDisabledStencilDesc;
-
-    // Clear the second depth stencil state before setting the parameters.
     ZeroMemory(&depthDisabledStencilDesc, sizeof(depthDisabledStencilDesc));
 
     // Now create a second depth stencil state which turns off the Z buffer for 2D rendering.  The only difference is 
@@ -176,13 +146,11 @@ void D3D11::InitDepthDisabledStencilState()
     depthDisabledStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
     // Create the state using the device.
-    result = m_Device->CreateDepthStencilState(&depthDisabledStencilDesc, &m_DepthDisabledStencilState);
-    popAssert(!FAILED(result), "Failed to create Depth Stencil State");
+    popGfxVerify(m_Device->CreateDepthStencilState(&depthDisabledStencilDesc, &m_DepthDisabledStencilState));
 }
 
 void D3D11::InitRasterizerState()
 {
-    HRESULT result;
     D3D11_RASTERIZER_DESC rasterDesc;
 
     // Setup the raster description which will determine how and what polygons will be drawn.
@@ -198,16 +166,14 @@ void D3D11::InitRasterizerState()
     rasterDesc.SlopeScaledDepthBias = 0.0f;
 
     // Create the rasterizer state from the description we just filled out.
-    result = m_Device->CreateRasterizerState(&rasterDesc, &m_RasterState);
-    popAssert(!FAILED(result), "Failed CreateRasterizerState");
+    popGfxVerify(m_Device->CreateRasterizerState(&rasterDesc, &m_RasterState));
 
-    m_DeviceContext->RSSetState(m_RasterState);
+    m_DeviceContext->RSSetState(m_RasterState.Get());
 }
 
 void D3D11::InitAlphaBlendingStates()
 {
     D3D11_BLEND_DESC blendStateDescription;
-    HRESULT result;
     ZeroMemory(&blendStateDescription, sizeof(D3D11_BLEND_DESC));
 
     blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
@@ -219,12 +185,10 @@ void D3D11::InitAlphaBlendingStates()
     blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
     blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
 
-    result = m_Device->CreateBlendState(&blendStateDescription, &m_AlphaBlendingStateEnable);
-    popAssert(!FAILED(result), "Failed CreateBlendState");
-
+    popGfxVerify(m_Device->CreateBlendState(&blendStateDescription, &m_AlphaBlendingStateEnable));
+    
     blendStateDescription.RenderTarget[0].BlendEnable = FALSE;
-    result = m_Device->CreateBlendState(&blendStateDescription, &m_AlphaBlendingStateDisable);
-    popAssert(!FAILED(result), "Failed CreateBlendState");
+    popGfxVerify(m_Device->CreateBlendState(&blendStateDescription, &m_AlphaBlendingStateDisable));
 }
 
 void D3D11::InitViewPort(u32 screenWidth, u32 screenHeight)
@@ -232,8 +196,8 @@ void D3D11::InitViewPort(u32 screenWidth, u32 screenHeight)
     D3D11_VIEWPORT viewport;
 
     // Setup the viewport for rendering.
-    viewport.Width = (float)screenWidth;
-    viewport.Height = (float)screenHeight;
+    viewport.Width = (f32)screenWidth;
+    viewport.Height = (f32)screenHeight;
     viewport.MinDepth = 0.0f;
     viewport.MaxDepth = 1.0f;
     viewport.TopLeftX = 0.0f;
@@ -255,51 +219,6 @@ void D3D11::InitMatrices(u32 screenWidth, u32 screenHeight, f32 screenNear, f32 
     m_OrthoMatrix = mat4x4::CreateOrthographic(static_cast<f32>(screenWidth), static_cast<f32>(screenHeight), screenNear, screenDepth);
 }
 
-void D3D11::Shutdown()
-{
-    if (m_AlphaBlendingStateEnable)
-    {
-        m_AlphaBlendingStateEnable->Release();
-        m_AlphaBlendingStateEnable = nullptr;
-    }
-
-    if (m_AlphaBlendingStateDisable)
-    {
-        m_AlphaBlendingStateDisable->Release();
-        m_AlphaBlendingStateDisable = nullptr;
-    }
-
-    if (m_DepthDisabledStencilState)
-    {
-        m_DepthDisabledStencilState->Release();
-        m_DepthDisabledStencilState = nullptr;
-    }
-
-    if (m_RasterState)
-    {
-        m_RasterState->Release();
-        m_RasterState = nullptr;
-    }
-
-    if (m_DepthStencilState)
-    {
-        m_DepthStencilState->Release();
-        m_DepthStencilState = nullptr;
-    }
-
-    if (m_DeviceContext)
-    {
-        m_DeviceContext->Release();
-        m_DeviceContext = nullptr;
-    }
-
-    if (m_Device)
-    {
-        m_Device->Release();
-        m_Device = nullptr;
-    }
-}
-
 void D3D11::GetVideoCardInfo(char* cardName, int& memory)
 {
     strcpy_s(cardName, 128, m_VideoCardDescription);
@@ -309,13 +228,13 @@ void D3D11::GetVideoCardInfo(char* cardName, int& memory)
 
 void D3D11::TurnDepthTestOn()
 {
-    m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState, 1);
+    m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState.Get(), 1);
     return;
 }
 
 void D3D11::TurnDepthTestOff()
 {
-    m_DeviceContext->OMSetDepthStencilState(m_DepthDisabledStencilState, 1);
+    m_DeviceContext->OMSetDepthStencilState(m_DepthDisabledStencilState.Get(), 1);
     return;
 }
 
@@ -330,7 +249,7 @@ void D3D11::TurnAlphaBlendingOn()
     blendFactor[3] = 0.0f;
 
     // Turn on the alpha blending.
-    m_DeviceContext->OMSetBlendState(m_AlphaBlendingStateEnable, blendFactor, 0xffffffff);
+    m_DeviceContext->OMSetBlendState(m_AlphaBlendingStateEnable.Get(), blendFactor, 0xffffffff);
 }
 
 void D3D11::TurnAlphaBlendingOff()
@@ -344,5 +263,5 @@ void D3D11::TurnAlphaBlendingOff()
     blendFactor[3] = 0.0f;
 
     // Turn off the alpha blending.
-    m_DeviceContext->OMSetBlendState(m_AlphaBlendingStateDisable, blendFactor, 0xffffffff);
+    m_DeviceContext->OMSetBlendState(m_AlphaBlendingStateDisable.Get(), blendFactor, 0xffffffff);
 }

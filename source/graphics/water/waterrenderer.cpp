@@ -18,7 +18,7 @@ bool WaterRenderer::Render(D3D11* d3d)
 {
     popProfile(WaterRenderer::Render)
 
-    m_Mesh->Render(d3d->GetDeviceContext());
+    m_Mesh->Render(d3d->GetDeviceContext_DEPRECATED());
 
     ReflectionShaderParams params;
     params.m_World = mat4x4::CreateTranslation(0, m_WaterLevel, 0.f);
@@ -37,7 +37,7 @@ bool WaterRenderer::Render(D3D11* d3d)
     UpdateMoveFactor(g_RenderEngine.GetDT());
     params.m_MoveFactor = m_MoveFactor;
 
-    m_ReflectionShader->Render(d3d->GetDeviceContext(), m_Mesh->GetIndexCount(), params);
+    m_ReflectionShader->Render(d3d->GetDeviceContext_DEPRECATED(), m_Mesh->GetIndexCount(), params);
 
     return true;
 }

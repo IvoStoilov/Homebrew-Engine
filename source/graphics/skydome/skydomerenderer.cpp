@@ -39,7 +39,7 @@ bool SkydomeRenderer::Render(D3D11* d3d)
     mat4x4 inverseView = m_ViewMatrix.GetInverted();
     vec3 cameraPos = inverseView.Translation();
     
-    m_SkydomeMesh->Render(d3d->GetDeviceContext());
+    m_SkydomeMesh->Render(d3d->GetDeviceContext_DEPRECATED());
 
     SkydomeShaderParams skydomeShaderParams;
     skydomeShaderParams.m_World = mat4x4::CreateTranslation(cameraPos);
@@ -48,7 +48,7 @@ bool SkydomeRenderer::Render(D3D11* d3d)
     skydomeShaderParams.m_ApexColor = APEX_COLOR;
     skydomeShaderParams.m_CenterColor = CENTER_COLOR;
     
-    m_SkydomeShader->Render(d3d->GetDeviceContext(), m_SkydomeMesh->GetIndexCount(), skydomeShaderParams);
+    m_SkydomeShader->Render(d3d->GetDeviceContext_DEPRECATED(), m_SkydomeMesh->GetIndexCount(), skydomeShaderParams);
 
     d3d->TurnDepthTestOn();
 

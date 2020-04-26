@@ -4,6 +4,7 @@
 #include <graphics/graphicsnode.h>
 #include <graphics/common/colors.h>
 #include <graphics/common/rendertexture.h>
+#include <graphics/gfxinfoqueue.h>
 
 #include <graphics/isubrenderer.h>
 #include <graphics/terrain/terrainrenderer.h>
@@ -31,6 +32,10 @@ RenderingEngine::~RenderingEngine()
 
 bool RenderingEngine::Initialize()
 {
+#ifdef POP_DEBUG
+    GfxInfoQueue::CreateInstance();
+#endif
+
     m_D3D = new D3D11();
     popAssert(m_D3D != nullptr, "Memory Alloc Failed");
 
@@ -44,17 +49,17 @@ bool RenderingEngine::Initialize()
     gfxWindowData.m_WindowData.m_HasSystemMenu = true;
     gfxWindowData.m_WindowData.m_ShowCursor = true;
 
-    m_GameWindow.Initialize(m_D3D->GetDevice(), gfxWindowData);
+    m_GameWindow.Initialize(m_D3D->GetDevice_DEPRECATED(), gfxWindowData);
     Window& window = g_ViewProvider.GetWindow(m_GameWindow.GetWindowCookie());
     constexpr f32 SCREEN_DEPTH = 1000.0f;
     constexpr f32 SCREEN_NEAR = 0.1f;
     m_D3D->InitializeViewPortAndMatrices(window.m_RenderingResolution, SCREEN_DEPTH, SCREEN_NEAR);
 
     m_ReflectionTexture = std::make_shared<RenderTexture>();
-    m_ReflectionTexture->Initialize(m_D3D->GetDevice(), window.m_RenderingResolution.w, window.m_RenderingResolution.h);
+    m_ReflectionTexture->Initialize(m_D3D->GetDevice_DEPRECATED(), window.m_RenderingResolution.w, window.m_RenderingResolution.h);
 
     m_RefractionTexture = std::make_shared<RenderTexture>();
-    m_RefractionTexture->Initialize(m_D3D->GetDevice(), window.m_RenderingResolution.w, window.m_RenderingResolution.h);
+    m_RefractionTexture->Initialize(m_D3D->GetDevice_DEPRECATED(), window.m_RenderingResolution.w, window.m_RenderingResolution.h);
 
     m_SubRenderers.resize(SubRendererOrder::COUNT);
 
@@ -78,7 +83,7 @@ bool RenderingEngine::Initialize()
     m_SubRenderers[SubRendererOrder::ImGui] = imguiRenderer;
     for (ISubRenderer* subRenderer : m_SubRenderers)
     {
-        popAssert(subRenderer->Initialize(m_D3D->GetDevice(), m_D3D->GetDeviceContext()), "subRenderer failed init");
+        popAssert(subRenderer->Initialize(m_D3D->GetDevice_DEPRECATED(), m_D3D->GetDeviceContext_DEPRECATED()), "subRenderer failed init");
     }
 
     return true;
@@ -103,10 +108,13 @@ void RenderingEngine::Shutdown()
 
     if (m_D3D)
     {
-        m_D3D->Shutdown();
         delete m_D3D;
         m_D3D = nullptr;
     }
+
+#ifdef POP_DEBUG
+    GfxInfoQueue::CleanInstance();
+#endif
 }
 
 void RenderingEngine::RegisterDrawable(VisualComponent* visComponent)
@@ -144,8 +152,8 @@ bool RenderingEngine::RenderReflection()
 
     mat4x4 worldMatrix, reflectionViewMatrix, projectionMatrix;
     
-    m_ReflectionTexture->SetRenderTarget(m_D3D->GetDeviceContext());
-    m_ReflectionTexture->BeginFrame(m_D3D->GetDeviceContext(), Colors::BLACK);
+    m_ReflectionTexture->SetRenderTarget(m_D3D->GetDeviceContext_DEPRECATED());
+    m_ReflectionTexture->BeginFrame(m_D3D->GetDeviceContext_DEPRECATED(), Colors::BLACK);
 
     m_D3D->GetPerspectiveMatrix(projectionMatrix);
     f32 clipPlane[4] = { 0, 1, 0, -WATER_LEVEL };
@@ -162,8 +170,8 @@ bool RenderingEngine::RenderReflection()
         }
     }
 
-    m_ReflectionTexture->ClearRenderTarget(m_D3D->GetDeviceContext());
-    GetGameWindow().SetRenderTargetView(m_D3D->GetDeviceContext());
+    m_ReflectionTexture->ClearRenderTarget(m_D3D->GetDeviceContext_DEPRECATED());
+    GetGameWindow().SetRenderTargetView(m_D3D->GetDeviceContext_DEPRECATED());
 
     return true;
 }
@@ -172,16 +180,16 @@ bool RenderingEngine::RenderRefractionTexture()
 {
     popProfile(RenderingEngine::RenderRefractionTexture);
 
-    m_RefractionTexture->SetRenderTarget(m_D3D->GetDeviceContext());
-    m_RefractionTexture->BeginFrame(m_D3D->GetDeviceContext(), Colors::BLACK);
+    m_RefractionTexture->SetRenderTarget(m_D3D->GetDeviceContext_DEPRECATED());
+    m_RefractionTexture->BeginFrame(m_D3D->GetDeviceContext_DEPRECATED(), Colors::BLACK);
 
     ISubRenderer* terrainRenderer = m_SubRenderers[SubRendererOrder::Terrain];
     terrainRenderer->UpdateViewMatrix(m_ViewMatrix);
     terrainRenderer->SetClipPlane(vec4(0, -1.f, 0, WATER_LEVEL));
     terrainRenderer->Render(m_D3D);
 
-    m_RefractionTexture->ClearRenderTarget(m_D3D->GetDeviceContext());
-    GetGameWindow().SetRenderTargetView(m_D3D->GetDeviceContext());
+    m_RefractionTexture->ClearRenderTarget(m_D3D->GetDeviceContext_DEPRECATED());
+    GetGameWindow().SetRenderTargetView(m_D3D->GetDeviceContext_DEPRECATED());
     return true;
 }
 
@@ -192,7 +200,7 @@ bool RenderingEngine::Render()
 
     for (GfxWindow* gfxWindow : m_ActiveWindows)
     {
-        gfxWindow->BeginFrame(m_D3D->GetDeviceContext(), Colors::BLACK);
+        gfxWindow->BeginFrame(m_D3D->GetDeviceContext_DEPRECATED(), Colors::BLACK);
     }
 
     {

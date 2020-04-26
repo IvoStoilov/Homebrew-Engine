@@ -29,7 +29,7 @@ bool ImGuiRenderer::Initialize(ID3D11Device* device, ID3D11DeviceContext* device
 
 bool ImGuiRenderer::Render(D3D11* d3d)
 {
-    m_Window.SetRenderTargetView(d3d->GetDeviceContext());
+    m_Window.SetRenderTargetView(d3d->GetDeviceContext_DEPRECATED());
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
@@ -39,7 +39,7 @@ bool ImGuiRenderer::Render(D3D11* d3d)
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
     
-    m_Window.UnsetRenderTargetView(d3d->GetDeviceContext());
+    m_Window.UnsetRenderTargetView(d3d->GetDeviceContext_DEPRECATED());
 
     return true;
 }

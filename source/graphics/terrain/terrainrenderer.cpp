@@ -38,14 +38,14 @@ bool TerrainRenderer::Render(D3D11* d3d)
 {
     popProfile(TerrainRenderer::Render);
 
-    m_Terrain->Render(d3d->GetDeviceContext());
+    m_Terrain->Render(d3d->GetDeviceContext_DEPRECATED());
 
     if (g_CommandLineOptions.m_DrawWireframe)
     {
         mat4x4 worldMatrix = mat4x4::Identity;
         mat4x4 projectionMatrix;
         d3d->GetPerspectiveMatrix(projectionMatrix);
-        m_WireframeShader->Render(d3d->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, m_ViewMatrix, projectionMatrix);
+        m_WireframeShader->Render(d3d->GetDeviceContext_DEPRECATED(), m_Terrain->GetIndexCount(), worldMatrix, m_ViewMatrix, projectionMatrix);
     }
     else
     {
@@ -70,7 +70,7 @@ bool TerrainRenderer::Render(D3D11* d3d)
         params.m_DiffuseColor = DIFFUSE_COLOR;
         params.m_LightDirection = LIGHT_DIRECTION;
         params.m_AmbientLight = AMBIENT_LIGHT;
-        m_SolidShader->Render(d3d->GetDeviceContext(), m_Terrain->GetIndexCount(), params);
+        m_SolidShader->Render(d3d->GetDeviceContext_DEPRECATED(), m_Terrain->GetIndexCount(), params);
     }
 
     return true;

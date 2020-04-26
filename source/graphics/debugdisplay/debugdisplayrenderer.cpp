@@ -15,8 +15,8 @@ bool DebugDisplayRenderer::Render(D3D11* d3d)
     mat4x4 projectionMatrix;
     d3d->GetPerspectiveMatrix(projectionMatrix);
 
-    RenderGeometry(d3d->GetDeviceContext());
-    m_Shader->Render(d3d->GetDeviceContext(), static_cast<u32>(m_Elements.size()) * 2 , worldMatrix, m_ViewMatrix, projectionMatrix);
+    RenderGeometry(d3d->GetDeviceContext_DEPRECATED());
+    m_Shader->Render(d3d->GetDeviceContext_DEPRECATED(), static_cast<u32>(m_Elements.size()) * 2 , worldMatrix, m_ViewMatrix, projectionMatrix);
 
     return true;
 }

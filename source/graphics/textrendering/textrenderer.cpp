@@ -37,7 +37,7 @@ bool TextRenderer::Render(D3D11* d3d)
         d3d->TurnAlphaBlendingOn();
 
         for(Text* text : m_2DTexts)
-            text->Render(d3d->GetDeviceContext(), worldMatrix, orthoMatrix);
+            text->Render(d3d->GetDeviceContext_DEPRECATED(), worldMatrix, orthoMatrix);
 
         d3d->TurnAlphaBlendingOff();
     }

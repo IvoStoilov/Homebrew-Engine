@@ -8,9 +8,10 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-
+#include <dxgidebug.h>
 #include <d3d11.h>
 #include <wrl.h>
+
 template <class T>
 using ComPtr = Microsoft::WRL::ComPtr<T>;
 
@@ -22,3 +23,5 @@ using ComPtr = Microsoft::WRL::ComPtr<T>;
 #include <system/math/vec.h>
 #include <system/math/mat4x4.h>
 #include <system/math/mathutil.h>
+
+#include <graphics/gfxinfoqueue.h>

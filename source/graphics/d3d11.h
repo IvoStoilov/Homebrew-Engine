@@ -6,17 +6,19 @@ class D3D11
 public:
     void InitializeDeviceAndStates();
     void InitializeViewPortAndMatrices(const Resolution& renderingResolution, float screenDepth, float screenNear);
-    void Shutdown();
-
+    
     void TurnDepthTestOn();
     void TurnDepthTestOff();
 
     void TurnAlphaBlendingOn();
     void TurnAlphaBlendingOff();
 
-    inline ID3D11Device* GetDevice() { return m_Device; }
-    inline ID3D11DeviceContext* GetDeviceContext() { return m_DeviceContext; }
     
+    inline ID3D11Device* GetDevice_DEPRECATED() { return m_Device.Get(); }
+    inline ID3D11DeviceContext* GetDeviceContext_DEPRECATED() { return m_DeviceContext.Get(); }
+    inline ComPtr<ID3D11Device>& GetDevice() { return m_Device; }
+    inline ComPtr<ID3D11DeviceContext>& GetDeviceContext() { return m_DeviceContext; }
+
     inline const mat4x4& GetPerspectiveMatrix() const { return m_PerspectiveMatrix; }
     inline void GetPerspectiveMatrix(mat4x4& outPerspectiveMatrix) const { outPerspectiveMatrix = m_PerspectiveMatrix; }
     inline const mat4x4& GetOrthoMatrix() const { return m_OrthoMatrix; }
@@ -37,13 +39,13 @@ private:
 private:
     s32 m_VideoCardMemory = 0;
     char m_VideoCardDescription[128];
-    ID3D11Device* m_Device = nullptr;
-    ID3D11DeviceContext* m_DeviceContext = nullptr;
-    ID3D11DepthStencilState* m_DepthStencilState = nullptr;
-    ID3D11DepthStencilState* m_DepthDisabledStencilState = nullptr;
-    ID3D11RasterizerState* m_RasterState = nullptr;
-    ID3D11BlendState* m_AlphaBlendingStateEnable = nullptr;
-    ID3D11BlendState* m_AlphaBlendingStateDisable = nullptr;
+    ComPtr<ID3D11Device> m_Device;
+    ComPtr<ID3D11DeviceContext> m_DeviceContext;
+    ComPtr<ID3D11DepthStencilState> m_DepthStencilState;
+    ComPtr<ID3D11DepthStencilState> m_DepthDisabledStencilState;
+    ComPtr<ID3D11RasterizerState> m_RasterState;
+    ComPtr<ID3D11BlendState> m_AlphaBlendingStateEnable;
+    ComPtr<ID3D11BlendState> m_AlphaBlendingStateDisable;
 
     mat4x4 m_PerspectiveMatrix;
     mat4x4 m_OrthoMatrix;
