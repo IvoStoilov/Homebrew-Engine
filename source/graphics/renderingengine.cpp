@@ -251,3 +251,8 @@ DebugDisplayRenderer* RenderingEngine::GetDebugDisplayRenderer() const
 {
     return static_cast<DebugDisplayRenderer*>(m_SubRenderers[SubRendererOrder::DebugDisplay]); 
 }
+
+ImGuiRenderer* RenderingEngine::GetImGuiRenderer() const
+{
+    return static_cast<ImGuiRenderer*>(m_SubRenderers[SubRendererOrder::ImGui]);
+}

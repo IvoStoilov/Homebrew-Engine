@@ -7,6 +7,7 @@ class GraphicsNode;
 class VisualComponent;
 class ISubRenderer;
 class DebugDisplayRenderer;
+class ImGuiRenderer;
 class RenderTexture;
 class WindowHandle;
 class RenderingEngine
@@ -19,6 +20,7 @@ public:
     bool Initialize();
 
     DebugDisplayRenderer* GetDebugDisplayRenderer() const;
+    ImGuiRenderer* GetImGuiRenderer() const;
 
     bool IsEnabledDebugDisplay() const;
     void EnableDebugDisplay(bool shouldEnable);

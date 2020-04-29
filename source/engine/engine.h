@@ -30,6 +30,9 @@ public:
 
 private:
     void EndFrame();
+#ifdef POP_IMGUI_ENABLED
+    void ImGui_DisplayFPS();
+#endif //POP_IMGUI_ENABLED
 private:
     Camera* m_Camera = nullptr;
     Array<Entity*> m_Entities;
