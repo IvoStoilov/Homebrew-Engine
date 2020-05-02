@@ -1,9 +1,11 @@
 #pragma once
-#include <graphics/common/gfxprimitives/gfxobject.h>
+#include <graphics/common/gfxprimitives/gfxbindableresource.h>
 
-class GfxVertexBuffer : public GfxObject
+class GfxVertexBuffer : public GfxBindableResource
 {
 public:
+    virtual ~GfxVertexBuffer() = default;
+
     template<class T>
     void InitializeBuffer(ComPtr<ID3D11Device>& device, const Array<T>& vertexData);
 
