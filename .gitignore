@@ -28,4 +28,5 @@ bin/homebrew
 resource
 temp
 extern/DirectXTK/Bin
+extern/assimp/assimp-prj
 ipch
