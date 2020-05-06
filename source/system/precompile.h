@@ -11,6 +11,7 @@
 #include <windows.h>
 #include <chrono>
 #include <stdio.h>
+#include <cstddef>
 
 #include <projectconfig.h>
 

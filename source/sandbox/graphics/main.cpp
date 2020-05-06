@@ -1,11 +1,12 @@
 #include <system/precompile.h>
-
-#include <system/math/vec.h>
-#include <system/viewprovider/viewprovider.h>
-#include <system/commandline/commandlineoptions.h>
+#include <graphics/common/gfxprimitives/gfxvertex.h>
 
 using namespace std;
 
 int main()
 {
+    GfxVertexLayout layout;
+    layout.Append(GfxVertexPropertyType::Position3D);
+    layout.Append(GfxVertexPropertyType::Normal);
+    GfxVertexArray arr(layout);
 }
