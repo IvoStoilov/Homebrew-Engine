@@ -1,15 +1,5 @@
 #include <graphics/precompile.h>
-#include <graphics/common/gfxprimitives/gfxvertex.h>
-
-VertexView::VertexView(Byte* data, const GfxVertexLayout& layout)
-    : m_VertexBegin(data)
-    , m_Layout(layout)
-{}
-
-bool VertexView::operator==(const VertexView& other) const
-{
-    return m_VertexBegin == other.m_VertexBegin;
-}
+#include <graphics/common/gfxprimitives/gfxvertex/gfxvertexarray.h>
 
 GfxVertexArray::GfxVertexArray(const GfxVertexLayout& vertexLayout, u32 numOfElements)
     : m_Layout(vertexLayout)
@@ -43,7 +33,7 @@ VertexView GfxVertexArray::Back()
 {
     if (IsEmpty())
         return Front();
-    
+
     Byte* lastVertexBegin = m_Buffer.data() + m_Buffer.size() - m_Layout.GetVertexSizeInBytes();
     popAssert(lastVertexBegin >= m_Buffer.data(), "Vertex Ptr points behind the Buffer Ptr. This should never happen");
     return VertexView(lastVertexBegin, m_Layout);
