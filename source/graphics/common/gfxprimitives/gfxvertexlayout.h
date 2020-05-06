@@ -8,7 +8,8 @@
     X(Normal)     \
     X(Tagent)     \
     X(Bitagent)   \
-    X(Color4)
+    X(Color4)     \
+    X(Count)
 
 enum class GfxVertexPropertyType
 {
@@ -52,10 +53,11 @@ constexpr auto GfxVertexProperty::Bridge(GfxVertexPropertyType type, Args&&... a
 {
     switch (type)
     {
-        #define X(value) case GfxVertexPropertyType::value: return F<value>::Exec(std::forward(args));
+        #define X(value) case GfxVertexPropertyType::value: return F<GfxVertexPropertyType::value>::Exec(std::forward<Args>(args)...);
         POP_ALL_VERTEX_PROPERTY_TYPES
         #undef X
     }
+    return F<GfxVertexPropertyType::Count>::Exec(std::forward<Args>(args)...);
 }
 
 #define POP_DEFINE_VERTEX_PROPERTY(EnumValue, SystemType, DxgiFormat, Semantic) \
@@ -79,6 +81,7 @@ public:
     POP_DEFINE_VERTEX_PROPERTY(Tagent,     vec3, DXGI_FORMAT_R32G32B32_FLOAT,    "Tangent" );
     POP_DEFINE_VERTEX_PROPERTY(Bitagent,   vec3, DXGI_FORMAT_R32G32B32_FLOAT,    "Bitangent");
     POP_DEFINE_VERTEX_PROPERTY(Color4,     vec4, DXGI_FORMAT_R32G32B32A32_FLOAT, "Color"   );
+    POP_DEFINE_VERTEX_PROPERTY(Count,      u8,   DXGI_FORMAT_R8_UINT,            "Count"   );
 
     void Append(GfxVertexPropertyType propertyType);
 
@@ -99,7 +102,7 @@ const GfxVertexProperty& GfxVertexLayout::GetVertexPropety() const
 {
     for (const GfxVertexProperty& p : m_VertexProperties)
     {
-        if (p.GetType() == Type)
+        if (p.GetPropertyType() == Type)
             return p;
     }
     popAssert(false, "Did not find Vertex Propety {}", GetEnumName(Type));

@@ -1,7 +1,7 @@
 #include <graphics/precompile.h>
 #include <graphics/common/gfxprimitives/gfxvertex.h>
 
-VertexView::VertexView(byte* data, const GfxVertexLayout& layout)
+VertexView::VertexView(Byte* data, const GfxVertexLayout& layout)
     : m_VertexBegin(data)
     , m_Layout(layout)
 {}
@@ -30,7 +30,7 @@ u32 GfxVertexArray::GetSizeInBytes() const
 VertexView GfxVertexArray::operator[](u32 index)
 {
     const u32 offset = index * m_Layout.GetVertexSizeInBytes();
-    byte* vertexBegin = &m_Buffer[offset];
+    Byte* vertexBegin = &m_Buffer[offset];
     return VertexView(vertexBegin, m_Layout);
 }
 
@@ -44,7 +44,7 @@ VertexView GfxVertexArray::Back()
     if (IsEmpty())
         return Front();
     
-    byte* lastVertexBegin = m_Buffer.data() + m_Buffer.size() - m_Layout.GetVertexSizeInBytes();
+    Byte* lastVertexBegin = m_Buffer.data() + m_Buffer.size() - m_Layout.GetVertexSizeInBytes();
     popAssert(lastVertexBegin >= m_Buffer.data(), "Vertex Ptr points behind the Buffer Ptr. This should never happen");
     return VertexView(lastVertexBegin, m_Layout);
 }

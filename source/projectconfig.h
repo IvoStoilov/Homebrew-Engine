@@ -28,7 +28,7 @@ using f32 = float;
 using f64 = double;
 using f128 = long double;
 
-using byte = std::byte;
+using Byte = std::byte;
 
 using String = std::string;
 

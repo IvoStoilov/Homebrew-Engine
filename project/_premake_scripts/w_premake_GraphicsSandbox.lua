@@ -65,7 +65,6 @@ workspace "GraphicsSandbox"
         kind "ConsoleApp"
         language "C++"
         cppdialect "C++17"
-        staticruntime "on"
 
         files
         {
