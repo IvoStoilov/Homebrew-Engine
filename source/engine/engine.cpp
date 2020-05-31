@@ -78,10 +78,10 @@ bool Engine::Initialize()
         visComp->SetTexturePath(std::string("../../resource/ink-splatter-texture.png"));
         m_Entities[1]->AddComponent(visComp);
 
-        for (Entity* entity : m_Entities)
+        /*for (Entity* entity : m_Entities)
         {
             g_RenderEngine.RegisterDrawable(entity->GetComponentByType<VisualComponent>());
-        }
+        }*/
     }
 
     return true;

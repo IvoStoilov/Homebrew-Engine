@@ -1,10 +1,12 @@
 #include <engine/precompile.h>
 #include <engine/entitymodel/components/visualcomponent.h>
 
-VisualComponent::VisualComponent() :
-    Component(),
-    m_Is2D(false)
-{}
+void VisualComponent::OnAddToWorld()
+{
+    
+}
 
-VisualComponent::~VisualComponent()
-{}
+void VisualComponent::OnRemoveFromWorld()
+{
+
+}

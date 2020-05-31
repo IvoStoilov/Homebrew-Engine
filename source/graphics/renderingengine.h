@@ -25,7 +25,7 @@ public:
     bool IsEnabledDebugDisplay() const;
     void EnableDebugDisplay(bool shouldEnable);
 
-    void RegisterDrawable(VisualComponent* visComponent);
+    void RegisterDrawable(const String& resourcePath);
     void UnregisterDrawable(VisualComponent* visComponent);
 
     bool PreFrame();

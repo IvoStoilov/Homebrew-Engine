@@ -32,3 +32,8 @@ constexpr u32 GfxVertexPropertyData::GetSizeOf(GfxVertexPropertyType type)
 {
     return GfxVertexPropertyData::Bridge<SysSizeLookup>(type);
 }
+
+constexpr const char* GfxVertexPropertyData::GetPropertyShortName(GfxVertexPropertyType type)
+{
+    return GfxVertexPropertyData::Bridge<ShortNameLookup>(type);
+}

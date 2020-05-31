@@ -3,9 +3,11 @@
 
 void GfxIndexBuffer::InitializeBuffer(ComPtr<ID3D11Device>& device, const Array<u32>& indexArray)
 {
+    m_Size = static_cast<u32>(indexArray.size());
+
     D3D11_BUFFER_DESC indexBufferDesc;
     indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    indexBufferDesc.ByteWidth = static_cast<u32>(sizeof(u32) * indexArray.size());
+    indexBufferDesc.ByteWidth = static_cast<u32>(sizeof(u32) * m_Size);
     indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
     indexBufferDesc.CPUAccessFlags = 0;
     indexBufferDesc.MiscFlags = 0;

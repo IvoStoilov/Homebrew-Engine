@@ -117,7 +117,7 @@ void RenderingEngine::Shutdown()
 #endif
 }
 
-void RenderingEngine::RegisterDrawable(VisualComponent* visComponent)
+void RenderingEngine::RegisterDrawable(const String& resourcePath)
 {
     
 }
