@@ -17,7 +17,7 @@ project "Graphics"
     {
         MAIN_DIR .. "/source/graphics/**.h",
         MAIN_DIR .. "/source/graphics/**.cpp",
-        
+        MAIN_DIR .. "/source/graphics/**.hpp"
     }
 
     includedirs
