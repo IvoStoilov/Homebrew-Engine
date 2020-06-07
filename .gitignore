@@ -15,6 +15,7 @@
 *.tlog
 *.lastbuildstate
 *.ilk
+*.cso
 
 *.VC.db
 *.sln
@@ -25,6 +26,7 @@
 bin/graphics_sandbox
 bin/system_sandbox
 bin/homebrew
+bin/shader_bin
 resource
 temp
 extern/DirectXTK/Bin

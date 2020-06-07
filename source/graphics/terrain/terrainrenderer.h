@@ -23,18 +23,18 @@ private:
     ColorShader* m_WireframeShader;
     LightShader* m_SolidShader;
 
-    SharedPtr<Texture> m_HeightMapTexture;
-    SharedPtr<Texture> m_NormalMapTexture;
-    SharedPtr<Texture> m_HiteMapTexture;
+    SharedPtr<GfxTexture> m_HeightMapTexture;
+    SharedPtr<GfxTexture> m_NormalMapTexture;
+    SharedPtr<GfxTexture> m_HiteMapTexture;
 
-    SharedPtr<Texture> m_SnowAlbedoTexture;
-    SharedPtr<Texture> m_SnowHeightTexture;
+    SharedPtr<GfxTexture> m_SnowAlbedoTexture;
+    SharedPtr<GfxTexture> m_SnowHeightTexture;
 
-    SharedPtr<Texture> m_RockAlbedoTexture;
-    SharedPtr<Texture> m_RockHeightTexture;
+    SharedPtr<GfxTexture> m_RockAlbedoTexture;
+    SharedPtr<GfxTexture> m_RockHeightTexture;
 
-    SharedPtr<Texture> m_SandHeightTexture;
-    SharedPtr<Texture> m_SandAlbedoTexture;
+    SharedPtr<GfxTexture> m_SandHeightTexture;
+    SharedPtr<GfxTexture> m_SandAlbedoTexture;
 
-    SharedPtr<Texture> m_GrassAlbedoTexture;
+    SharedPtr<GfxTexture> m_GrassAlbedoTexture;
 };

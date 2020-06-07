@@ -134,7 +134,7 @@ bool Model3D::LoadTexture(ID3D11Device* device, std::string& texturePath)
 {
     bool result = false;
 
-    m_Texture = std::make_shared<Texture>();
+    m_Texture = std::make_shared<GfxTexture>();
     if (!m_Texture)
         return false;
 

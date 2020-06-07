@@ -143,7 +143,7 @@ float4 main(PixelInputType input) : SV_TARGET
     input.m_Tangent = normalize(input.m_Tangent);
 
     //return float4(input.m_VertexNormal, 1.f);
-    float3 biNormal = cross(input.m_VertexNormal, input.m_Tangent);
+    float3 biNormal = cross(input.m_VertexNormal, input.m_Tangent.xyz);
     float3 terrainNormal = SampleNormal(input.m_UV, input.m_Tangent.xyz, biNormal, input.m_VertexNormal);
     //return float4(terrainNormal, 1.f);
     float4 textureColor = ComputTextureColor(input.m_GlobalPosition, input.m_UV, terrainNormal);

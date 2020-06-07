@@ -1,5 +1,5 @@
 #pragma once
-class Texture;
+class GfxTexture;
 class Font
 {
 private:
@@ -34,5 +34,5 @@ private:
 
 private:
     FontType* m_Font;
-    Texture* m_Texture;
+    GfxTexture* m_Texture;
 };

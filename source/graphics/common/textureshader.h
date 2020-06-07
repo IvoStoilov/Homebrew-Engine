@@ -4,15 +4,15 @@
 
 struct TextureShaderParams : public ShaderParamsBase
 {
-    using TextureIndexPair = std::pair<SharedPtr<Texture>, u32>;
+    using TextureIndexPair = std::pair<SharedPtr<GfxTexture>, u32>;
 
     Array<TextureIndexPair> m_PSTextures;
     Array<TextureIndexPair> m_VSTextures;
 
-    static Array<ID3D11ShaderResourceView*> GetShaderResourceViewArray(const Array<SharedPtr<Texture>>& textures)
+    static Array<ID3D11ShaderResourceView*> GetShaderResourceViewArray(const Array<SharedPtr<GfxTexture>>& textures)
     {
         Array<ID3D11ShaderResourceView*> result;
-        for (const SharedPtr<Texture>& texture : textures)
+        for (const SharedPtr<GfxTexture>& texture : textures)
         {
             result.push_back(texture.get()->GetTexture());
         }

@@ -1,7 +1,7 @@
 #pragma once
 #include <system\modelloader.h>
 
-class Texture;
+class GfxTexture;
 class Model3D
 {
 private:
@@ -21,7 +21,7 @@ public:
     void Render(ID3D11DeviceContext* device);
     
     inline int GetIndexCount() { return m_IndexCount; }
-    SharedPtr<Texture> GetTexture() const { return m_Texture; }
+    SharedPtr<GfxTexture> GetTexture() const { return m_Texture; }
 
 private:
     bool InitializeBuffers(ID3D11Device* device);
@@ -39,5 +39,5 @@ private:
     uint32_t m_IndexCount;
     uint32_t m_VertexCount;
 
-    SharedPtr<Texture> m_Texture;
+    SharedPtr<GfxTexture> m_Texture;
 };

@@ -101,7 +101,7 @@ bool Model2D::InitializeBuffers(ID3D11Device* device)
 
 bool Model2D::LoadTexture(ID3D11Device* device, std::string& filename)
 {
-    m_Texture = new Texture();
+    m_Texture = new GfxTexture();
     if (!m_Texture)
     {
         return false;

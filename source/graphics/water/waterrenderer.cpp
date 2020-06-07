@@ -27,8 +27,8 @@ bool WaterRenderer::Render(D3D11* d3d)
 
     const SharedPtr<RenderTexture>& renderTextureSPtr = g_RenderEngine.GetReflectionTexture();
     const SharedPtr<RenderTexture>& refractionTexture = g_RenderEngine.GetRefractionTexture();
-    params.m_PSTextures.push_back(std::make_pair(std::static_pointer_cast<Texture>(renderTextureSPtr), 9));
-    params.m_PSTextures.push_back(std::make_pair(std::static_pointer_cast<Texture>(refractionTexture), 10));
+    params.m_PSTextures.push_back(std::make_pair(std::static_pointer_cast<GfxTexture>(renderTextureSPtr), 9));
+    params.m_PSTextures.push_back(std::make_pair(std::static_pointer_cast<GfxTexture>(refractionTexture), 10));
     params.m_PSTextures.push_back(std::make_pair(m_DuDvTexture, 11));
     params.m_PSTextures.push_back(std::make_pair(m_NormalMap, 12));
 
@@ -59,10 +59,10 @@ bool WaterRenderer::Initialize(ID3D11Device* device, ID3D11DeviceContext* device
     m_ReflectionShader = std::make_unique<ReflectionShader>();
     popAssert(m_ReflectionShader->Initialize(device), "Water Reflected fialed init");
 
-    m_DuDvTexture = std::make_shared<Texture>();
+    m_DuDvTexture = std::make_shared<GfxTexture>();
     popAssert(m_DuDvTexture->Initialize(device, DUDV_WATER_PATH), "Water DuDv faild init");
 
-    m_NormalMap = std::make_shared<Texture>();
+    m_NormalMap = std::make_shared<GfxTexture>();
     popAssert(m_NormalMap->Initialize(device, NORMAL_MAP_PATH), "Water Normals faild init");
 
     return true;

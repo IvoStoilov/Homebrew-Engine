@@ -1,9 +1,9 @@
 #pragma once
 #include <graphics/common/texture.h>
 
-class RenderTexture : public Texture
+class RenderTexture : public GfxTexture
 {
-    using super = Texture;
+    using super = GfxTexture;
 public:
     bool Initialize(ID3D11Device* device, u32 width, u32 height);
     

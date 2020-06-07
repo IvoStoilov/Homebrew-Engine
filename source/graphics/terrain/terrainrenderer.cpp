@@ -87,34 +87,34 @@ bool TerrainRenderer::Initialize(ID3D11Device* device, ID3D11DeviceContext* devi
     m_Terrain = new Terrain();
     popAssert(m_Terrain->Initialize(device), "Terrain mesh failed initing");
 
-    m_HeightMapTexture = std::make_shared<Texture>();
+    m_HeightMapTexture = std::make_shared<GfxTexture>();
     popAssert(m_HeightMapTexture->Initialize(device, HEIGHT_TEXTURE_PATH), "Terrain HEIGHT Texture failed initing");
 
-    m_HiteMapTexture = std::make_shared<Texture>();
+    m_HiteMapTexture = std::make_shared<GfxTexture>();
     popAssert(m_HiteMapTexture->Initialize(device, HITE_TEXTURE_PATH), "Terrain HITE Texture failed initing");
 
-    m_SnowAlbedoTexture = std::make_shared<Texture>();
+    m_SnowAlbedoTexture = std::make_shared<GfxTexture>();
     popAssert(m_SnowAlbedoTexture->Initialize(device, SNOW_ALBEDO_PATH), "Terrain SNOW Texture failed initing");
 
-    m_SnowHeightTexture = std::make_shared<Texture>();
+    m_SnowHeightTexture = std::make_shared<GfxTexture>();
     popAssert(m_SnowHeightTexture->Initialize(device, SNOW_HEIGHT_PATH), "Terrain SNOW Texture failed initing");
 
-    m_RockAlbedoTexture = std::make_shared<Texture>();
+    m_RockAlbedoTexture = std::make_shared<GfxTexture>();
     popAssert(m_RockAlbedoTexture->Initialize(device, ROCK_ALBEDO_PATH), "Terrain ROCK Texture failed initing");
 
-    m_RockHeightTexture = std::make_shared<Texture>();
+    m_RockHeightTexture = std::make_shared<GfxTexture>();
     popAssert(m_RockHeightTexture->Initialize(device, ROCK_HEIGHT_PATH), "Terrain ROCK Texture failed initing");
 
-    m_GrassAlbedoTexture = std::make_shared<Texture>();
+    m_GrassAlbedoTexture = std::make_shared<GfxTexture>();
     popAssert(m_GrassAlbedoTexture->Initialize(device, GRASS_ALBEDO_PATH), "Terrain GRASS Texture failed initing");
 
-    m_SandAlbedoTexture = std::make_shared<Texture>();
+    m_SandAlbedoTexture = std::make_shared<GfxTexture>();
     popAssert(m_SandAlbedoTexture->Initialize(device, SAND_ALBEDO_PATH), "Terrain SAND Texture failed initing");
 
-    m_SandHeightTexture = std::make_shared<Texture>();
+    m_SandHeightTexture = std::make_shared<GfxTexture>();
     popAssert(m_SandHeightTexture->Initialize(device, SAND_HEIGHT_PATH), "Terrain SAND Texture failed initing");
 
-    m_NormalMapTexture = std::make_shared<Texture>();
+    m_NormalMapTexture = std::make_shared<GfxTexture>();
     popAssert(m_NormalMapTexture->Initialize(device, NORMAL_TEXTURE_PATH), "Terrain Normal Texture failed initing");
     
     return true;

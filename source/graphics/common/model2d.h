@@ -1,5 +1,5 @@
 #pragma once
-class Texture;
+class GfxTexture;
 class Model2D
 {
 private:
@@ -37,7 +37,7 @@ private:
     uint32_t m_IndexCount;
     uint32_t m_VertexCount;
 
-    Texture* m_Texture;
+    GfxTexture* m_Texture;
 
     int32_t m_ScreenWidth, m_ScreenHeight;
     int32_t m_ModelWidth, m_ModelHeight;

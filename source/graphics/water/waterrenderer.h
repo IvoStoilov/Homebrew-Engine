@@ -20,8 +20,8 @@ private:
 
     UniquePtr<Mesh> m_Mesh;
     UniquePtr<ReflectionShader> m_ReflectionShader;
-    SharedPtr<Texture> m_DuDvTexture;
-    SharedPtr<Texture> m_NormalMap;
+    SharedPtr<GfxTexture> m_DuDvTexture;
+    SharedPtr<GfxTexture> m_NormalMap;
     f32 m_WaterLevel = 0.f;
     f32 m_MoveFactor = 0.f;
 };

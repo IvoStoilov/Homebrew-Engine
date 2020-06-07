@@ -76,7 +76,7 @@ void Font::ReleaseFontData()
 
 bool Font::LoadTexture(ID3D11Device* device, const std::string& fontTexturePath)
 {
-    m_Texture = new Texture();
+    m_Texture = new GfxTexture();
     return m_Texture->Initialize(device, fontTexturePath);
 }
 

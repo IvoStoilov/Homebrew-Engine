@@ -68,7 +68,7 @@ workspace "HomebrewEngine"
         "4005",
         "4530",
         "4577",
-        "4996"
+        "4996",
     }
 
 group "Extern"
