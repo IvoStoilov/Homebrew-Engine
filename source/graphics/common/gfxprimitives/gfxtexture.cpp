@@ -3,7 +3,8 @@
 
 #include <extern/DirectXTK/Inc/WICTextureLoader.h>
 
-GfxTexture::GfxTexture(ComPtr<ID3D11Device>& device, const String& texturePath)
+GfxTexture::GfxTexture(ComPtr<ID3D11Device>& device, const String& texturePath, ShaderTarget shaderTarget)
+    : m_ShaderTarget(shaderTarget)
 {
     std::wstring widestr = std::wstring(texturePath.begin(), texturePath.end());
     constexpr u32 NO_CPU_ACCESS_FLAGS = 0u;
@@ -24,5 +25,11 @@ GfxTexture::GfxTexture(ComPtr<ID3D11Device>& device, const String& texturePath)
 
 void GfxTexture::Bind(ComPtr<ID3D11DeviceContext>& deviceContext) const
 {
-
+    switch (m_ShaderTarget)
+    {
+        case ShaderTarget::Vertex: deviceContext->VSSetShaderResources(0, 1, m_Texture.GetAddressOf()); break;
+        case ShaderTarget::Pixel: deviceContext->PSSetShaderResources(0, 1, m_Texture.GetAddressOf()); break;
+        default:
+            popAssert(false, "Shader Type not supported");
+    }
 }
