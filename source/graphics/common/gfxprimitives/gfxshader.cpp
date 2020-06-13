@@ -1,5 +1,5 @@
 #include <graphics/precompile.h>
-#include <graphics/common/gfxprimitives/gfxshader/gfxshader.h>
+#include <graphics/common/gfxprimitives/gfxshader.h>
 
 #include <d3dcompiler.h>
 

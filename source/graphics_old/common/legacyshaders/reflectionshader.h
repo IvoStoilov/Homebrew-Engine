@@ -1,5 +1,5 @@
 #pragma once
-#include "graphics/common/textureshader.h"
+#include <graphics/common/legacyshaders/textureshader.h>
 
 struct ReflectionBufferType
 {

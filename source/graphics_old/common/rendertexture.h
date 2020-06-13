@@ -1,5 +1,5 @@
 #pragma once
-#include <graphics/common/texture.h>
+#include <graphics/common/legacyshaders/texture.h>
 
 class RenderTexture : public GfxTexture
 {

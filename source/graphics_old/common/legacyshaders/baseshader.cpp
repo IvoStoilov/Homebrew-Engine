@@ -1,5 +1,5 @@
 #include <graphics/precompile.h>
-#include <graphics/common/baseshader.h>
+#include <graphics/common/legacyshaders/baseshader.h>
 
 #include <d3dcompiler.h>
 

@@ -1,6 +1,6 @@
 #pragma once
-#include "graphics/common/baseshader.h"
-#include "graphics/common/texture.h"
+#include <graphics/common/legacyshaders/baseshader.h>
+#include <graphics/common/gfxprimitives/gfxtexture.h>
 
 struct TextureShaderParams : public ShaderParamsBase
 {
@@ -14,7 +14,7 @@ struct TextureShaderParams : public ShaderParamsBase
         Array<ID3D11ShaderResourceView*> result;
         for (const SharedPtr<GfxTexture>& texture : textures)
         {
-            result.push_back(texture.get()->GetTexture());
+            //result.push_back(texture.get()->GetTexture());
         }
         return result;
     }

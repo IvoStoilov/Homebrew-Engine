@@ -19,7 +19,7 @@ public:
     void Shutdown();
 
     inline bool          HasRequestedQuit() const { return m_HasRequestedQuit; }
-    inline const Camera* GetCamera()        const { return m_Camera; }
+    inline const Camera* GetCamera()        const { return m_Camera.get(); }
     inline int32_t       GetCPUUsage()      const { return m_CPUInfo.GetCpuPercentage(); }
     inline int32_t       GetFPS()           const { return m_FPSCounter.GetFPS(); }
     inline unsigned long GetFrameNumber()   const { return m_FPSCounter.GetFrameNumber(); }
@@ -31,10 +31,10 @@ public:
 private:
     void EndFrame();
 #ifdef POP_IMGUI_ENABLED
-    void ImGui_DisplayFPS();
+ //   void ImGui_DisplayFPS();
 #endif //POP_IMGUI_ENABLED
 private:
-    Camera* m_Camera = nullptr;
+    UniquePtr<Camera> m_Camera;
     Array<Entity*> m_Entities;
     
     InputHandler m_InputHandler;

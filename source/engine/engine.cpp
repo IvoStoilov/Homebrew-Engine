@@ -3,12 +3,11 @@
 #include <engine/camera.h>
 #include <engine/entitymodel/components/visualcomponent.h>
 
-//Temp Hack
+
 #include <graphics/renderingengine.h>
-#include <graphics/terrain/terrain.h>
-#ifdef POP_IMGUI_ENABLED
-#include <graphics/imgui/base/externimgui.h>
-#include <graphics/imgui/imgui.h>
+ #ifdef POP_IMGUI_ENABLED
+//#include <graphics/imgui/base/externimgui.h>
+//#include <graphics/imgui/imgui.h>
 #endif //POP_IMGUI_ENABLED
 
 #include <system/viewprovider/viewprovider.h>
@@ -33,56 +32,33 @@ Engine::~Engine()
 
 bool Engine::Initialize()
 {
-    ProfileManager::CreateInstance();
-
     //This needs a flow refactor - bootstrap load?
-    if (g_CommandLineOptions.m_Binarize)
-    {
-        popInfo(LogEngine, "Starting binarization");
-        Terrain::BinarizeTerrain(g_CommandLineOptions.GetBinarizeInputFile(0),
-                                 g_CommandLineOptions.GetBinarizeInputFile(1),
-                                 g_CommandLineOptions.m_BinarizeOutputFile);
+    //if (g_CommandLineOptions.m_Binarize)
+    //{
+    //    popInfo(LogEngine, "Starting binarization");
+    //    Terrain::BinarizeTerrain(g_CommandLineOptions.GetBinarizeInputFile(0),
+    //                             g_CommandLineOptions.GetBinarizeInputFile(1),
+    //                             g_CommandLineOptions.m_BinarizeOutputFile);
+    //
+    //    if (g_CommandLineOptions.m_QuitAfterInit)
+    //        return true;
+    //}
 
-        if (g_CommandLineOptions.m_QuitAfterInit)
-            return true;
-    }
-
+    ProfileManager::CreateInstance();
     ViewProvider::CreateInstance();
     InputManager::CreateInstance();
     RenderingEngine::CreateInstance();
-    g_RenderEngine.Initialize();
-#ifdef POP_IMGUI_ENABLED
-    g_RenderEngine.GetImGuiRenderer()->RegisterRenderCallbackAndReturnIndex(std::bind(&Engine::ImGui_DisplayFPS, this));
-#endif //POP_IMGUI_ENABLED
-    GfxWindow& gameWindow = g_RenderEngine.GetGameWindow();
-    Window& window = g_ViewProvider.GetWindow(gameWindow.GetWindowCookie());
+    
+//#ifdef POP_IMGUI_ENABLED
+//    g_RenderEngine.GetImGuiRenderer()->RegisterRenderCallbackAndReturnIndex(std::bind(&Engine::ImGui_DisplayFPS, this));
+//#endif //POP_IMGUI_ENABLED
+
+    Window& window = g_ViewProvider.GetWindow(g_RenderEngine.GetGameWindowCookie());
     g_InputManager.AttachToWindow(window);
 
-    m_Camera = new Camera();
+    m_Camera = std::make_unique<Camera>();
     popAssert(m_Camera != nullptr, "Memory Alloc Failed");
     m_Camera->SetPosition(-32.0f, +32.0f, -32.0f);
-
-    {
-        VisualComponent* visComp = nullptr;
-        m_Entities.push_back(new Entity());
-        m_Entities[0]->SetGlobalPosition(vec4(0.f, 10.f, 65.f, 1.f));
-        visComp = new VisualComponent();
-        visComp->SetModelPath(std::string("../../resource/geometry/cube.bgd"));
-        visComp->SetTexturePath(std::string("../../resource/metal_texture.jpg"));
-        m_Entities[0]->AddComponent(visComp);
-
-        m_Entities.push_back(new Entity());
-        m_Entities[1]->SetGlobalPosition(vec4(65.f, 10.f, 0.f, 1.f));
-        visComp = new VisualComponent();
-        visComp->SetModelPath(std::string("../../resource/geometry/cube.bgd"));
-        visComp->SetTexturePath(std::string("../../resource/ink-splatter-texture.png"));
-        m_Entities[1]->AddComponent(visComp);
-
-        /*for (Entity* entity : m_Entities)
-        {
-            g_RenderEngine.RegisterDrawable(entity->GetComponentByType<VisualComponent>());
-        }*/
-    }
 
     return true;
 }
@@ -107,7 +83,6 @@ void Engine::Update()
         m_HasRequestedQuit = m_HasRequestedQuit || g_InputManager.IsEscapePressed();
 
         m_InputHandler.Update();
-
         m_FPSCounter.Update();
         m_CPUInfo.Update();
 
@@ -117,11 +92,7 @@ void Engine::Update()
         }
 
         m_Camera->Update(dt);
-
-        g_RenderEngine.SetViewMatrix(m_Camera->GetViewMatrix());
-        g_RenderEngine.SetReflectedViewMatrix(m_Camera->ComputeReflectionMatrix(WATER_LEVEL));
-        g_RenderEngine.PreFrame();
-        g_RenderEngine.Frame(dt);
+        g_RenderEngine.Update(dt);
 
         EndFrame();
     } while (!m_HasRequestedQuit);
@@ -133,11 +104,6 @@ void Engine::Shutdown()
     RenderingEngine::CleanInstance();
     ProfileManager::CleanInstance();
     ViewProvider::CleanInstance();
-
-    if (m_Camera)
-    {
-        delete m_Camera;
-    }
 
     for (Entity* entity : m_Entities)
     {
@@ -172,33 +138,33 @@ void Engine::EndFrame()
 }
 
 #ifdef POP_IMGUI_ENABLED
-void Engine::ImGui_DisplayFPS()
-{
-    ImGuiWindowFlags windowFlags = 0;
-    windowFlags |= ImGuiWindowFlags_NoTitleBar;
-    windowFlags |= ImGuiWindowFlags_NoScrollbar;
-    windowFlags |= ImGuiWindowFlags_NoMove;
-    windowFlags |= ImGuiWindowFlags_NoResize;
-    windowFlags |= ImGuiWindowFlags_NoCollapse;
-    
-    ImGui::SetNextWindowPos(ImVec2(0.f, 0.f));
-    ImGui::SetNextWindowSize(ImVec2(125.f, 60.f));
-    ImGui::SetNextWindowBgAlpha(0.45f);
-
-    if (!ImGui::Begin("Overlay", nullptr, windowFlags))
-    {
-        ImGui::End();
-        return;
-    }
-
-    ImGui::Text("FPS : %.1f", 1.f / m_FrameTime.GetDT().count());
-    ImGui::Text("CPU : %.1f ms.", popDurationCast(Milliseconds, m_FrameTime.GetDT()).count());
-#ifdef POP_DEBUG
-    static const String CONFIGURATION = "Debug";
-#elif defined POP_RELEASE
-    static const String CONFIGURATION = "Release";
-#endif
-    ImGui::Text("%s", CONFIGURATION.c_str());
-    ImGui::End();
-}
+//void Engine::ImGui_DisplayFPS()
+//{
+//    ImGuiWindowFlags windowFlags = 0;
+//    windowFlags |= ImGuiWindowFlags_NoTitleBar;
+//    windowFlags |= ImGuiWindowFlags_NoScrollbar;
+//    windowFlags |= ImGuiWindowFlags_NoMove;
+//    windowFlags |= ImGuiWindowFlags_NoResize;
+//    windowFlags |= ImGuiWindowFlags_NoCollapse;
+//    
+//    ImGui::SetNextWindowPos(ImVec2(0.f, 0.f));
+//    ImGui::SetNextWindowSize(ImVec2(125.f, 60.f));
+//    ImGui::SetNextWindowBgAlpha(0.45f);
+//
+//    if (!ImGui::Begin("Overlay", nullptr, windowFlags))
+//    {
+//        ImGui::End();
+//        return;
+//    }
+//
+//    ImGui::Text("FPS : %.1f", 1.f / m_FrameTime.GetDT().count());
+//    ImGui::Text("CPU : %.1f ms.", popDurationCast(Milliseconds, m_FrameTime.GetDT()).count());
+//#ifdef POP_DEBUG
+//    static const String CONFIGURATION = "Debug";
+//#elif defined POP_RELEASE
+//    static const String CONFIGURATION = "Release";
+//#endif
+//    ImGui::Text("%s", CONFIGURATION.c_str());
+//    ImGui::End();
+//}
 #endif//POP_IMGUI_ENABLED

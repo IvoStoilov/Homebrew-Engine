@@ -1,6 +1,5 @@
 #include <graphics/precompile.h>
-#include "graphics/common/lightshader.h"
-#include "system/error.h"
+#include <graphics/common/legacyshaders/lightshader.h>
 
 bool LightShader::InitializeInternal(ID3D11Device* device)
 {

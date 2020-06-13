@@ -13,6 +13,9 @@ public:
     void TurnAlphaBlendingOn();
     void TurnAlphaBlendingOff();
 
+    
+    inline ID3D11Device* GetDevice_DEPRECATED() { return m_Device.Get(); }
+    inline ID3D11DeviceContext* GetDeviceContext_DEPRECATED() { return m_DeviceContext.Get(); }
     inline ComPtr<ID3D11Device>& GetDevice() { return m_Device; }
     inline ComPtr<ID3D11DeviceContext>& GetDeviceContext() { return m_DeviceContext; }
 

@@ -1,8 +1,5 @@
 #include <graphics/precompile.h>
-#include "graphics/common/textureshader.h"
-#include "system/error.h"
-
-#include <d3d11.h>
+#include <graphics/common/legacyshaders/textureshader.h>
 
 bool TextureShader::InitializeInternal(ID3D11Device* device)
 {

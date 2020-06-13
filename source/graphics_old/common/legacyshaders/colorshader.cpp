@@ -1,5 +1,5 @@
 #include <graphics/precompile.h>
-#include <graphics/common/colorshader.h>
+#include <graphics/common/legacyshaders/colorshader.h>
 #include <system/error.h>
 
 #include <d3dcompiler.h>

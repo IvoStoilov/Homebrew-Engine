@@ -1,7 +1,5 @@
 #include <graphics/precompile.h>
-#include "graphics/common/reflectionshader.h"
-
-#include "system/error.h"
+#include <graphics/common/legacyshaders/reflectionshader.h>
 
 bool ReflectionShader::InitializeInternal(ID3D11Device* device)
 {

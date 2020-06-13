@@ -60,6 +60,8 @@ struct vec4 : public DirectX::SimpleMath::Vector4
 
     vec4 Cross(const vec4& b) const;
     void Cross(const vec4& b, vec4& result) const;
+
+    const f32* GetBuffer() const { return &x; }
 };
 
 using quat = DirectX::SimpleMath::Quaternion;
