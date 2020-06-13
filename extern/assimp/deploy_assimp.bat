@@ -5,6 +5,7 @@ if not exist "assimp-lib" mkdir assimp-lib
 cd assimp-prj
 call %~dp0..\..\tools\cmake\bin\cmake.exe ..\assimp-repo
 
+::======================================================================================================
 ::Invoke MSVC to build .sln Build in Release
 SET VC_VARS_ALL_PATH="C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build"
 call %VC_VARS_ALL_PATH%\vcvarsall x64
@@ -17,7 +18,7 @@ xcopy lib\Release\IrrXML.lib ..\assimp-lib /y
 
 ::Clean Assimp.sln
 msbuild Assimp.sln /t:Clean /p:configuration=Release /p:platform=x64
-
+::======================================================================================================
 ::Invoke MSVC to build .sln Build in Debug
 SET VC_VARS_ALL_PATH="C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build"
 call %VC_VARS_ALL_PATH%\vcvarsall x64
@@ -30,4 +31,8 @@ xcopy lib\Debug\IrrXMLd.lib ..\assimp-lib /y
 
 ::Clean Assimp.sln
 msbuild Assimp.sln /t:Clean /p:configuration=Debug /p:platform=x64
+::======================================================================================================
+::Copy auto-generated config.h
+xcopy include\assimp\config.h ..\assimp-repo\include\assimp /y
+::======================================================================================================
 cd ..

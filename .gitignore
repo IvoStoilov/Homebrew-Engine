@@ -31,4 +31,5 @@ resource
 temp
 extern/DirectXTK/Bin
 extern/assimp/assimp-prj
+extern/assimp/assimp-lib
 ipch
