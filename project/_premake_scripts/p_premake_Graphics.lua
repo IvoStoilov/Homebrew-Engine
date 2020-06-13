@@ -23,7 +23,8 @@ project "Graphics"
 
     includedirs
     {
-        MAIN_DIR .. "/extern/ImGui/"
+        MAIN_DIR .. "/extern/ImGui/",
+        MAIN_DIR .. "/extern/assimp/assimp-repo/include/"
     }
 
     links
@@ -35,22 +36,39 @@ project "Graphics"
         "DirectXTK",
     }
 
+    libdirs
+    {
+        MAIN_DIR .. "/extern/assimp/assimp-lib"
+    }
+
     filter "system:windows"
-		systemversion "latest"
-		defines
-		{
-			"POP_PLATFORM_WINDOWS"
-		}
+        systemversion "latest"
+        defines
+        {
+            "POP_PLATFORM_WINDOWS"
+        }
 
     filter "configurations:Debug"
         defines "POP_DEBUG"
         runtime "Debug"
         symbols "on"
+        links
+        {
+            "zlibstaticd",
+            "IrrXMLd",
+            "assimp-vc142-mtd"
+        }
 
     filter "configurations:Release"
         defines "POP_RELEASE"
         runtime "Release"
         optimize "on"
+        links
+        {
+            "zlibstatic",
+            "IrrXML",
+            "assimp-vc142-mt"
+        }
 
     filter "configurations:Final"
         defines

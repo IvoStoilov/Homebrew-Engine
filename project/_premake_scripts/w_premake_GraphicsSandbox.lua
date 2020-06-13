@@ -6,7 +6,8 @@ workspace "GraphicsSandbox"
 
     architecture "x64"
     startproject "Sandbox"
-
+    staticruntime "off"
+    
     targetdir(OUTPUT_DIR .. "/graphics_sandbox")
     objdir(TEMP_DIR .. "/graphics_sandbox")
     characterset("ASCII");

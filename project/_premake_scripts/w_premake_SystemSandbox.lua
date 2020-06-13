@@ -6,6 +6,7 @@ workspace "SystemSandbox"
 
     architecture "x64"
     startproject "Sandbox"
+    staticruntime "off"
 
     targetdir(OUTPUT_DIR .. "/system_sandbox")
     objdir(TEMP_DIR .. "/system_sandbox")

@@ -6,7 +6,8 @@ workspace "HomebrewEngine"
 
     architecture "x64"
     startproject "Gameplay"
-
+    staticruntime "off"
+    
     targetdir(OUTPUT_DIR .. "/homebrew")
     objdir(TEMP_DIR .. "/homebrew")
     characterset("ASCII")

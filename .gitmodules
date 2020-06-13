@@ -9,4 +9,4 @@
 	url = https://github.com/ocornut/imgui
 [submodule "extern/assimp/assimp-repo"]
 	path = extern/assimp/assimp-repo
-	url = https://github.com/assimp/assimp
+	url = https://github.com/IvoStoilov/assimp

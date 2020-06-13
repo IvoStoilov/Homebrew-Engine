@@ -4,6 +4,7 @@
 #include <graphics/common/colors.h>
 #include <graphics/d3d11.h>
 
+#include <graphics/common/mesh.h>
 #include <system/viewprovider/viewprovider.h>
 
 RenderingEngine::RenderingEngine()
@@ -41,6 +42,11 @@ void RenderingEngine::Initialize()
     constexpr f32 SCREEN_DEPTH = 1000.0f;
     constexpr f32 SCREEN_NEAR = 0.1f;
     m_D3D->InitializeViewPortAndMatrices(window.m_RenderingResolution, SCREEN_DEPTH, SCREEN_NEAR);
+
+    {
+        Mesh mesh("../../resource/stone/Stone.obj");
+    }
+
 }
 
 
