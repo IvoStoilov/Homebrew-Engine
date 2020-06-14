@@ -44,7 +44,11 @@ void RenderingEngine::Initialize()
     m_D3D->InitializeViewPortAndMatrices(window.m_RenderingResolution, SCREEN_DEPTH, SCREEN_NEAR);
 
     {
-        Mesh mesh("../../resource/stone/Stone.obj");
+        GfxVertexLayout layout;
+        layout.Append(GfxVertexPropertyType::Position3D);
+        layout.Append(GfxVertexPropertyType::Normal);
+        layout.Append(GfxVertexPropertyType::Texture2D);
+        Mesh mesh("../../resource/stone/Stone.obj", layout);
     }
 
 }

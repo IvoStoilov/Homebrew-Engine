@@ -1,9 +1,9 @@
 #pragma once
-struct aiMesh;
+#include <graphics/common/gfxprimitives/gfxvertex/gfxvertexarray.h>
 class Mesh
 {
 public:
-    Mesh(const String& objPath);
+    Mesh(const String& objPath, const GfxVertexLayout& vertexLayout);
 private:
-    Array<aiMesh*> m_Meshes;
+    Array<GfxVertexArray> m_VertexArray;
 };

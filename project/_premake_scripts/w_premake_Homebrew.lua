@@ -67,6 +67,7 @@ workspace "HomebrewEngine"
     disablewarnings 
     {
         "4005",
+        "4099",
         "4530",
         "4577",
         "4996",

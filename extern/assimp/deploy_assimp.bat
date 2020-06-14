@@ -11,28 +11,33 @@ SET VC_VARS_ALL_PATH="C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterp
 call %VC_VARS_ALL_PATH%\vcvarsall x64
 msbuild Assimp.sln /p:configuration=release /p:platform=x64
 
-::Copy lib to external folder
-xcopy lib\Release\assimp-vc142-mt.lib ..\assimp-lib /y
-xcopy lib\Release\zlibstatic.lib ..\assimp-lib /y
-xcopy lib\Release\IrrXML.lib ..\assimp-lib /y
-
-::Clean Assimp.sln
-msbuild Assimp.sln /t:Clean /p:configuration=Release /p:platform=x64
 ::======================================================================================================
 ::Invoke MSVC to build .sln Build in Debug
 SET VC_VARS_ALL_PATH="C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build"
 call %VC_VARS_ALL_PATH%\vcvarsall x64
 msbuild Assimp.sln /p:configuration=debug /p:platform=x64
 
-::Copy lib to external folder
+::======================================================================================================
+::Copy Release lib to external folder
+xcopy lib\Release\assimp-vc142-mt.lib ..\assimp-lib /y
+xcopy lib\Release\zlibstatic.lib ..\assimp-lib /y
+xcopy lib\Release\IrrXML.lib ..\assimp-lib /y
+::Copy Debig lib to external folder
 xcopy lib\Debug\assimp-vc142-mtd.lib ..\assimp-lib /y
 xcopy lib\Debug\zlibstaticd.lib ..\assimp-lib /y
 xcopy lib\Debug\IrrXMLd.lib ..\assimp-lib /y
-
-::Clean Assimp.sln
-msbuild Assimp.sln /t:Clean /p:configuration=Debug /p:platform=x64
-::======================================================================================================
+::Copy pdb to external folder
+::xcopy code\Debug\assimp-vc142-mtd.pdb ..\assimp-lib /y
+::xcopy contrib\zlib\zlibstatic.dir\Debug\zlibstatic.pdb ..\assimp-lib /y
+::xcopy contrib\irrXML\irrXML.dir\Debug\IrrXML.pdb ..\assimp-lib /y
 ::Copy auto-generated config.h
 xcopy include\assimp\config.h ..\assimp-repo\include\assimp /y
+
+::======================================================================================================
+::Clean Assimp.sln
+msbuild Assimp.sln /t:Clean /p:configuration=Debug /p:platform=x64
+::Clean Assimp.sln
+msbuild Assimp.sln /t:Clean /p:configuration=Release /p:platform=x64
+
 ::======================================================================================================
 cd ..

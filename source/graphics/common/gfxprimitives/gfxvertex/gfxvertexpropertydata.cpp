@@ -25,15 +25,16 @@ u32 GfxVertexPropertyData::GetOffsetAfter() const
 
 u32 GfxVertexPropertyData::GetPropertySize() const
 {
-    return GfxVertexPropertyData::GetSizeOf(m_Type);
+    return GfxVertexProprtyHelper::GetSizeOf(m_Type);
 }
 
-constexpr u32 GfxVertexPropertyData::GetSizeOf(GfxVertexPropertyType type)
+//=================================================================================================
+constexpr u32 GfxVertexProprtyHelper::GetSizeOf(GfxVertexPropertyType type)
 {
-    return GfxVertexPropertyData::Bridge<SysSizeLookup>(type);
+    return GfxVertexProprtyHelper::Bridge<SysSizeLookup>(type);
 }
 
-constexpr const char* GfxVertexPropertyData::GetPropertyShortName(GfxVertexPropertyType type)
+constexpr const char* GfxVertexProprtyHelper::GetPropertyShortName(GfxVertexPropertyType type)
 {
-    return GfxVertexPropertyData::Bridge<ShortNameLookup>(type);
+    return GfxVertexProprtyHelper::Bridge<ShortNameLookup>(type);
 }

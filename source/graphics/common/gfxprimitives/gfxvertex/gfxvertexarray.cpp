@@ -1,10 +1,25 @@
 #include <graphics/precompile.h>
 #include <graphics/common/gfxprimitives/gfxvertex/gfxvertexarray.h>
 
+#include <extern/assimp/assimp-repo/include/assimp/mesh.h>
+
 GfxVertexArray::GfxVertexArray(const GfxVertexLayout& vertexLayout, u32 numOfElements)
     : m_Layout(vertexLayout)
 {
-    m_Buffer.resize(numOfElements * m_Layout.GetVertexSizeInBytes());
+    ResizeNumOfElements(numOfElements);
+}
+
+GfxVertexArray::GfxVertexArray(const GfxVertexLayout& vertexLayout, const aiMesh& externMesh)
+    : m_Layout(vertexLayout)
+{
+    ResizeNumOfElements(externMesh.mNumVertices);
+    for (u32 propertyIdx = 0; propertyIdx < m_Layout.GetNumOfPropeties(); ++propertyIdx)
+    {
+        for (u32 vertexIdx = 0; vertexIdx < GetNumOfElements(); ++vertexIdx)
+        {
+            (*this)[vertexIdx].SetPropertyByIndexFromContainer(propertyIdx, externMesh, vertexIdx);
+        }
+    }
 }
 
 u32 GfxVertexArray::GetNumOfElements() const
@@ -37,6 +52,15 @@ VertexView GfxVertexArray::Back()
     Byte* lastVertexBegin = m_Buffer.data() + m_Buffer.size() - m_Layout.GetVertexSizeInBytes();
     popAssert(lastVertexBegin >= m_Buffer.data(), "Vertex Ptr points behind the Buffer Ptr. This should never happen");
     return VertexView(lastVertexBegin, m_Layout);
+}
+
+void GfxVertexArray::ResizeNumOfElements(u32 newSize)
+{
+    const u32 currentSize = GetNumOfElements();
+    if (currentSize < newSize)
+    {
+        m_Buffer.resize(m_Layout.GetVertexSizeInBytes() * newSize);
+    }
 }
 
 bool GfxVertexArray::IsEmpty() const

@@ -2,10 +2,12 @@
 #include <graphics/common/gfxprimitives/gfxvertex/gfxvertexview.h>
 #include <graphics/common/gfxprimitives/gfxvertex/gfxvertexlayout.h>
 
+struct aiMesh;
 class GfxVertexArray
 {
 public:
     GfxVertexArray(const GfxVertexLayout& vertexLayout, u32 size = 0);
+    GfxVertexArray(const GfxVertexLayout& vertexLayout, const aiMesh& externMesh);
 
     const Byte* GetData() const { return m_Buffer.data(); }
     const GfxVertexLayout& GetVertexLayout() const { return m_Layout; }
@@ -16,6 +18,8 @@ public:
     VertexView operator[](u32 index);
     VertexView Front();
     VertexView Back();
+
+    void ResizeNumOfElements(u32 newSize);
 
     template<typename... Params>
     void EmplaceBack(Params&&... params);
