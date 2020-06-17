@@ -3,7 +3,9 @@
 class Mesh
 {
 public:
-    Mesh(const String& objPath, const GfxVertexLayout& vertexLayout);
+    Mesh(const GfxVertexLayout& vertexLayout, const aiMesh& externMesh);
+
 private:
-    Array<GfxVertexArray> m_VertexArray;
+    GfxVertexArray m_VertexArray;
+    Array<u32> m_IndexArray;
 };
